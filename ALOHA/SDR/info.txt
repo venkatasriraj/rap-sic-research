@@ -1,0 +1,15 @@
+file name     ------   experiment performed
+
+Tx_stream         --   in this flow-graph we tried to implement sdr based transmission; using stock blocks like PDU to Tageed stream and stream crc32
+
+Tx_wo_AGC         ---  in this flow-graph we designed custom PDU to stream blocks to overcome DSP stock blocks limitations; before transmission using SDR we haven't used Feed Forward AGC
+
+Rx_wo_Cust        ----  in this flow-graph we designed a Rx chain which used stock correlate access code to detect start of the frame
+
+Tx_initial         ----  in this flow-graph we experimented with stock blocks to transmit
+
+Rx_initial         ----  receiver chain for the above transmitter which used stock blocks instead of custom python embedded blocks
+
+Tx_SDR             ----- custom designed python blocks like packet generator and pdu to timed byte stream are designed and used to transmit using SDR
+
+Rx_SDR             -----  custom designed blocks like correlate access code(with crc) are used to receive using SDR.

@@ -1,0 +1,1292 @@
+options:
+  parameters:
+    author: venka
+    catch_exceptions: 'True'
+    category: '[GRC Hier Blocks]'
+    cmake_opt: ''
+    comment: ''
+    copyright: ''
+    description: ''
+    gen_cmake: 'On'
+    gen_linking: dynamic
+    generate_options: qt_gui
+    hier_block_src_path: '.:'
+    id: TX_1
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    run_options: prompt
+    sizing_mode: fixed
+    thread_safe_setters: ''
+    title: 1TX
+    window_size: (1000,1000)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 8]
+    rotation: 0
+    state: enabled
+
+blocks:
+- name: access_key
+  id: variable
+  parameters:
+    comment: ''
+    value: '''1010101010101010101010101010101011100001010110101110100010010011'''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [864, 108.0]
+    rotation: 0
+    state: enabled
+- name: bpsk
+  id: variable_constellation
+  parameters:
+    comment: ''
+    const_points: '[-1-1j, -1+1j, 1+1j, 1-1j]'
+    dims: '1'
+    normalization: digital.constellation.AMPLITUDE_NORMALIZATION
+    npwr: '1.0'
+    precision: '8'
+    rot_sym: '4'
+    soft_dec_lut: None
+    sym_map: '[0, 1, 3, 2]'
+    type: bpsk
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [496, 20.0]
+    rotation: 0
+    state: true
+- name: bw
+  id: variable
+  parameters:
+    comment: ''
+    value: (1+excess_bw)*(samp_rate//sps)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1376, 12.0]
+    rotation: 0
+    state: enabled
+- name: excess_bw
+  id: variable
+  parameters:
+    comment: ''
+    value: '0.35'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [496, 108.0]
+    rotation: 0
+    state: enabled
+- name: freq_offset
+  id: variable_qtgui_range
+  parameters:
+    comment: ''
+    gui_hint: ''
+    label: Frequency Offset
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: '-0.1'
+    step: '0.001'
+    stop: '0.1'
+    value: '0'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [352, 312.0]
+    rotation: 0
+    state: enabled
+- name: hdr_format
+  id: variable
+  parameters:
+    comment: header_format_default
+    value: digital.header_format_default(access_key, 0)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [864, 12.0]
+    rotation: 0
+    state: enabled
+- name: low_pass_filter_taps
+  id: variable_low_pass_filter_taps
+  parameters:
+    beta: '6.76'
+    comment: ''
+    cutoff_freq: (bw//2)+5e3
+    gain: '1.0'
+    samp_rate: samp_rate
+    value: ''
+    width: 10e3
+    win: window.WIN_HAMMING
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [680, 8.0]
+    rotation: 0
+    state: true
+- name: noise_volt
+  id: variable_qtgui_range
+  parameters:
+    comment: ''
+    gui_hint: ''
+    label: Noise Voltage
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: '0'
+    step: '0.01'
+    stop: '1'
+    value: '0.0'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [208, 312.0]
+    rotation: 0
+    state: enabled
+- name: rs_ratio
+  id: variable
+  parameters:
+    comment: ''
+    value: '1.0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [424, 92.0]
+    rotation: 0
+    state: true
+- name: samp_rate
+  id: variable
+  parameters:
+    comment: ''
+    value: '32000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [200, 12]
+    rotation: 0
+    state: enabled
+- name: samp_rate_0
+  id: variable_qtgui_chooser
+  parameters:
+    comment: ''
+    gui_hint: ''
+    label: Sample rate
+    label0: ''
+    label1: ''
+    label2: ''
+    label3: ''
+    label4: ''
+    labels: '[]'
+    num_opts: '2'
+    option0: '768000'
+    option1: '576000'
+    option2: '2'
+    option3: '3'
+    option4: '4'
+    options: '[0, 1, 2]'
+    orient: Qt.QVBoxLayout
+    type: int
+    value: '768000'
+    widget: combo_box
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [56, 312.0]
+    rotation: 0
+    state: true
+- name: sps
+  id: variable
+  parameters:
+    comment: ''
+    value: '4'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [424, 12.0]
+    rotation: 0
+    state: enabled
+- name: taps
+  id: variable
+  parameters:
+    comment: ''
+    value: '[1.0 + 0.0j, ]'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1088, 300.0]
+    rotation: 0
+    state: enabled
+- name: time_offset
+  id: variable_qtgui_range
+  parameters:
+    comment: ''
+    gui_hint: ''
+    label: Timing Offset
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: '0.999'
+    step: '0.0001'
+    stop: '1.001'
+    value: '1.000'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [528, 312.0]
+    rotation: 0
+    state: enabled
+- name: user_id1
+  id: variable
+  parameters:
+    comment: ''
+    value: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1256, 12.0]
+    rotation: 0
+    state: enabled
+- name: user_id2
+  id: variable
+  parameters:
+    comment: ''
+    value: '2'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1256, 92.0]
+    rotation: 0
+    state: enabled
+- name: usrp_rate
+  id: variable
+  parameters:
+    comment: ''
+    value: 32e3
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [208, 100.0]
+    rotation: 0
+    state: true
+- name: addr1
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: tcp
+    short_id: ''
+    type: str
+    value: tcp://127.0.0.1:49212
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [712, 300.0]
+    rotation: 0
+    state: enabled
+- name: addr2
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: tcp
+    short_id: ''
+    type: str
+    value: tcp://127.0.0.1:49213
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [896, 300.0]
+    rotation: 0
+    state: enabled
+- name: blocks_null_sink_0
+  id: blocks_null_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    bus_structure_sink: '[[0,],]'
+    comment: ''
+    num_inputs: '1'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [2352, 1040.0]
+    rotation: 0
+    state: enabled
+- name: blocks_repack_bits_bb_0_0
+  id: blocks_repack_bits_bb
+  parameters:
+    affinity: ''
+    alias: ''
+    align_output: 'False'
+    comment: MSB
+    endianness: gr.GR_MSB_FIRST
+    k: '8'
+    l: '1'
+    len_tag_key: '"packet_len"'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [192, 1036.0]
+    rotation: 0
+    state: true
+- name: blocks_tag_debug_0
+  id: blocks_tag_debug
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    display: 'True'
+    filter: '""'
+    name: tx1
+    num_inputs: '1'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [2296, 800.0]
+    rotation: 0
+    state: enabled
+- name: blocks_tagged_stream_multiply_length_0
+  id: blocks_tagged_stream_multiply_length
+  parameters:
+    affinity: ''
+    alias: ''
+    c: sps*8
+    comment: ''
+    lengthtagname: packet_len
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1400, 1040.0]
+    rotation: 0
+    state: enabled
+- name: blocks_tagged_stream_mux_0
+  id: blocks_tagged_stream_mux
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    lengthtagname: packet_len
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    ninputs: '2'
+    tag_preserve_head_pos: '0'
+    type: byte
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1208, 768.0]
+    rotation: 0
+    state: true
+- name: blocks_throttle2_0
+  id: blocks_throttle2
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    ignoretag: 'True'
+    limit: auto
+    maximum: '0.1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samples_per_second: samp_rate
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [2112, 1020.0]
+    rotation: 0
+    state: true
+- name: blocks_uchar_to_float_0_0_0_0
+  id: blocks_uchar_to_float
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [408, 1048.0]
+    rotation: 0
+    state: enabled
+- name: channels_channel_model_0
+  id: channels_channel_model
+  parameters:
+    affinity: ''
+    alias: ''
+    block_tags: 'True'
+    comment: ''
+    epsilon: time_offset
+    freq_offset: freq_offset
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    noise_voltage: noise_volt
+    seed: '0'
+    taps: taps
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [312, 1288.0]
+    rotation: 0
+    state: enabled
+- name: digital_constellation_modulator_0
+  id: digital_constellation_modulator
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    constellation: bpsk
+    differential: 'True'
+    excess_bw: excess_bw
+    log: 'False'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samples_per_symbol: sps
+    truncate: 'False'
+    verbose: 'False'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [264, 892.0]
+    rotation: 0
+    state: enabled
+- name: digital_crc32_bb_0
+  id: digital_crc32_bb
+  parameters:
+    affinity: ''
+    alias: ''
+    check: 'False'
+    comment: ''
+    lengthtagname: '"packet_len"'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    packed: 'True'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [616, 772.0]
+    rotation: 0
+    state: true
+- name: digital_protocol_formatter_bb_0
+  id: digital_protocol_formatter_bb
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    format: hdr_format
+    len_tag_key: '"packet_len"'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [904, 716.0]
+    rotation: 0
+    state: enabled
+- name: epy_block_1
+  id: epy_block
+  parameters:
+    _source_code: "#!/usr/bin/env python\nfrom gnuradio import gr\nimport numpy as\
+      \ np\nimport time\nimport csv\n\nclass iq_logger_with_timestamp(gr.sync_block):\n\
+      \    def __init__(self, iq_csv_filename=\"iq_samples.csv\"):\n        gr.sync_block.__init__(\n\
+      \            self,\n            name=\"iq_logger_with_timestamp\",\n       \
+      \     in_sig=[np.complex64],\n            out_sig=[np.complex64]\n        )\n\
+      \n        self.iq_csv_filename = iq_csv_filename\n        self.sample_count\
+      \ = 0\n\n        # Initialize CSV with header (same pattern as Random_Packet_Generator)\n\
+      \        with open(self.iq_csv_filename, 'w', newline='') as f:\n          \
+      \  writer = csv.writer(f)\n            writer.writerow([\n                'sample_index',\n\
+      \                'timestamp',\n                'num_samples',\n            \
+      \    'i_values',\n                'q_values'\n            ])\n\n    def work(self,\
+      \ input_items, output_items):\n        in0 = input_items[0]\n        out0 =\
+      \ output_items[0]\n\n        # Timestamp with millisecond precision (matches\
+      \ Random_Packet_Generator style)\n        timestamp = time.strftime('%Y-%m-%d\
+      \ %H:%M:%S') + \\\n                    f\".{int((time.time() % 1) * 1000):03d}\"\
+      \n\n        num_samples = len(in0)\n\n        # Split complex64 into separate\
+      \ I and Q lists\n        i_values = in0.real.tolist()\n        q_values = in0.imag.tolist()\n\
+      \n        # Append row to CSV\n        with open(self.iq_csv_filename, 'a',\
+      \ newline='') as f:\n            writer = csv.writer(f)\n            writer.writerow([\n\
+      \                self.sample_count,\n                timestamp,\n          \
+      \      num_samples,\n                i_values,\n                q_values\n \
+      \           ])\n\n        self.sample_count += num_samples\n\n        # Pass\
+      \ samples through unchanged\n        out0[:] = in0\n        return len(out0)\n\
+      \n    def stop(self):\n        print(f\"[IQ Logger] Finished. Total samples\
+      \ logged: {self.sample_count}\")\n        return True"
+    affinity: ''
+    alias: ''
+    comment: ''
+    iq_csv_filename: iq1_1
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    _io_cache: ('iq_logger_with_timestamp', 'iq_logger_with_timestamp', [('iq_csv_filename',
+      "'iq_samples.csv'")], [('0', 'complex', 1)], [('0', 'complex', 1)], '', ['iq_csv_filename'])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [528, 920.0]
+    rotation: 0
+    state: enabled
+- name: epy_block_2
+  id: epy_block
+  parameters:
+    _source_code: "import numpy as np\nfrom gnuradio import gr\nimport pmt\nimport\
+      \ random\nimport time\nimport threading\nimport csv\n\nclass Random_Packet_Generator(gr.basic_block):\n\
+      \    \"\"\"\n    Random Packet Generator with embedded userid and sequence number.\n\
+      \n    Packet payload layout:\n        [0:2]  \u2013 seq_num  : 2 bytes, big-endian\
+      \ uint16\n        [2:4]  \u2013 user_id  : 2 bytes, big-endian uint16  (0\u2013\
+      65535)\n        [4:]   \u2013 random data : fills the rest up to packet_size\
+      \ bytes\n\n    The PMT metadata dict carries:\n        'packet_num' \u2192 seq_num\
+      \  (used by Packet Header Generator block)\n        'user_id'    \u2192 user_id\
+      \  (informational)\n    \"\"\"\n\n    def __init__(self,\n                 mean_interval=0.1,\n\
+      \                 packet_size=100,\n                 user_id=1,\n          \
+      \       log_file=\"transmitted_packets.csv\", \n                 total_packets=10,\n\
+      \                 initial_delay=2.0): # 1. ADDED: initial_delay parameter\n\n\
+      \        gr.basic_block.__init__(self,\n            name=\"random_packet_generator\"\
+      ,\n            in_sig=None,\n            out_sig=None)\n\n        self.message_port_register_out(pmt.intern('pdu_out'))\n\
+      \n        # \u2500\u2500 Parameters \u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\n        self.mean_interval = mean_interval\n        self.packet_size\
+      \   = packet_size\n        self.user_id       = int(user_id) & 0xFFFF   # clamp\
+      \ to uint16\n        self.log_file      = log_file\n        self.total_packets\
+      \ = total_packets\n        self.initial_delay = initial_delay           # 2.\
+      \ ADDED: store delay attribute\n\n        self.packet_count  = 0\n\n       \
+      \ # Header overhead: seq(2) + user_id(2) = 4 bytes\n        if packet_size <=\
+      \ 4:\n            raise ValueError(\n                f\"packet_size ({packet_size})\
+      \ must be > 4 to fit the header\"\n            )\n\n        # \u2500\u2500 Init\
+      \ CSV log \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n        with open(self.log_file,\
+      \ 'w', newline='') as f:\n            writer = csv.writer(f)\n            writer.writerow([\n\
+      \                'packet_id', 'timestamp', 'user_id',\n                'wait_time_s',\
+      \ 'data_hex', 'data_bytes'\n            ])\n\n        # \u2500\u2500 Start generator\
+      \ thread \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n       \
+      \ self.thread = threading.Thread(target=self._generate_packets, daemon=True)\n\
+      \        self.thread.start()\n\n    # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\n    def _build_payload(self, seq: int)\
+      \ -> list:\n        \"\"\"\n        Assemble the byte payload:\n           \
+      \ [seq_hi, seq_lo, uid_hi, uid_lo, *random_bytes]\n        \"\"\"\n        header\
+      \ = [\n            (seq          >> 8) & 0xFF,   # seq high byte\n         \
+      \    seq                & 0xFF,   # seq low byte\n            (self.user_id\
+      \ >> 8) & 0xFF,   # user_id high byte\n             self.user_id       & 0xFF,\
+      \   # user_id low byte\n        ]\n        random_bytes = [random.randint(0,\
+      \ 255)\n                        for _ in range(self.packet_size - len(header))]\n\
+      \        return header + random_bytes\n\n    # \u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    def _generate_packets(self):\n\
+      \        seq = 0\n        \n        # 3. ADDED: Force a hard wait before starting\
+      \ the packet generation loop\n        print(f\"[Random_Packet_Generator TX{self.user_id}]\
+      \ Waiting {self.initial_delay}s for hardware warmup...\")\n        time.sleep(self.initial_delay)\n\
+      \        \n        # Keep the random stagger so multiple TX blocks don't start\
+      \ at the exact same millisecond\n        time.sleep(random.uniform(0, self.mean_interval))\n\
+      \        \n        while self.packet_count < self.total_packets:\n         \
+      \   wait_time = random.expovariate(1.0 / self.mean_interval)\n            time.sleep(wait_time)\n\
+      \n            data = self._build_payload(seq)\n\n            # \u2500\u2500\
+      \ Build PMT metadata dict \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n            meta = pmt.make_dict()\n\
+      \            meta = pmt.dict_add(meta,\n                                pmt.intern('packet_num'),\n\
+      \                                pmt.from_long(seq))             # Packet Header\
+      \ Generator\n            meta = pmt.dict_add(meta,\n                       \
+      \         pmt.intern('user_id'),\n                                pmt.from_long(self.user_id))\
+      \    # informational\n\n            # \u2500\u2500 Publish PDU \u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\n            pdu = pmt.cons(meta, pmt.init_u8vector(len(data), data))\n\
+      \            self.message_port_pub(pmt.intern('pdu_out'), pdu)\n\n         \
+      \   self.packet_count += 1\n            seq = (seq + 1) & 0xFFFF    # 16-bit\
+      \ rollover\n\n            # \u2500\u2500 CSV logging \u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \n            timestamp = (time.strftime('%Y-%m-%d %H:%M:%S') +\n          \
+      \               f\".{int((time.time() % 1) * 1000):03d}\")\n            data_hex\
+      \  = ' '.join(f'{b:02X}' for b in data)\n\n            with open(self.log_file,\
+      \ 'a', newline='') as f:\n                writer = csv.writer(f)\n         \
+      \       writer.writerow([\n                    self.packet_count,\n        \
+      \            timestamp,\n                    self.user_id,\n               \
+      \     f\"{wait_time:.4f}\",\n                    data_hex,\n               \
+      \     list(data)\n                ])\n\n            print(f\"[PKT {self.packet_count:03d}]\
+      \ user_id={self.user_id} \"\n                  f\"seq={seq - 1 & 0xFFFF:#06x}\
+      \ \"\n                  f\"after {wait_time:.3f}s | \"\n                  f\"\
+      first 4B: {data_hex.split()[:4]}\")"
+    affinity: ''
+    alias: ''
+    comment: ''
+    initial_delay: '3'
+    log_file: log_file1
+    maxoutbuf: '0'
+    mean_interval: '1.6'
+    minoutbuf: '0'
+    packet_size: '20'
+    total_packets: '3'
+    user_id: '1'
+  states:
+    _io_cache: "('random_packet_generator', 'Random_Packet_Generator', [('mean_interval',\
+      \ '0.1'), ('packet_size', '100'), ('user_id', '1'), ('log_file', \"'transmitted_packets.csv'\"\
+      ), ('total_packets', '10'), ('initial_delay', '2.0')], [], [('pdu_out', 'message',\
+      \ 1)], \"\\n    Random Packet Generator with embedded userid and sequence number.\\\
+      n\\n    Packet payload layout:\\n        [0:2]  \u2013 seq_num  : 2 bytes, big-endian\
+      \ uint16\\n        [2:4]  \u2013 user_id  : 2 bytes, big-endian uint16  (0\u2013\
+      65535)\\n        [4:]   \u2013 random data : fills the rest up to packet_size\
+      \ bytes\\n\\n    The PMT metadata dict carries:\\n        'packet_num' \u2192\
+      \ seq_num  (used by Packet Header Generator block)\\n        'user_id'    \u2192\
+      \ user_id  (informational)\\n    \", ['initial_delay', 'log_file', 'mean_interval',\
+      \ 'packet_size', 'total_packets', 'user_id'])"
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [48, 696.0]
+    rotation: 0
+    state: enabled
+- name: epy_block_3_0
+  id: epy_block
+  parameters:
+    _source_code: "import numpy as np\nfrom gnuradio import gr\nimport pmt\nimport\
+      \ time\n\nclass blk(gr.sync_block):\n    def __init__(self, user_id=0, samp_rate=48000):\n\
+      \        gr.sync_block.__init__(\n            self,\n            name=\"seq_tagger\"\
+      ,\n            in_sig=[np.complex64],\n            out_sig=[np.complex64]\n\
+      \        )\n        self.samp_rate       = samp_rate\n        self.last_tag_offset\
+      \ = None\n        self.set_tag_propagation_policy(gr.TPP_ALL_TO_ALL)\n\n   \
+      \ def work(self, input_items, output_items):\n        inp = input_items[0]\n\
+      \        out = output_items[0]\n        out[:] = inp\n\n        tags = self.get_tags_in_window(\n\
+      \            0, 0, len(inp),\n            pmt.intern(\"packet_len\")\n     \
+      \   )\n\n        for tag in tags:\n            offset = tag.offset\n\n     \
+      \       if self.last_tag_offset is not None:\n                measured = offset\
+      \ - self.last_tag_offset\n                # print(f\"Measured packet_samples\
+      \ = {measured}\")\n\n            self.last_tag_offset = offset\n\n         \
+      \   now = time.time()\n            self.add_item_tag(\n                0, offset,\n\
+      \                pmt.intern(\"rx_time\"),\n                pmt.from_double(now)\n\
+      \            )\n            print(f\"[seq_tagger] PKT offset={offset} rx_time={now:.6f}\"\
+      )\n\n        return len(inp)"
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_rate: usrp_rate
+    user_id: user_id1
+  states:
+    _io_cache: ('seq_tagger', 'blk', [('user_id', '0'), ('samp_rate', '48000')], [('0',
+      'complex', 1)], [('0', 'complex', 1)], '', ['samp_rate'])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1272, 944.0]
+    rotation: 0
+    state: enabled
+- name: epy_block_7
+  id: epy_block
+  parameters:
+    _source_code: "import numpy as np\nfrom gnuradio import gr\nimport pmt\nimport\
+      \ queue\nimport time\n\nclass blk(gr.basic_block):\n    def __init__(self):\n\
+      \        gr.basic_block.__init__(\n            self,\n            name=\"PDU\
+      \ Passthrough (Verified)\",\n            in_sig=[],\n            out_sig=[np.complex64],\n\
+      \        )\n        self.message_port_register_in(pmt.intern(\"burst_in\"))\n\
+      \        self.set_msg_handler(pmt.intern(\"burst_in\"), self._handle_pdu)\n\n\
+      \        self._queue = queue.Queue()\n        self._burst = None\n        self._offset\
+      \ = 0\n        self._packet_count = 0  # To verify arrival count\n\n    def\
+      \ _handle_pdu(self, msg):\n        try:\n            # Extract samples from\
+      \ PDU\n            samples = np.array(\n                pmt.c32vector_elements(pmt.cdr(msg)),\n\
+      \                dtype=np.complex64,\n            )\n            self._packet_count\
+      \ += 1\n            self._queue.put(samples)\n            \n            # Detailed\
+      \ Verification Log\n            print(f\"[VERIFY] Packet #{self._packet_count}\
+      \ received at {time.strftime('%H:%M:%S')}\")\n            print(f\"        Size:\
+      \ {len(samples)} samples\")\n        except Exception as e:\n            print(f\"\
+      [ERROR] PDU handling failed: {e}\")\n\n    def _try_load(self):\n        if\
+      \ self._burst is not None:\n            return\n        try:\n            self._burst\
+      \ = self._queue.get_nowait()\n            self._offset = 0\n        except queue.Empty:\n\
+      \            pass \n\n    def general_work(self, input_items, output_items):\n\
+      \        out = output_items[0]\n        n_out = len(out)\n        self._try_load()\n\
+      \n        if self._burst is None:\n            # Idle state: Send zeros. \n\
+      \            # Note: This is necessary for RF interference (Summing)\n     \
+      \       out[:] = np.complex64(0)\n            return n_out\n\n        remaining\
+      \ = len(self._burst) - self._offset\n        take = min(n_out, remaining)\n\n\
+      \        out[:take] = self._burst[self._offset : self._offset + take]\n\n  \
+      \      if take < n_out:\n            # Fill the rest of the buffer with zeros\
+      \ if burst ends\n            out[take:] = np.complex64(0)\n\n        self._offset\
+      \ += take\n        if self._offset >= len(self._burst):\n            print(f\"\
+      [VERIFY] Packet #{self._packet_count} output complete.\")\n            self._burst\
+      \ = None\n            self._offset = 0\n\n        return n_out"
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    _io_cache: ('PDU Passthrough (Verified)', 'blk', [], [('burst_in', 'message',
+      1)], [('0', 'complex', 1)], '', [])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1872, 960.0]
+    rotation: 0
+    state: enabled
+- name: fft_filter_xxx_0_0_0
+  id: fft_filter_xxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    decim: '1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    nthreads: '1'
+    samp_delay: '0'
+    taps: low_pass_filter_taps
+    type: ccc
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [784, 904.0]
+    rotation: 0
+    state: true
+- name: iq1_1
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: File Name
+    short_id: ''
+    type: str
+    value: iq_samplesTX1.csv
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1080, 12.0]
+    rotation: 0
+    state: true
+- name: iq1_2
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: File Name
+    short_id: ''
+    type: str
+    value: iq_badd1.csv
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1504, 12.0]
+    rotation: 0
+    state: true
+- name: iq2_1
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: File Name
+    short_id: ''
+    type: str
+    value: iq_samplesTX2.csv
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1080, 124.0]
+    rotation: 0
+    state: true
+- name: iq2_2
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: File Name
+    short_id: ''
+    type: str
+    value: iq_badd2.csv
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1504, 108.0]
+    rotation: 0
+    state: true
+- name: iq_add
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: File Name
+    short_id: ''
+    type: str
+    value: iq_Aadd.csv
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1656, 12.0]
+    rotation: 0
+    state: true
+- name: log_file1
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: File Name
+    short_id: ''
+    type: str
+    value: data_tx1.csv
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1928, 12.0]
+    rotation: 0
+    state: true
+- name: log_file2
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: File Name
+    short_id: ''
+    type: str
+    value: data_tx2.csv
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1936, 108.0]
+    rotation: 0
+    state: true
+- name: mmse_resampler_xx_0_0_0
+  id: mmse_resampler_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    phase_shift: '0'
+    resamp_ratio: 1.0  / ( ( usrp_rate / samp_rate ) * rs_ratio )
+    type: complex
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1032, 928.0]
+    rotation: 0
+    state: enabled
+- name: pdu_pdu_to_tagged_stream_0
+  id: pdu_pdu_to_tagged_stream
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    tag: packet_len
+    type: byte
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [344, 736.0]
+    rotation: 0
+    state: enabled
+- name: pdu_tagged_stream_to_pdu_0
+  id: pdu_tagged_stream_to_pdu
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    tag: packet_len
+    type: complex
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1592, 952.0]
+    rotation: 0
+    state: enabled
+- name: qtgui_time_sink_x_0
+  id: qtgui_time_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'False'
+    axislabels: 'True'
+    color1: blue
+    color10: dark blue
+    color2: red
+    color3: green
+    color4: black
+    color5: cyan
+    color6: magenta
+    color7: yellow
+    color8: dark red
+    color9: dark green
+    comment: 1,0,1,3
+    ctrlpanel: 'False'
+    entags: 'True'
+    grid: 'False'
+    gui_hint: 1,0,1,3
+    label1: ''
+    label10: ''
+    label2: ''
+    label3: ''
+    label4: ''
+    label5: ''
+    label6: ''
+    label7: ''
+    label8: ''
+    label9: ''
+    legend: 'True'
+    marker1: '-1'
+    marker10: '-1'
+    marker2: '-1'
+    marker3: '-1'
+    marker4: '-1'
+    marker5: '-1'
+    marker6: '-1'
+    marker7: '-1'
+    marker8: '-1'
+    marker9: '-1'
+    name: Transmit data 1
+    nconnections: '1'
+    size: '256'
+    srate: samp_rate
+    stemplot: 'False'
+    style1: '1'
+    style10: '1'
+    style2: '1'
+    style3: '1'
+    style4: '1'
+    style5: '1'
+    style6: '1'
+    style7: '1'
+    style8: '1'
+    style9: '1'
+    tr_chan: '0'
+    tr_delay: '0.0'
+    tr_level: '0.1'
+    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_slope: qtgui.TRIG_SLOPE_POS
+    tr_tag: '"packet_len"'
+    type: float
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    ylabel: Amplitude
+    ymax: '1.1'
+    ymin: '-0.1'
+    yunit: '""'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [616, 1020.0]
+    rotation: 0
+    state: enabled
+- name: qtgui_time_sink_x_1
+  id: qtgui_time_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'False'
+    axislabels: 'True'
+    color1: blue
+    color10: dark blue
+    color2: red
+    color3: green
+    color4: black
+    color5: cyan
+    color6: magenta
+    color7: yellow
+    color8: dark red
+    color9: dark green
+    comment: ''
+    ctrlpanel: 'False'
+    entags: 'True'
+    grid: 'False'
+    gui_hint: ''
+    label1: Signal 1
+    label10: Signal 10
+    label2: Signal 2
+    label3: Signal 3
+    label4: Signal 4
+    label5: Signal 5
+    label6: Signal 6
+    label7: Signal 7
+    label8: Signal 8
+    label9: Signal 9
+    legend: 'True'
+    marker1: '-1'
+    marker10: '-1'
+    marker2: '-1'
+    marker3: '-1'
+    marker4: '-1'
+    marker5: '-1'
+    marker6: '-1'
+    marker7: '-1'
+    marker8: '-1'
+    marker9: '-1'
+    name: iq samples post pdu
+    nconnections: '2'
+    size: '1024'
+    srate: samp_rate
+    stemplot: 'False'
+    style1: '1'
+    style10: '1'
+    style2: '1'
+    style3: '1'
+    style4: '1'
+    style5: '1'
+    style6: '1'
+    style7: '1'
+    style8: '1'
+    style9: '1'
+    tr_chan: '0'
+    tr_delay: '0'
+    tr_level: '0.0'
+    tr_mode: qtgui.TRIG_MODE_TAG
+    tr_slope: qtgui.TRIG_SLOPE_POS
+    tr_tag: packet_len
+    type: complex
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    ylabel: Amplitude
+    ymax: '1'
+    ymin: '-1'
+    yunit: '""'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1904, 768.0]
+    rotation: 0
+    state: enabled
+- name: virtual_sink_0_0
+  id: virtual_sink
+  parameters:
+    alias: ''
+    comment: ''
+    stream_id: t1
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1456, 776.0]
+    rotation: 0
+    state: true
+- name: virtual_sink_0_1_0
+  id: virtual_sink
+  parameters:
+    alias: ''
+    comment: ''
+    stream_id: f_samp1
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [2344, 952.0]
+    rotation: 0
+    state: enabled
+- name: virtual_source_0
+  id: virtual_source
+  parameters:
+    alias: ''
+    comment: ''
+    stream_id: t1
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [56, 920.0]
+    rotation: 0
+    state: true
+- name: zeromq_pub_sink_0
+  id: zeromq_pub_sink
+  parameters:
+    address: tcp://127.0.0.1:49201
+    affinity: ''
+    alias: ''
+    bind: 'False'
+    comment: ''
+    drop_on_hwm: 'True'
+    hwm: '-1'
+    key: ''
+    pass_tags: 'False'
+    timeout: '100'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [560, 1288.0]
+    rotation: 0
+    state: true
+- name: zeromq_sub_source_0
+  id: zeromq_sub_source
+  parameters:
+    address: tcp://127.0.0.1:49203
+    affinity: ''
+    alias: ''
+    bind: 'False'
+    comment: ''
+    hwm: '-1'
+    key: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    pass_tags: 'False'
+    timeout: '100'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [56, 1288.0]
+    rotation: 0
+    state: enabled
+
+connections:
+- [blocks_repack_bits_bb_0_0, '0', blocks_uchar_to_float_0_0_0_0, '0']
+- [blocks_tagged_stream_multiply_length_0, '0', pdu_tagged_stream_to_pdu_0, '0']
+- [blocks_tagged_stream_mux_0, '0', virtual_sink_0_0, '0']
+- [blocks_throttle2_0, '0', blocks_null_sink_0, '0']
+- [blocks_uchar_to_float_0_0_0_0, '0', qtgui_time_sink_x_0, '0']
+- [channels_channel_model_0, '0', zeromq_pub_sink_0, '0']
+- [digital_constellation_modulator_0, '0', epy_block_1, '0']
+- [digital_crc32_bb_0, '0', blocks_tagged_stream_mux_0, '1']
+- [digital_crc32_bb_0, '0', digital_protocol_formatter_bb_0, '0']
+- [digital_protocol_formatter_bb_0, '0', blocks_tagged_stream_mux_0, '0']
+- [epy_block_1, '0', fft_filter_xxx_0_0_0, '0']
+- [epy_block_2, pdu_out, pdu_pdu_to_tagged_stream_0, pdus]
+- [epy_block_3_0, '0', blocks_tagged_stream_multiply_length_0, '0']
+- [epy_block_3_0, '0', qtgui_time_sink_x_1, '1']
+- [epy_block_7, '0', blocks_tag_debug_0, '0']
+- [epy_block_7, '0', blocks_throttle2_0, '0']
+- [epy_block_7, '0', qtgui_time_sink_x_1, '0']
+- [epy_block_7, '0', virtual_sink_0_1_0, '0']
+- [fft_filter_xxx_0_0_0, '0', mmse_resampler_xx_0_0_0, '0']
+- [mmse_resampler_xx_0_0_0, '0', epy_block_3_0, '0']
+- [pdu_pdu_to_tagged_stream_0, '0', digital_crc32_bb_0, '0']
+- [pdu_tagged_stream_to_pdu_0, pdus, epy_block_7, burst_in]
+- [virtual_source_0, '0', blocks_repack_bits_bb_0_0, '0']
+- [virtual_source_0, '0', digital_constellation_modulator_0, '0']
+- [zeromq_sub_source_0, '0', channels_channel_model_0, '0']
+
+metadata:
+  file_format: 1
+  grc_version: 3.10.12.0

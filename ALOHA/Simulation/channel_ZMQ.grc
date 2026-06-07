@@ -1,0 +1,487 @@
+options:
+  parameters:
+    author: Barry Duggan
+    catch_exceptions: 'True'
+    category: '[GRC Hier Blocks]'
+    cmake_opt: ''
+    comment: ''
+    copyright: ''
+    description: TX / RX loopback
+    gen_cmake: 'On'
+    gen_linking: dynamic
+    generate_options: qt_gui
+    hier_block_src_path: '.:'
+    id: chan_loopback
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    run_options: prompt
+    sizing_mode: fixed
+    thread_safe_setters: ''
+    title: chan_loopback
+    window_size: (1000,1000)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [16, 12.0]
+    rotation: 0
+    state: enabled
+
+blocks:
+- name: freq_offset
+  id: variable_qtgui_range
+  parameters:
+    comment: ''
+    gui_hint: ''
+    label: Frequency Offset
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: '-0.1'
+    step: '0.001'
+    stop: '0.1'
+    value: '0'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [456, 12.0]
+    rotation: 0
+    state: enabled
+- name: noise_volt
+  id: variable_qtgui_range
+  parameters:
+    comment: ''
+    gui_hint: ''
+    label: Noise Voltage
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: '0'
+    step: '0.01'
+    stop: '1'
+    value: '0.0'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [328, 12.0]
+    rotation: 0
+    state: enabled
+- name: samp_rate
+  id: variable_qtgui_chooser
+  parameters:
+    comment: ''
+    gui_hint: ''
+    label: Sample rate
+    label0: ''
+    label1: ''
+    label2: ''
+    label3: ''
+    label4: ''
+    labels: '[]'
+    num_opts: '2'
+    option0: '768000'
+    option1: '576000'
+    option2: '2'
+    option3: '3'
+    option4: '4'
+    options: '[0, 1, 2]'
+    orient: Qt.QVBoxLayout
+    type: int
+    value: '768000'
+    widget: combo_box
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [192, 12.0]
+    rotation: 0
+    state: true
+- name: taps
+  id: variable
+  parameters:
+    comment: ''
+    value: '[1.0 + 0.0j, ]'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [728, 12.0]
+    rotation: 0
+    state: enabled
+- name: time_offset
+  id: variable_qtgui_range
+  parameters:
+    comment: ''
+    gui_hint: ''
+    label: Timing Offset
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: '0.999'
+    step: '0.0001'
+    stop: '1.001'
+    value: '1.000'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [600, 12.0]
+    rotation: 0
+    state: enabled
+- name: addr1
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: tcp
+    short_id: ''
+    type: str
+    value: tcp://127.0.0.1:49212
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [816, 12.0]
+    rotation: 0
+    state: enabled
+- name: addr2
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: tcp
+    short_id: ''
+    type: str
+    value: tcp://127.0.0.1:49213
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1000, 12.0]
+    rotation: 0
+    state: enabled
+- name: blocks_throttle2_0
+  id: blocks_throttle2
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    ignoretag: 'True'
+    limit: auto
+    maximum: '0.1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samples_per_second: samp_rate
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [520, 408.0]
+    rotation: 0
+    state: true
+- name: channels_channel_model_0
+  id: channels_channel_model
+  parameters:
+    affinity: ''
+    alias: ''
+    block_tags: 'True'
+    comment: ''
+    epsilon: time_offset
+    freq_offset: freq_offset
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    noise_voltage: noise_volt
+    seed: '0'
+    taps: taps
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [272, 384.0]
+    rotation: 0
+    state: enabled
+- name: epy_block_0
+  id: epy_block
+  parameters:
+    _source_code: "\"\"\"\nepy_slot_combiner.py\n====================\nEmbedded Python\
+      \ Block \u2014 ALOHA Slot Combiner (Source Block)\n\nPurpose\n-------\nSimulates\
+      \ the physical superposition of RF signals from multiple users\nin an ALOHA\
+      \ channel. Pulls IQ samples from N ZMQ PUSH/PULL sockets,\ndetects which users\
+      \ are transmitting in the same slot, and either:\n  \u2022 ADDs their samples\
+      \ (collision \u2014 both transmit same slot)\n  \u2022 PASSES a single user's\
+      \ samples (no collision)\n  \u2022 OUTPUTS ZEROS (silence \u2014 nobody transmitting)\n\
+      \nWhy a source block (0 stream inputs)?\n---------------------------------------\n\
+      GNU Radio sync_blocks require all input streams to produce samples\nat the same\
+      \ rate. ZMQ PULL blocks only produce output when a message\narrives \u2014 if\
+      \ User2 is silent, its PULL block stalls, which stalls\nthe Add block, which\
+      \ stalls everything. By handling ZMQ directly\ninside this block we escape that\
+      \ synchronisation problem entirely.\n\nPort assignments (match pkt_xmt_tc_pull.grc\
+      \ ZMQ PUSH Sinks):\n  User 1 \u2192 tcp://127.0.0.1:49212   (PUSH connects here)\n\
+      \  User 2 \u2192 tcp://127.0.0.1:49213   (PUSH connects here)\n\nAdd more users\
+      \ by extending ADDRESSES list and rebuilding.\n\nSlot timing\n-----------\n\
+      packet_samples = 34 079   \u2190 from seq_tagger block in pkt_xmt\n  = Packet_Samples\
+      \ value shown in GRC\n\nslot_timeout_ms controls how long we wait for a second\
+      \ user before\ndeciding the slot belongs to only one user (no collision).\n\
+      Set it to roughly one packet duration:\n  34 079 samples / 768 000 sps \u2248\
+      \ 44 ms  \u2192 use 50 ms default\n\"\"\"\n\nimport numpy as np\nfrom gnuradio\
+      \ import gr\nimport zmq\nimport threading\nimport queue\nimport time\n\n\n#\
+      \ \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\n#  Configuration \u2014 edit these to\
+      \ match your GRC\n# \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nADDRESSES = [\n    \"\
+      tcp://127.0.0.1:49212\",   # User 1\n    \"tcp://127.0.0.1:49213\",   # User\
+      \ 2\n]\nPACKET_SAMPLES  = 34079   # must match seq_tagger \u2192 Packet_Samples\n\
+      SLOT_TIMEOUT_MS = 50      # wait time before declaring no-collision\nZMQ_RECV_MS\
+      \     = 5       # poll timeout per socket (keep small)\n\n\nclass blk(gr.sync_block):\n\
+      \    \"\"\"ALOHA Slot Combiner \u2014 source block, 0 inputs, 1 complex output.\"\
+      \"\"\n\n    def __init__(self,\n                 addr1=ADDRESSES[0],\n     \
+      \            addr2=ADDRESSES[1],\n                 packet_samples=PACKET_SAMPLES,\n\
+      \                 slot_timeout_ms=SLOT_TIMEOUT_MS):\n\n        gr.sync_block.__init__(\n\
+      \            self,\n            name=\"ALOHA Slot Combiner\",\n            in_sig=None,\
+      \                   # SOURCE \u2014 no stream inputs\n            out_sig=[np.complex64]\n\
+      \        )\n\n        self.packet_samples   = packet_samples\n        self.slot_timeout_ms\
+      \  = slot_timeout_ms\n        self.addresses        = [addr1, addr2]\n     \
+      \   self.num_users        = len(self.addresses)\n\n        # \u2500\u2500 ZMQ\
+      \ setup \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n \
+      \       self.ctx     = zmq.Context()\n        self.ctx.setsockopt(zmq.LINGER,\
+      \ 0) \n        self.sockets = []\n        self.poller  = zmq.Poller()\n\n  \
+      \      for addr in self.addresses:\n            sock = self.ctx.socket(zmq.PULL)\n\
+      \            sock.setsockopt(zmq.LINGER, 0)\n            sock.set(zmq.RCVTIMEO,\
+      \ ZMQ_RECV_MS)\n            sock.bind(addr)               # TX side does PUSH\
+      \ + connect\n            self.poller.register(sock, zmq.POLLIN)\n          \
+      \  self.sockets.append(sock)\n            print(f\"[SlotCombiner] Bound ZMQ\
+      \ PULL to {addr}\")\n\n        # \u2500\u2500 Per-user raw-byte buffers (accumulate\
+      \ partial recv chunks) \u2500\u2500\n        self._raw_buf = [b\"\" for _ in\
+      \ range(self.num_users)]\n\n        # \u2500\u2500 Slot store: slot_num \u2192\
+      \ {user_idx: np.array} \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\n        #    Once all expected users'\
+      \ packets arrive (or timeout), the\n        #    slot is flushed to output_queue.\n\
+      \        self._slots      = {}          # slot_num \u2192 {uid: samples}\n \
+      \       self._slot_times = {}          # slot_num \u2192 first-arrival time\n\
+      \n        # \u2500\u2500 Output queue fed to GNU Radio work() \u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\n        self._out_q  = queue.Queue()\n\
+      \        self._out_buf = np.array([], dtype=np.complex64)\n\n        # \u2500\
+      \u2500 Background receiver thread \u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\n        self._running = True\n        self._thread  = threading.Thread(target=self._receiver_loop,\n\
+      \                                         daemon=True)\n        self._thread.start()\n\
+      \n    # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\n    #  Background thread \u2014 receives from ZMQ, assembles packets,\
+      \ decides\n    # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\n    def _receiver_loop(self):\n        while self._running:\n\
+      \            # Poll all sockets with a short timeout\n            ready = dict(self.poller.poll(ZMQ_RECV_MS))\n\
+      \n            for uid, sock in enumerate(self.sockets):\n                if\
+      \ sock not in ready:\n                    continue\n                try:\n \
+      \                   raw = sock.recv()\n                except zmq.Again:\n \
+      \                   continue\n\n                self._raw_buf[uid] += raw\n\n\
+      \                # Drain complete packets from raw buffer\n                while\
+      \ len(self._raw_buf[uid]) >= self.packet_samples * 8:\n                    chunk_bytes\
+      \ = self._raw_buf[uid][:self.packet_samples * 8]\n                    self._raw_buf[uid]\
+      \ = self._raw_buf[uid][self.packet_samples * 8:]\n                    samples\
+      \ = np.frombuffer(chunk_bytes, dtype=np.complex64).copy()\n                \
+      \    self._store_packet(uid, samples)\n\n            # Check for timed-out slots\
+      \ (only one user transmitted)\n            self._flush_timed_out_slots()\n\n\
+      \    def _store_packet(self, uid, samples):\n        \"\"\"Store a complete\
+      \ packet; flush slot if all users present.\"\"\"\n        # Use a simple incrementing\
+      \ slot counter per user\n        # We key slots by a tuple approach: find the\
+      \ next open slot for uid\n        slot_num = self._find_or_create_slot(uid)\n\
+      \n        self._slots[slot_num][uid] = samples\n        if slot_num not in self._slot_times:\n\
+      \            self._slot_times[slot_num] = time.time()\n\n        print(f\"[SlotCombiner]\
+      \ Slot {slot_num}: User {uid+1} packet stored \"\n              f\"({len(samples)}\
+      \ samples)\")\n\n        # If all users have contributed to this slot \u2192\
+      \ output immediately\n        if len(self._slots[slot_num]) == self.num_users:\n\
+      \            self._flush_slot(slot_num, reason=\"COLLISION\")\n\n    def _find_or_create_slot(self,\
+      \ uid):\n        \"\"\"Return the earliest open slot_num that doesn't have uid\
+      \ yet.\"\"\"\n        for snum in sorted(self._slots.keys()):\n            if\
+      \ uid not in self._slots[snum]:\n                return snum\n        # No open\
+      \ slot \u2014 create a new one\n        new_num = max(self._slots.keys(), default=-1)\
+      \ + 1\n        self._slots[new_num] = {}\n        return new_num\n\n    def\
+      \ _flush_timed_out_slots(self):\n        \"\"\"Flush slots that have been waiting\
+      \ longer than slot_timeout_ms.\"\"\"\n        now = time.time()\n        timeout_s\
+      \ = self.slot_timeout_ms / 1000.0\n\n        for snum in list(self._slots.keys()):\n\
+      \            age = now - self._slot_times.get(snum, now)\n            if age\
+      \ >= timeout_s:\n                self._flush_slot(snum, reason=\"NO COLLISION\
+      \ (timeout)\")\n\n    def _flush_slot(self, slot_num, reason=\"\"):\n      \
+      \  \"\"\"Combine available user samples and push to output queue.\"\"\"\n  \
+      \      packets = self._slots.pop(slot_num, {})\n        self._slot_times.pop(slot_num,\
+      \ None)\n\n        if not packets:\n            return\n\n        # Add all\
+      \ available user signals (superposition)\n        combined = np.zeros(self.packet_samples,\
+      \ dtype=np.complex64)\n        for uid, samples in packets.items():\n      \
+      \      # Pad or trim to exact packet_samples length\n            n = min(len(samples),\
+      \ self.packet_samples)\n            combined[:n] += samples[:n]\n\n        users_present\
+      \ = [uid + 1 for uid in packets.keys()]\n        print(f\"[SlotCombiner] Slot\
+      \ {slot_num} \u2192 {reason} | \"\n              f\"Users: {users_present} |\
+      \ Output: {len(combined)} samples\")\n\n        self._out_q.put(combined)\n\n\
+      \    # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\n    #  GNU Radio work() \u2014 feeds output_queue to the stream\n\
+      \    # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\n    def work(self, input_items, output_items):\n        out =\
+      \ output_items[0]\n        n_wanted = len(out)\n\n        # Refill internal\
+      \ output buffer from queue\n        while len(self._out_buf) < n_wanted:\n \
+      \           try:\n                chunk = self._out_q.get_nowait()\n       \
+      \         self._out_buf = np.concatenate([self._out_buf, chunk])\n         \
+      \   except queue.Empty:\n                break\n\n        if len(self._out_buf)\
+      \ == 0:\n            # Nothing ready \u2014 output silence (zeros) to keep stream\
+      \ alive\n            out[:] = np.zeros(n_wanted, dtype=np.complex64)\n     \
+      \       return n_wanted\n\n        # Copy as many samples as we have\n     \
+      \   n_out = min(n_wanted, len(self._out_buf))\n        out[:n_out] = self._out_buf[:n_out]\n\
+      \        self._out_buf = self._out_buf[n_out:]\n\n        # Pad remainder with\
+      \ zeros if needed\n        if n_out < n_wanted:\n            out[n_out:] = 0\n\
+      \n        return n_wanted\n\n    # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\n    #  Cleanup\n    # \u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n \
+      \   def stop(self):\n        self._running = False\n        self._thread.join(timeout=1.0)\n\
+      \        self.poller.unregister(sock)   # unregister first\n        for sock\
+      \ in self.sockets:\n            sock.setsockopt(zmq.LINGER, 0)  # force zero\
+      \ linger at close time too\n            sock.close()\n        self.ctx.destroy(linger=0)\
+      \  #  self.ctx.term() # use destroy() not term()\n        return True\n    \n\
+      \n    \"\"\"\n    here you said we are creating a buffer for each user\n   \
+      \   but what if we have single buffer for all users and listen to multiple users\
+      \ at same \n      time add the corresponding chunks from each user if they are\
+      \ collided and pass it to \n      the channel instead of packet we will be adding\
+      \ chunk by chunk doesn't it work similar \n      to aloha\"\"\""
+    addr1: '''tcp://127.0.0.1:49212'''
+    addr2: '''tcp://127.0.0.1:49213'''
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    packet_samples: ''
+    slot_timeout_ms: ''
+  states:
+    _io_cache: "('ALOHA Slot Combiner', 'blk', [('addr1', \"'tcp://127.0.0.1:49212'\"\
+      ), ('addr2', \"'tcp://127.0.0.1:49213'\"), ('packet_samples', '34079'), ('slot_timeout_ms',\
+      \ '50')], [], [('0', 'complex', 1)], 'ALOHA Slot Combiner \u2014 source block,\
+      \ 0 inputs, 1 complex output.', ['packet_samples', 'slot_timeout_ms'])"
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [24, 260.0]
+    rotation: 0
+    state: disabled
+- name: zeromq_pub_sink_0
+  id: zeromq_pub_sink
+  parameters:
+    address: tcp://127.0.0.1:49201
+    affinity: ''
+    alias: ''
+    bind: 'False'
+    comment: ''
+    drop_on_hwm: 'True'
+    hwm: '-1'
+    key: ''
+    pass_tags: 'False'
+    timeout: '100'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [800, 384.0]
+    rotation: 0
+    state: true
+- name: zeromq_pull_source_0
+  id: zeromq_pull_source
+  parameters:
+    address: tcp://127.0.0.1:49203
+    affinity: ''
+    alias: ''
+    bind: 'True'
+    comment: ''
+    hwm: '-1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    pass_tags: 'False'
+    timeout: '100'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [24, 532.0]
+    rotation: 0
+    state: disabled
+- name: zeromq_sub_source_0
+  id: zeromq_sub_source
+  parameters:
+    address: tcp://127.0.0.1:49203
+    affinity: ''
+    alias: ''
+    bind: 'False'
+    comment: ''
+    hwm: '-1'
+    key: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    pass_tags: 'False'
+    timeout: '100'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [24, 384.0]
+    rotation: 0
+    state: enabled
+
+connections:
+- [blocks_throttle2_0, '0', zeromq_pub_sink_0, '0']
+- [channels_channel_model_0, '0', blocks_throttle2_0, '0']
+- [epy_block_0, '0', channels_channel_model_0, '0']
+- [zeromq_pull_source_0, '0', channels_channel_model_0, '0']
+- [zeromq_sub_source_0, '0', channels_channel_model_0, '0']
+
+metadata:
+  file_format: 1
+  grc_version: 3.10.12.0

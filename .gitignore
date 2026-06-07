@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+.env/
+
+# GNU Radio generated python files
+*_epy_block_*.py
+
+# Build files
+build/
+dist/
+
+# IDE
+.vscode/
+.idea/
+
+# Linux
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Results
+results/
+
+# CSV files
+*.csv
+*.docx
+*.xlsx
+
+# Temporary files
+*.tmp
+*.bak
+
+# MATLAB files (optional)
+*.mat
+
+# Binary captures
+*.dat
+*.bin

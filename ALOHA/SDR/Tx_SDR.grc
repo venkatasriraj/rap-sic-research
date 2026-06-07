@@ -1,0 +1,1538 @@
+options:
+  parameters:
+    author: venka
+    catch_exceptions: 'True'
+    category: '[GRC Hier Blocks]'
+    cmake_opt: ''
+    comment: ''
+    copyright: ''
+    description: ''
+    gen_cmake: 'On'
+    gen_linking: dynamic
+    generate_options: qt_gui
+    hier_block_src_path: '.:'
+    id: accessCode
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    run_options: prompt
+    sizing_mode: fixed
+    thread_safe_setters: ''
+    title: Not titled yet
+    window_size: (1000,1000)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 8]
+    rotation: 0
+    state: enabled
+
+blocks:
+- name: bpsk
+  id: variable_constellation
+  parameters:
+    comment: ''
+    const_points: '[-1-1j, -1+1j, 1+1j, 1-1j]'
+    dims: '1'
+    normalization: digital.constellation.AMPLITUDE_NORMALIZATION
+    npwr: '1.0'
+    precision: '8'
+    rot_sym: '4'
+    soft_dec_lut: None
+    sym_map: '[0, 1, 3, 2]'
+    type: bpsk
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [336, 8.0]
+    rotation: 0
+    state: true
+- name: bw
+  id: variable
+  parameters:
+    comment: ''
+    value: (1+excess_bw)*(samp_rate//sps)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [576, 168.0]
+    rotation: 0
+    state: enabled
+- name: excess_bw
+  id: variable
+  parameters:
+    comment: ''
+    value: '0.35'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [664, 8.0]
+    rotation: 0
+    state: enabled
+- name: fc
+  id: variable
+  parameters:
+    comment: ''
+    value: 915e6
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [480, 168.0]
+    rotation: 0
+    state: enabled
+- name: low_pass_filter_taps
+  id: variable_low_pass_filter_taps
+  parameters:
+    beta: '6.76'
+    comment: ''
+    cutoff_freq: (bw//2)+5e3
+    gain: '1.0'
+    samp_rate: samp_rate
+    value: ''
+    width: 10e3
+    win: window.WIN_HAMMING
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [176, 8.0]
+    rotation: 0
+    state: true
+- name: packet_size
+  id: variable
+  parameters:
+    comment: ''
+    value: '80'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [200, 168.0]
+    rotation: 0
+    state: enabled
+- name: phase_bw
+  id: variable
+  parameters:
+    comment: ''
+    value: '0.0628'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [16, 168.0]
+    rotation: 0
+    state: true
+- name: rs_ratio
+  id: variable
+  parameters:
+    comment: ''
+    value: samp_rate/usrp_rate
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [592, 88.0]
+    rotation: 0
+    state: true
+- name: samp_rate
+  id: variable
+  parameters:
+    comment: ''
+    value: 40e3
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [496, 8.0]
+    rotation: 0
+    state: enabled
+- name: sps
+  id: variable
+  parameters:
+    comment: ''
+    value: '10'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [592, 8.0]
+    rotation: 0
+    state: enabled
+- name: taps
+  id: variable
+  parameters:
+    comment: ''
+    value: '[1.0 + 0.0j, ]'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [408, 168.0]
+    rotation: 0
+    state: enabled
+- name: thresh
+  id: variable
+  parameters:
+    comment: ''
+    value: '28'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [112, 168.0]
+    rotation: 0
+    state: enabled
+- name: user_id1
+  id: variable
+  parameters:
+    comment: ''
+    value: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [800, 128.0]
+    rotation: 0
+    state: enabled
+- name: user_id2
+  id: variable
+  parameters:
+    comment: ''
+    value: '2'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [912, 128.0]
+    rotation: 0
+    state: enabled
+- name: user_id3
+  id: variable
+  parameters:
+    comment: ''
+    value: '3'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1032, 128.0]
+    rotation: 0
+    state: enabled
+- name: usrp_rate
+  id: variable
+  parameters:
+    comment: ''
+    value: 2e6
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [496, 88.0]
+    rotation: 0
+    state: true
+- name: analog_const_source_x_0_0
+  id: analog_const_source_x
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    const: '0'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [728, 1080.0]
+    rotation: 0
+    state: enabled
+- name: analog_const_source_x_0_0_0
+  id: analog_const_source_x
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    const: '0'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [720, 816.0]
+    rotation: 0
+    state: enabled
+- name: analog_const_source_x_0_0_1
+  id: analog_const_source_x
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    const: '0'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [728, 1352.0]
+    rotation: 0
+    state: enabled
+- name: analog_feedforward_agc_cc_0
+  id: analog_feedforward_agc_cc
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_samples: '1024'
+    reference: '1.0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [400, 1560.0]
+    rotation: 0
+    state: enabled
+- name: blocks_add_xx_0
+  id: blocks_add_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '3'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [272, 1544.0]
+    rotation: 0
+    state: enabled
+- name: blocks_float_to_complex_0_0
+  id: blocks_float_to_complex
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [904, 1032.0]
+    rotation: 0
+    state: enabled
+- name: blocks_float_to_complex_0_0_0
+  id: blocks_float_to_complex
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [888, 768.0]
+    rotation: 0
+    state: enabled
+- name: blocks_float_to_complex_0_0_1
+  id: blocks_float_to_complex
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [904, 1304.0]
+    rotation: 0
+    state: enabled
+- name: blocks_multiply_xx_0_0
+  id: blocks_multiply_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1056, 944.0]
+    rotation: 0
+    state: enabled
+- name: blocks_multiply_xx_0_0_0
+  id: blocks_multiply_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1040, 680.0]
+    rotation: 0
+    state: enabled
+- name: blocks_multiply_xx_0_0_1
+  id: blocks_multiply_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1048, 1216.0]
+    rotation: 0
+    state: enabled
+- name: blocks_repeat_0_0
+  id: blocks_repeat
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    interp: 8*sps
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [744, 1024.0]
+    rotation: 0
+    state: enabled
+- name: blocks_repeat_0_0_0
+  id: blocks_repeat
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    interp: 8*sps
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [720, 760.0]
+    rotation: 0
+    state: enabled
+- name: blocks_repeat_0_0_1
+  id: blocks_repeat
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    interp: 8*sps
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [744, 1296.0]
+    rotation: 0
+    state: enabled
+- name: blocks_rotator_cc_0
+  id: blocks_rotator_cc
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    phase_inc: 2*math.pi *(100e3 / usrp_rate)
+    tag_inc_update: 'False'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [880, 1608.0]
+    rotation: 0
+    state: true
+- name: blocks_uchar_to_float_0_0
+  id: blocks_uchar_to_float
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [584, 1032.0]
+    rotation: 0
+    state: enabled
+- name: blocks_uchar_to_float_0_0_1
+  id: blocks_uchar_to_float
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [584, 1304.0]
+    rotation: 0
+    state: enabled
+- name: blocks_uchar_to_float_0_1
+  id: blocks_uchar_to_float
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [568, 768.0]
+    rotation: 0
+    state: enabled
+- name: digital_constellation_modulator_0_0_0
+  id: digital_constellation_modulator
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    constellation: bpsk
+    differential: 'True'
+    excess_bw: excess_bw
+    log: 'False'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samples_per_symbol: sps
+    truncate: 'False'
+    verbose: 'False'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [584, 912.0]
+    rotation: 0
+    state: enabled
+- name: digital_constellation_modulator_0_0_0_0
+  id: digital_constellation_modulator
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    constellation: bpsk
+    differential: 'True'
+    excess_bw: excess_bw
+    log: 'False'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samples_per_symbol: sps
+    truncate: 'False'
+    verbose: 'False'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [600, 648.0]
+    rotation: 0
+    state: enabled
+- name: digital_constellation_modulator_0_0_0_1
+  id: digital_constellation_modulator
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    constellation: bpsk
+    differential: 'True'
+    excess_bw: excess_bw
+    log: 'False'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samples_per_symbol: sps
+    truncate: 'False'
+    verbose: 'False'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [584, 1184.0]
+    rotation: 0
+    state: enabled
+- name: epy_block_0_0
+  id: epy_block
+  parameters:
+    _source_code: "import numpy as np\nfrom gnuradio import gr\nimport pmt\nimport\
+      \ collections\n\nclass PDU_to_Timed_Byte_Stream(gr.sync_block):\n    def __init__(self):\n\
+      \        gr.sync_block.__init__(\n            self,\n            name='PDU to\
+      \ Timed Byte Stream',\n            in_sig=None,\n            out_sig=[np.uint8,\
+      \ np.uint8] # Port 0: Data, Port 1: Gate\n        )\n        self.message_port_register_in(pmt.intern(\"\
+      pdus\"))\n        self.set_msg_handler(pmt.intern(\"pdus\"), self.handle_msg)\n\
+      \        \n        self.byte_buffer = collections.deque()\n        # Track the\
+      \ start of new packets for tagging\n        self.packet_lengths = collections.deque()\
+      \ \n        self.bytes_left_in_packet = 0\n\n    def handle_msg(self, msg):\n\
+      \        data = pmt.u8vector_elements(pmt.cdr(msg))\n        p_len = len(data)\n\
+      \        # Store the data and the length of this specific packet\n        for\
+      \ b in data:\n            self.byte_buffer.append(b)\n        self.packet_lengths.append(p_len)\n\
+      \n    def work(self, input_items, output_items):\n        out_data = output_items[0]\n\
+      \        out_gate = output_items[1]\n        n = len(out_data)\n\n        for\
+      \ i in range(n):\n            if self.byte_buffer:\n                # Logic\
+      \ to detect the exact start of a burst\n                if self.bytes_left_in_packet\
+      \ == 0 and self.packet_lengths:\n                    self.bytes_left_in_packet\
+      \ = self.packet_lengths.popleft()\n                    \n                  \
+      \  # Add the Stream Tag\n                    key = pmt.intern(\"burst_start\"\
+      )\n                    value = pmt.from_long(1)\n                    # self.add_item_tag(0,\
+      \ self.nitems_written(0) + i, key, value)\n                    self.add_item_tag(1,\
+      \ self.nitems_written(1) + i, key, value)\n                \n              \
+      \  out_data[i] = self.byte_buffer.popleft()\n                out_gate[i] = 1\n\
+      \                # if i==0 or i==n-1:\n                #     print(\"gate activated\
+      \ at index\", i)\n                #     print(n, self.bytes_left_in_packet)\n\
+      \                \n                if self.bytes_left_in_packet > 0:\n     \
+      \               self.bytes_left_in_packet -= 1\n            else:\n        \
+      \        out_data[i] = 0\n                out_gate[i] = 0\n                self.bytes_left_in_packet\
+      \ = 0 # Reset just in case\n\n        return n"
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    _io_cache: ('PDU to Timed Byte Stream', 'PDU_to_Timed_Byte_Stream', [], [('pdus',
+      'message', 1)], [('0', 'byte', 1), ('1', 'byte', 1)], '', [])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [344, 944.0]
+    rotation: 0
+    state: enabled
+- name: epy_block_0_0_0
+  id: epy_block
+  parameters:
+    _source_code: "import numpy as np\nfrom gnuradio import gr\nimport pmt\nimport\
+      \ collections\n\nclass PDU_to_Timed_Byte_Stream(gr.sync_block):\n    def __init__(self):\n\
+      \        gr.sync_block.__init__(\n            self,\n            name='PDU to\
+      \ Timed Byte Stream',\n            in_sig=None,\n            out_sig=[np.uint8,\
+      \ np.uint8] # Port 0: Data, Port 1: Gate\n        )\n        self.message_port_register_in(pmt.intern(\"\
+      pdus\"))\n        self.set_msg_handler(pmt.intern(\"pdus\"), self.handle_msg)\n\
+      \        \n        self.byte_buffer = collections.deque()\n        # Track the\
+      \ start of new packets for tagging\n        self.packet_lengths = collections.deque()\
+      \ \n        self.bytes_left_in_packet = 0\n\n    def handle_msg(self, msg):\n\
+      \        data = pmt.u8vector_elements(pmt.cdr(msg))\n        p_len = len(data)\n\
+      \        # Store the data and the length of this specific packet\n        for\
+      \ b in data:\n            self.byte_buffer.append(b)\n        self.packet_lengths.append(p_len)\n\
+      \n    def work(self, input_items, output_items):\n        out_data = output_items[0]\n\
+      \        out_gate = output_items[1]\n        n = len(out_data)\n\n        for\
+      \ i in range(n):\n            if self.byte_buffer:\n                # Logic\
+      \ to detect the exact start of a burst\n                if self.bytes_left_in_packet\
+      \ == 0 and self.packet_lengths:\n                    self.bytes_left_in_packet\
+      \ = self.packet_lengths.popleft()\n                    \n                  \
+      \  # Add the Stream Tag\n                    key = pmt.intern(\"burst_start\"\
+      )\n                    value = pmt.from_long(1)\n                    # self.add_item_tag(0,\
+      \ self.nitems_written(0) + i, key, value)\n                    self.add_item_tag(1,\
+      \ self.nitems_written(1) + i, key, value)\n                \n              \
+      \  out_data[i] = self.byte_buffer.popleft()\n                out_gate[i] = 1\n\
+      \                # if i==0 or i==n-1:\n                #     print(\"gate activated\
+      \ at index\", i)\n                #     print(n, self.bytes_left_in_packet)\n\
+      \                \n                if self.bytes_left_in_packet > 0:\n     \
+      \               self.bytes_left_in_packet -= 1\n            else:\n        \
+      \        out_data[i] = 0\n                out_gate[i] = 0\n                self.bytes_left_in_packet\
+      \ = 0 # Reset just in case\n\n        return n"
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    _io_cache: ('PDU to Timed Byte Stream', 'PDU_to_Timed_Byte_Stream', [], [('pdus',
+      'message', 1)], [('0', 'byte', 1), ('1', 'byte', 1)], '', [])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [344, 1216.0]
+    rotation: 0
+    state: enabled
+- name: epy_block_0_1
+  id: epy_block
+  parameters:
+    _source_code: "import numpy as np\nfrom gnuradio import gr\nimport pmt\nimport\
+      \ collections\n\nclass PDU_to_Timed_Byte_Stream(gr.sync_block):\n    def __init__(self):\n\
+      \        gr.sync_block.__init__(\n            self,\n            name='PDU to\
+      \ Timed Byte Stream',\n            in_sig=None,\n            out_sig=[np.uint8,\
+      \ np.uint8] # Port 0: Data, Port 1: Gate\n        )\n        self.message_port_register_in(pmt.intern(\"\
+      pdus\"))\n        self.set_msg_handler(pmt.intern(\"pdus\"), self.handle_msg)\n\
+      \        \n        self.byte_buffer = collections.deque()\n        # Track the\
+      \ start of new packets for tagging\n        self.packet_lengths = collections.deque()\
+      \ \n        self.bytes_left_in_packet = 0\n\n    def handle_msg(self, msg):\n\
+      \        data = pmt.u8vector_elements(pmt.cdr(msg))\n        p_len = len(data)\n\
+      \        # Store the data and the length of this specific packet\n        for\
+      \ b in data:\n            self.byte_buffer.append(b)\n        self.packet_lengths.append(p_len)\n\
+      \n    def work(self, input_items, output_items):\n        out_data = output_items[0]\n\
+      \        out_gate = output_items[1]\n        n = len(out_data)\n\n        for\
+      \ i in range(n):\n            if self.byte_buffer:\n                # Logic\
+      \ to detect the exact start of a burst\n                if self.bytes_left_in_packet\
+      \ == 0 and self.packet_lengths:\n                    self.bytes_left_in_packet\
+      \ = self.packet_lengths.popleft()\n                    \n                  \
+      \  # Add the Stream Tag\n                    key = pmt.intern(\"burst_start\"\
+      )\n                    value = pmt.from_long(1)\n                    # self.add_item_tag(0,\
+      \ self.nitems_written(0) + i, key, value)\n                    self.add_item_tag(1,\
+      \ self.nitems_written(1) + i, key, value)\n                \n              \
+      \  out_data[i] = self.byte_buffer.popleft()\n                out_gate[i] = 1\n\
+      \                # if i==0 or i==n-1:\n                #     print(\"gate activated\
+      \ at index\", i)\n                #     print(n, self.bytes_left_in_packet)\n\
+      \                \n                if self.bytes_left_in_packet > 0:\n     \
+      \               self.bytes_left_in_packet -= 1\n            else:\n        \
+      \        out_data[i] = 0\n                out_gate[i] = 0\n                self.bytes_left_in_packet\
+      \ = 0 # Reset just in case\n\n        return n"
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    _io_cache: ('PDU to Timed Byte Stream', 'PDU_to_Timed_Byte_Stream', [], [('pdus',
+      'message', 1)], [('0', 'byte', 1), ('1', 'byte', 1)], '', [])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [360, 680.0]
+    rotation: 0
+    state: enabled
+- name: epy_block_2_1
+  id: epy_block
+  parameters:
+    _source_code: "import numpy as np\nfrom gnuradio import gr\nimport pmt\nimport\
+      \ random\nimport time\nimport threading\nimport csv\nimport binascii\n\nclass\
+      \ Random_Packet_Generator(gr.basic_block):\n    \"\"\"\n    Random Packet Generator\
+      \ with embedded userid and sequence number.\n\n    Packet payload layout:\n\
+      \        [0:2]  \u2013 seq_num  : 2 bytes, big-endian uint16\n        [2:4]\
+      \  \u2013 user_id  : 2 bytes, big-endian uint16  (0\u201365535)\n        [4:]\
+      \   \u2013 random data : fills the rest up to packet_size bytes\n\n    The PMT\
+      \ metadata dict carries:\n        'packet_num' \u2192 seq_num  (used by Packet\
+      \ Header Generator block)\n        'user_id'    \u2192 user_id  (informational)\n\
+      \    \"\"\"\n\n    def __init__(self,\n                 mean_interval=0.1,\n\
+      \                 packet_size=100,\n                 user_id=1,\n          \
+      \       log_file=\"transmitted_packets.csv\", \n                 total_packets=10,\n\
+      \                 initial_delay=2.0): # 1. ADDED: initial_delay parameter\n\n\
+      \        gr.basic_block.__init__(self,\n            name=\"random_packet_generator\"\
+      ,\n            in_sig=None,\n            out_sig=None)\n\n        self.message_port_register_out(pmt.intern('pdu_out'))\n\
+      \n        # \u2500\u2500 Parameters \u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\n        self.mean_interval = mean_interval\n        self.packet_size\
+      \   = packet_size\n        self.user_id       = int(user_id) & 0xFFFF   # clamp\
+      \ to uint16\n        self.log_file      = log_file\n        self.total_packets\
+      \ = total_packets\n        self.initial_delay = initial_delay           # 2.\
+      \ ADDED: store delay attribute\n\n        self.packet_count  = 0\n\n       \
+      \ # Header overhead: seq(2) + user_id(2) = 4 bytes\n        if packet_size <=\
+      \ 4:\n            raise ValueError(\n                f\"packet_size ({packet_size})\
+      \ must be > 4 to fit the header\"\n            )\n\n        # \u2500\u2500 Init\
+      \ CSV log \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n        with open(self.log_file,\
+      \ 'w', newline='') as f:\n            writer = csv.writer(f)\n            writer.writerow([\n\
+      \                'packet_id', 'timestamp', 'user_id',\n                'wait_time_s',\
+      \ 'data_hex', 'data_bytes'\n            ])\n\n        # \u2500\u2500 Start generator\
+      \ thread \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n       \
+      \ self.thread = threading.Thread(target=self._generate_packets, daemon=True)\n\
+      \        self.thread.start()\n\n    # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\n    def _build_payload(self, seq: int)\
+      \ -> list:\n        access_code = [0xE1, 0x5A, 0xE8, 0x93]                 \
+      \   # 4 bytes\n        filler      = [0xDE, 0xAD, 0xBE, 0xEF]              \
+      \      # 4 bytes\n\n        header = [\n            (seq >> 8) & 0xFF,\n   \
+      \         seq & 0xFF,\n            (self.user_id >> 8) & 0xFF,\n           \
+      \ self.user_id & 0xFF,\n        ]                                          \
+      \                 # 4 bytes\n\n        # Reserve space for access_code(4) +\
+      \ header(4) + CRC(4) + filler(4)\n        payload_len = self.packet_size - len(access_code)\
+      \ - len(header) - 4 - len(filler)\n        if payload_len < 0:\n           \
+      \ raise ValueError(\n                f\"packet_size ({self.packet_size}) too\
+      \ small: need at least \"\n                f\"{len(access_code) + len(header)\
+      \ + 4 + len(filler)} bytes \"\n                f\"for fixed fields + CRC\"\n\
+      \            )\n        random_bytes = [random.randint(0, 255) for _ in range(payload_len)]\n\
+      \n        # CRC32 over header + random_bytes only (access_code and filler excluded)\n\
+      \        protected = header + random_bytes\n        crc_val   = binascii.crc32(bytes(protected))\
+      \ & 0xFFFFFFFF\n        crc_bytes = list(crc_val.to_bytes(4, byteorder='little'))\n\
+      \n        # Final layout: [access_code | header | random_bytes | CRC32 | filler]\n\
+      \        return access_code + protected + crc_bytes + filler * 2\n\n    # \u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n \
+      \   def _generate_packets(self):\n        seq = 0\n        \n        # 3. ADDED:\
+      \ Force a hard wait before starting the packet generation loop\n        print(f\"\
+      [Random_Packet_Generator TX{self.user_id}] Waiting {self.initial_delay}s for\
+      \ hardware warmup...\")\n        time.sleep(self.initial_delay)\n        \n\
+      \        # Keep the random stagger so multiple TX blocks don't start at the\
+      \ exact same millisecond\n        time.sleep(random.uniform(0, self.mean_interval))\n\
+      \        \n        while self.packet_count < self.total_packets:\n         \
+      \   wait_time = random.expovariate(1.0 / self.mean_interval)\n            time.sleep(wait_time)\n\
+      \n            data = self._build_payload(seq)\n\n            # \u2500\u2500\
+      \ Build PMT metadata dict \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n            meta = pmt.make_dict()\n\
+      \            meta = pmt.dict_add(meta,\n                                pmt.intern('packet_num'),\n\
+      \                                pmt.from_long(seq))             # Packet Header\
+      \ Generator\n            meta = pmt.dict_add(meta,\n                       \
+      \         pmt.intern('user_id'),\n                                pmt.from_long(self.user_id))\
+      \    # informational\n\n            # \u2500\u2500 Publish PDU \u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\n            pdu = pmt.cons(meta, pmt.init_u8vector(len(data), data))\n\
+      \            self.message_port_pub(pmt.intern('pdu_out'), pdu)\n\n         \
+      \   self.packet_count += 1\n            seq = (seq + 1) & 0xFFFF    # 16-bit\
+      \ rollover\n\n            # \u2500\u2500 CSV logging \u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \n            timestamp = (time.strftime('%Y-%m-%d %H:%M:%S') +\n          \
+      \               f\".{int((time.time() % 1) * 1000):03d}\")\n            data_hex\
+      \  = ' '.join(f'{b:02X}' for b in data)\n\n            with open(self.log_file,\
+      \ 'a', newline='') as f:\n                writer = csv.writer(f)\n         \
+      \       writer.writerow([\n                    self.packet_count,\n        \
+      \            timestamp,\n                    self.user_id,\n               \
+      \     f\"{wait_time:.4f}\",\n                    data_hex,\n               \
+      \     list(data)\n                ])\n\n            print(f\"[PKT {self.packet_count:03d}]\
+      \ user_id={self.user_id} \"\n                  f\"seq={seq - 1 & 0xFFFF:#06x}\
+      \ \"\n                  f\"after {wait_time:.3f}s | \"\n                  f\"\
+      first 4B: {data_hex.split()[:4]}\")"
+    affinity: ''
+    alias: ''
+    comment: ''
+    initial_delay: '0'
+    log_file: log_file2
+    maxoutbuf: '0'
+    mean_interval: '0.4'
+    minoutbuf: '0'
+    packet_size: packet_size
+    total_packets: '1000'
+    user_id: user_id2
+  states:
+    _io_cache: "('random_packet_generator', 'Random_Packet_Generator', [('mean_interval',\
+      \ '0.1'), ('packet_size', '100'), ('user_id', '1'), ('log_file', \"'transmitted_packets.csv'\"\
+      ), ('total_packets', '10'), ('initial_delay', '2.0')], [], [('pdu_out', 'message',\
+      \ 1)], \"\\n    Random Packet Generator with embedded userid and sequence number.\\\
+      n\\n    Packet payload layout:\\n        [0:2]  \u2013 seq_num  : 2 bytes, big-endian\
+      \ uint16\\n        [2:4]  \u2013 user_id  : 2 bytes, big-endian uint16  (0\u2013\
+      65535)\\n        [4:]   \u2013 random data : fills the rest up to packet_size\
+      \ bytes\\n\\n    The PMT metadata dict carries:\\n        'packet_num' \u2192\
+      \ seq_num  (used by Packet Header Generator block)\\n        'user_id'    \u2192\
+      \ user_id  (informational)\\n    \", ['initial_delay', 'log_file', 'mean_interval',\
+      \ 'packet_size', 'total_packets', 'user_id'])"
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [24, 912.0]
+    rotation: 0
+    state: enabled
+- name: epy_block_2_1_0
+  id: epy_block
+  parameters:
+    _source_code: "import numpy as np\nfrom gnuradio import gr\nimport pmt\nimport\
+      \ random\nimport time\nimport threading\nimport csv\nimport binascii\n\nclass\
+      \ Random_Packet_Generator(gr.basic_block):\n    \"\"\"\n    Random Packet Generator\
+      \ with embedded userid and sequence number.\n\n    Packet payload layout:\n\
+      \        [0:2]  \u2013 seq_num  : 2 bytes, big-endian uint16\n        [2:4]\
+      \  \u2013 user_id  : 2 bytes, big-endian uint16  (0\u201365535)\n        [4:]\
+      \   \u2013 random data : fills the rest up to packet_size bytes\n\n    The PMT\
+      \ metadata dict carries:\n        'packet_num' \u2192 seq_num  (used by Packet\
+      \ Header Generator block)\n        'user_id'    \u2192 user_id  (informational)\n\
+      \    \"\"\"\n\n    def __init__(self,\n                 mean_interval=0.1,\n\
+      \                 packet_size=100,\n                 user_id=1,\n          \
+      \       log_file=\"transmitted_packets.csv\", \n                 total_packets=10,\n\
+      \                 initial_delay=2.0): # 1. ADDED: initial_delay parameter\n\n\
+      \        gr.basic_block.__init__(self,\n            name=\"random_packet_generator\"\
+      ,\n            in_sig=None,\n            out_sig=None)\n\n        self.message_port_register_out(pmt.intern('pdu_out'))\n\
+      \n        # \u2500\u2500 Parameters \u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\n        self.mean_interval = mean_interval\n        self.packet_size\
+      \   = packet_size\n        self.user_id       = int(user_id) & 0xFFFF   # clamp\
+      \ to uint16\n        self.log_file      = log_file\n        self.total_packets\
+      \ = total_packets\n        self.initial_delay = initial_delay           # 2.\
+      \ ADDED: store delay attribute\n\n        self.packet_count  = 0\n\n       \
+      \ # Header overhead: seq(2) + user_id(2) = 4 bytes\n        if packet_size <=\
+      \ 4:\n            raise ValueError(\n                f\"packet_size ({packet_size})\
+      \ must be > 4 to fit the header\"\n            )\n\n        # \u2500\u2500 Init\
+      \ CSV log \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n        with open(self.log_file,\
+      \ 'w', newline='') as f:\n            writer = csv.writer(f)\n            writer.writerow([\n\
+      \                'packet_id', 'timestamp', 'user_id',\n                'wait_time_s',\
+      \ 'data_hex', 'data_bytes'\n            ])\n\n        # \u2500\u2500 Start generator\
+      \ thread \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n       \
+      \ self.thread = threading.Thread(target=self._generate_packets, daemon=True)\n\
+      \        self.thread.start()\n\n    # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\n    def _build_payload(self, seq: int)\
+      \ -> list:\n        access_code = [0xE1, 0x5A, 0xE8, 0x93]                 \
+      \   # 4 bytes\n        filler      = [0xDE, 0xAD, 0xBE, 0xEF]              \
+      \      # 4 bytes\n\n        header = [\n            (seq >> 8) & 0xFF,\n   \
+      \         seq & 0xFF,\n            (self.user_id >> 8) & 0xFF,\n           \
+      \ self.user_id & 0xFF,\n        ]                                          \
+      \                 # 4 bytes\n\n        # Reserve space for access_code(4) +\
+      \ header(4) + CRC(4) + filler(4)\n        payload_len = self.packet_size - len(access_code)\
+      \ - len(header) - 4 - len(filler)\n        if payload_len < 0:\n           \
+      \ raise ValueError(\n                f\"packet_size ({self.packet_size}) too\
+      \ small: need at least \"\n                f\"{len(access_code) + len(header)\
+      \ + 4 + len(filler)} bytes \"\n                f\"for fixed fields + CRC\"\n\
+      \            )\n        random_bytes = [random.randint(0, 255) for _ in range(payload_len)]\n\
+      \n        # CRC32 over header + random_bytes only (access_code and filler excluded)\n\
+      \        protected = header + random_bytes\n        crc_val   = binascii.crc32(bytes(protected))\
+      \ & 0xFFFFFFFF\n        crc_bytes = list(crc_val.to_bytes(4, byteorder='little'))\n\
+      \n        # Final layout: [access_code | header | random_bytes | CRC32 | filler]\n\
+      \        return access_code + protected + crc_bytes + filler * 2\n\n    # \u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n \
+      \   def _generate_packets(self):\n        seq = 0\n        \n        # 3. ADDED:\
+      \ Force a hard wait before starting the packet generation loop\n        print(f\"\
+      [Random_Packet_Generator TX{self.user_id}] Waiting {self.initial_delay}s for\
+      \ hardware warmup...\")\n        time.sleep(self.initial_delay)\n        \n\
+      \        # Keep the random stagger so multiple TX blocks don't start at the\
+      \ exact same millisecond\n        time.sleep(random.uniform(0, self.mean_interval))\n\
+      \        \n        while self.packet_count < self.total_packets:\n         \
+      \   wait_time = random.expovariate(1.0 / self.mean_interval)\n            time.sleep(wait_time)\n\
+      \n            data = self._build_payload(seq)\n\n            # \u2500\u2500\
+      \ Build PMT metadata dict \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n            meta = pmt.make_dict()\n\
+      \            meta = pmt.dict_add(meta,\n                                pmt.intern('packet_num'),\n\
+      \                                pmt.from_long(seq))             # Packet Header\
+      \ Generator\n            meta = pmt.dict_add(meta,\n                       \
+      \         pmt.intern('user_id'),\n                                pmt.from_long(self.user_id))\
+      \    # informational\n\n            # \u2500\u2500 Publish PDU \u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\n            pdu = pmt.cons(meta, pmt.init_u8vector(len(data), data))\n\
+      \            self.message_port_pub(pmt.intern('pdu_out'), pdu)\n\n         \
+      \   self.packet_count += 1\n            seq = (seq + 1) & 0xFFFF    # 16-bit\
+      \ rollover\n\n            # \u2500\u2500 CSV logging \u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \n            timestamp = (time.strftime('%Y-%m-%d %H:%M:%S') +\n          \
+      \               f\".{int((time.time() % 1) * 1000):03d}\")\n            data_hex\
+      \  = ' '.join(f'{b:02X}' for b in data)\n\n            with open(self.log_file,\
+      \ 'a', newline='') as f:\n                writer = csv.writer(f)\n         \
+      \       writer.writerow([\n                    self.packet_count,\n        \
+      \            timestamp,\n                    self.user_id,\n               \
+      \     f\"{wait_time:.4f}\",\n                    data_hex,\n               \
+      \     list(data)\n                ])\n\n            print(f\"[PKT {self.packet_count:03d}]\
+      \ user_id={self.user_id} \"\n                  f\"seq={seq - 1 & 0xFFFF:#06x}\
+      \ \"\n                  f\"after {wait_time:.3f}s | \"\n                  f\"\
+      first 4B: {data_hex.split()[:4]}\")"
+    affinity: ''
+    alias: ''
+    comment: ''
+    initial_delay: '0'
+    log_file: log_file1
+    maxoutbuf: '0'
+    mean_interval: '0.4'
+    minoutbuf: '0'
+    packet_size: packet_size
+    total_packets: '1000'
+    user_id: user_id1
+  states:
+    _io_cache: "('random_packet_generator', 'Random_Packet_Generator', [('mean_interval',\
+      \ '0.1'), ('packet_size', '100'), ('user_id', '1'), ('log_file', \"'transmitted_packets.csv'\"\
+      ), ('total_packets', '10'), ('initial_delay', '2.0')], [], [('pdu_out', 'message',\
+      \ 1)], \"\\n    Random Packet Generator with embedded userid and sequence number.\\\
+      n\\n    Packet payload layout:\\n        [0:2]  \u2013 seq_num  : 2 bytes, big-endian\
+      \ uint16\\n        [2:4]  \u2013 user_id  : 2 bytes, big-endian uint16  (0\u2013\
+      65535)\\n        [4:]   \u2013 random data : fills the rest up to packet_size\
+      \ bytes\\n\\n    The PMT metadata dict carries:\\n        'packet_num' \u2192\
+      \ seq_num  (used by Packet Header Generator block)\\n        'user_id'    \u2192\
+      \ user_id  (informational)\\n    \", ['initial_delay', 'log_file', 'mean_interval',\
+      \ 'packet_size', 'total_packets', 'user_id'])"
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [80, 648.0]
+    rotation: 0
+    state: enabled
+- name: epy_block_2_1_1
+  id: epy_block
+  parameters:
+    _source_code: "import numpy as np\nfrom gnuradio import gr\nimport pmt\nimport\
+      \ random\nimport time\nimport threading\nimport csv\nimport binascii\n\nclass\
+      \ Random_Packet_Generator(gr.basic_block):\n    \"\"\"\n    Random Packet Generator\
+      \ with embedded userid and sequence number.\n\n    Packet payload layout:\n\
+      \        [0:2]  \u2013 seq_num  : 2 bytes, big-endian uint16\n        [2:4]\
+      \  \u2013 user_id  : 2 bytes, big-endian uint16  (0\u201365535)\n        [4:]\
+      \   \u2013 random data : fills the rest up to packet_size bytes\n\n    The PMT\
+      \ metadata dict carries:\n        'packet_num' \u2192 seq_num  (used by Packet\
+      \ Header Generator block)\n        'user_id'    \u2192 user_id  (informational)\n\
+      \    \"\"\"\n\n    def __init__(self,\n                 mean_interval=0.1,\n\
+      \                 packet_size=100,\n                 user_id=1,\n          \
+      \       log_file=\"transmitted_packets.csv\", \n                 total_packets=10,\n\
+      \                 initial_delay=2.0): # 1. ADDED: initial_delay parameter\n\n\
+      \        gr.basic_block.__init__(self,\n            name=\"random_packet_generator\"\
+      ,\n            in_sig=None,\n            out_sig=None)\n\n        self.message_port_register_out(pmt.intern('pdu_out'))\n\
+      \n        # \u2500\u2500 Parameters \u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\n        self.mean_interval = mean_interval\n        self.packet_size\
+      \   = packet_size\n        self.user_id       = int(user_id) & 0xFFFF   # clamp\
+      \ to uint16\n        self.log_file      = log_file\n        self.total_packets\
+      \ = total_packets\n        self.initial_delay = initial_delay           # 2.\
+      \ ADDED: store delay attribute\n\n        self.packet_count  = 0\n\n       \
+      \ # Header overhead: seq(2) + user_id(2) = 4 bytes\n        if packet_size <=\
+      \ 4:\n            raise ValueError(\n                f\"packet_size ({packet_size})\
+      \ must be > 4 to fit the header\"\n            )\n\n        # \u2500\u2500 Init\
+      \ CSV log \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n        with open(self.log_file,\
+      \ 'w', newline='') as f:\n            writer = csv.writer(f)\n            writer.writerow([\n\
+      \                'packet_id', 'timestamp', 'user_id',\n                'wait_time_s',\
+      \ 'data_hex', 'data_bytes'\n            ])\n\n        # \u2500\u2500 Start generator\
+      \ thread \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n       \
+      \ self.thread = threading.Thread(target=self._generate_packets, daemon=True)\n\
+      \        self.thread.start()\n\n    # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\n    def _build_payload(self, seq: int)\
+      \ -> list:\n        access_code = [0xE1, 0x5A, 0xE8, 0x93]                 \
+      \   # 4 bytes\n        filler      = [0xDE, 0xAD, 0xBE, 0xEF]              \
+      \      # 4 bytes\n\n        header = [\n            (seq >> 8) & 0xFF,\n   \
+      \         seq & 0xFF,\n            (self.user_id >> 8) & 0xFF,\n           \
+      \ self.user_id & 0xFF,\n        ]                                          \
+      \                 # 4 bytes\n\n        # Reserve space for access_code(4) +\
+      \ header(4) + CRC(4) + filler(4)\n        payload_len = self.packet_size - len(access_code)\
+      \ - len(header) - 4 - len(filler)\n        if payload_len < 0:\n           \
+      \ raise ValueError(\n                f\"packet_size ({self.packet_size}) too\
+      \ small: need at least \"\n                f\"{len(access_code) + len(header)\
+      \ + 4 + len(filler)} bytes \"\n                f\"for fixed fields + CRC\"\n\
+      \            )\n        random_bytes = [random.randint(0, 255) for _ in range(payload_len)]\n\
+      \n        # CRC32 over header + random_bytes only (access_code and filler excluded)\n\
+      \        protected = header + random_bytes\n        crc_val   = binascii.crc32(bytes(protected))\
+      \ & 0xFFFFFFFF\n        crc_bytes = list(crc_val.to_bytes(4, byteorder='little'))\n\
+      \n        # Final layout: [access_code | header | random_bytes | CRC32 | filler]\n\
+      \        return access_code + protected + crc_bytes + filler * 2\n \n    # \u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n \
+      \   def _generate_packets(self):\n        seq = 0\n        \n        # 3. ADDED:\
+      \ Force a hard wait before starting the packet generation loop\n        print(f\"\
+      [Random_Packet_Generator TX{self.user_id}] Waiting {self.initial_delay}s for\
+      \ hardware warmup...\")\n        time.sleep(self.initial_delay)\n        \n\
+      \        # Keep the random stagger so multiple TX blocks don't start at the\
+      \ exact same millisecond\n        time.sleep(random.uniform(0, self.mean_interval))\n\
+      \        \n        while self.packet_count < self.total_packets:\n         \
+      \   wait_time = random.expovariate(1.0 / self.mean_interval)\n            time.sleep(wait_time)\n\
+      \n            data = self._build_payload(seq)\n\n            # \u2500\u2500\
+      \ Build PMT metadata dict \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n            meta = pmt.make_dict()\n\
+      \            meta = pmt.dict_add(meta,\n                                pmt.intern('packet_num'),\n\
+      \                                pmt.from_long(seq))             # Packet Header\
+      \ Generator\n            meta = pmt.dict_add(meta,\n                       \
+      \         pmt.intern('user_id'),\n                                pmt.from_long(self.user_id))\
+      \    # informational\n\n            # \u2500\u2500 Publish PDU \u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\n            pdu = pmt.cons(meta, pmt.init_u8vector(len(data), data))\n\
+      \            self.message_port_pub(pmt.intern('pdu_out'), pdu)\n\n         \
+      \   self.packet_count += 1\n            seq = (seq + 1) & 0xFFFF    # 16-bit\
+      \ rollover\n\n            # \u2500\u2500 CSV logging \u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\
+      \n            timestamp = (time.strftime('%Y-%m-%d %H:%M:%S') +\n          \
+      \               f\".{int((time.time() % 1) * 1000):03d}\")\n            data_hex\
+      \  = ' '.join(f'{b:02X}' for b in data)\n\n            with open(self.log_file,\
+      \ 'a', newline='') as f:\n                writer = csv.writer(f)\n         \
+      \       writer.writerow([\n                    self.packet_count,\n        \
+      \            timestamp,\n                    self.user_id,\n               \
+      \     f\"{wait_time:.4f}\",\n                    data_hex,\n               \
+      \     list(data)\n                ])\n\n            print(f\"[PKT {self.packet_count:03d}]\
+      \ user_id={self.user_id} \"\n                  f\"seq={seq - 1 & 0xFFFF:#06x}\
+      \ \"\n                  f\"after {wait_time:.3f}s | \"\n                  f\"\
+      first 4B: {data_hex.split()[:4]}\")"
+    affinity: ''
+    alias: ''
+    comment: ''
+    initial_delay: '0'
+    log_file: log_file3
+    maxoutbuf: '0'
+    mean_interval: '0.4'
+    minoutbuf: '0'
+    packet_size: packet_size
+    total_packets: '1000'
+    user_id: user_id3
+  states:
+    _io_cache: "('random_packet_generator', 'Random_Packet_Generator', [('mean_interval',\
+      \ '0.1'), ('packet_size', '100'), ('user_id', '1'), ('log_file', \"'transmitted_packets.csv'\"\
+      ), ('total_packets', '10'), ('initial_delay', '2.0')], [], [('pdu_out', 'message',\
+      \ 1)], \"\\n    Random Packet Generator with embedded userid and sequence number.\\\
+      n\\n    Packet payload layout:\\n        [0:2]  \u2013 seq_num  : 2 bytes, big-endian\
+      \ uint16\\n        [2:4]  \u2013 user_id  : 2 bytes, big-endian uint16  (0\u2013\
+      65535)\\n        [4:]   \u2013 random data : fills the rest up to packet_size\
+      \ bytes\\n\\n    The PMT metadata dict carries:\\n        'packet_num' \u2192\
+      \ seq_num  (used by Packet Header Generator block)\\n        'user_id'    \u2192\
+      \ user_id  (informational)\\n    \", ['initial_delay', 'log_file', 'mean_interval',\
+      \ 'packet_size', 'total_packets', 'user_id'])"
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [24, 1184.0]
+    rotation: 0
+    state: enabled
+- name: fft_filter_xxx_0_0_0_0
+  id: fft_filter_xxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    decim: '1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    nthreads: '1'
+    samp_delay: '0'
+    taps: low_pass_filter_taps
+    type: ccc
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1208, 936.0]
+    rotation: 0
+    state: true
+- name: fft_filter_xxx_0_0_0_0_0
+  id: fft_filter_xxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    decim: '1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    nthreads: '1'
+    samp_delay: '0'
+    taps: low_pass_filter_taps
+    type: ccc
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1184, 672.0]
+    rotation: 0
+    state: true
+- name: fft_filter_xxx_0_0_0_0_1
+  id: fft_filter_xxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    decim: '1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    nthreads: '1'
+    samp_delay: '0'
+    taps: low_pass_filter_taps
+    type: ccc
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1208, 1208.0]
+    rotation: 0
+    state: true
+- name: import_0
+  id: import
+  parameters:
+    alias: ''
+    comment: ''
+    imports: import math
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [304, 168.0]
+    rotation: 0
+    state: true
+- name: log_file1
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: File Name
+    short_id: ''
+    type: str
+    value: data_tx1.csv
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [792, 16.0]
+    rotation: 0
+    state: true
+- name: log_file2
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: File Name
+    short_id: ''
+    type: str
+    value: data_tx2.csv
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [912, 16.0]
+    rotation: 0
+    state: true
+- name: log_file3
+  id: parameter
+  parameters:
+    alias: ''
+    comment: ''
+    hide: none
+    label: File Name
+    short_id: ''
+    type: str
+    value: data_tx3.csv
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1032, 16.0]
+    rotation: 0
+    state: true
+- name: mmse_resampler_xx_0
+  id: mmse_resampler_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    phase_shift: '0'
+    resamp_ratio: 1.0 / ( usrp_rate / samp_rate )
+    type: complex
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [632, 1576.0]
+    rotation: 0
+    state: enabled
+- name: qtgui_time_sink_x_0
+  id: qtgui_time_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'True'
+    axislabels: 'True'
+    color1: blue
+    color10: dark blue
+    color2: red
+    color3: green
+    color4: black
+    color5: cyan
+    color6: magenta
+    color7: yellow
+    color8: dark red
+    color9: dark green
+    comment: ''
+    ctrlpanel: 'True'
+    entags: 'True'
+    grid: 'True'
+    gui_hint: ''
+    label1: Signal 1
+    label10: Signal 10
+    label2: Signal 2
+    label3: Signal 3
+    label4: Signal 4
+    label5: Signal 5
+    label6: Signal 6
+    label7: Signal 7
+    label8: Signal 8
+    label9: Signal 9
+    legend: 'True'
+    marker1: '-1'
+    marker10: '-1'
+    marker2: '-1'
+    marker3: '-1'
+    marker4: '-1'
+    marker5: '-1'
+    marker6: '-1'
+    marker7: '-1'
+    marker8: '-1'
+    marker9: '-1'
+    name: '""'
+    nconnections: '1'
+    size: '10240'
+    srate: usrp_rate
+    stemplot: 'True'
+    style1: '1'
+    style10: '1'
+    style2: '1'
+    style3: '1'
+    style4: '1'
+    style5: '1'
+    style6: '1'
+    style7: '1'
+    style8: '1'
+    style9: '1'
+    tr_chan: '0'
+    tr_delay: '0'
+    tr_level: '0.0'
+    tr_mode: qtgui.TRIG_MODE_NORM
+    tr_slope: qtgui.TRIG_SLOPE_POS
+    tr_tag: '""'
+    type: complex
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    ylabel: Amplitude
+    ymax: '1'
+    ymin: '-1'
+    yunit: '""'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [880, 1512.0]
+    rotation: 0
+    state: enabled
+- name: soapy_hackrf_sink_0
+  id: soapy_hackrf_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    amp: 'False'
+    bandwidth: '0'
+    center_freq: fc
+    comment: ''
+    dev_args: ''
+    samp_rate: usrp_rate
+    type: fc32
+    vga: '40'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1168, 1624.0]
+    rotation: 0
+    state: enabled
+- name: virtual_sink_0_1_0_1_0
+  id: virtual_sink
+  parameters:
+    alias: ''
+    comment: ''
+    stream_id: sig1
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1408, 688.0]
+    rotation: 0
+    state: enabled
+- name: virtual_sink_0_1_0_1_0_0
+  id: virtual_sink
+  parameters:
+    alias: ''
+    comment: ''
+    stream_id: sig2
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1480, 952.0]
+    rotation: 0
+    state: enabled
+- name: virtual_sink_0_1_0_1_0_0_0
+  id: virtual_sink
+  parameters:
+    alias: ''
+    comment: ''
+    stream_id: sig3
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1416, 1224.0]
+    rotation: 0
+    state: enabled
+- name: virtual_source_1_0_0
+  id: virtual_source
+  parameters:
+    alias: ''
+    comment: ''
+    stream_id: sig1
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [64, 1504.0]
+    rotation: 0
+    state: enabled
+- name: virtual_source_1_0_0_0
+  id: virtual_source
+  parameters:
+    alias: ''
+    comment: ''
+    stream_id: sig2
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [64, 1568.0]
+    rotation: 0
+    state: enabled
+- name: virtual_source_1_0_0_0_0
+  id: virtual_source
+  parameters:
+    alias: ''
+    comment: ''
+    stream_id: sig3
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [64, 1632.0]
+    rotation: 0
+    state: enabled
+
+connections:
+- [analog_const_source_x_0_0, '0', blocks_float_to_complex_0_0, '1']
+- [analog_const_source_x_0_0_0, '0', blocks_float_to_complex_0_0_0, '1']
+- [analog_const_source_x_0_0_1, '0', blocks_float_to_complex_0_0_1, '1']
+- [analog_feedforward_agc_cc_0, '0', mmse_resampler_xx_0, '0']
+- [blocks_add_xx_0, '0', analog_feedforward_agc_cc_0, '0']
+- [blocks_float_to_complex_0_0, '0', blocks_multiply_xx_0_0, '1']
+- [blocks_float_to_complex_0_0_0, '0', blocks_multiply_xx_0_0_0, '1']
+- [blocks_float_to_complex_0_0_1, '0', blocks_multiply_xx_0_0_1, '1']
+- [blocks_multiply_xx_0_0, '0', fft_filter_xxx_0_0_0_0, '0']
+- [blocks_multiply_xx_0_0_0, '0', fft_filter_xxx_0_0_0_0_0, '0']
+- [blocks_multiply_xx_0_0_1, '0', fft_filter_xxx_0_0_0_0_1, '0']
+- [blocks_repeat_0_0, '0', blocks_float_to_complex_0_0, '0']
+- [blocks_repeat_0_0_0, '0', blocks_float_to_complex_0_0_0, '0']
+- [blocks_repeat_0_0_1, '0', blocks_float_to_complex_0_0_1, '0']
+- [blocks_rotator_cc_0, '0', soapy_hackrf_sink_0, '0']
+- [blocks_uchar_to_float_0_0, '0', blocks_repeat_0_0, '0']
+- [blocks_uchar_to_float_0_0_1, '0', blocks_repeat_0_0_1, '0']
+- [blocks_uchar_to_float_0_1, '0', blocks_repeat_0_0_0, '0']
+- [digital_constellation_modulator_0_0_0, '0', blocks_multiply_xx_0_0, '0']
+- [digital_constellation_modulator_0_0_0_0, '0', blocks_multiply_xx_0_0_0, '0']
+- [digital_constellation_modulator_0_0_0_1, '0', blocks_multiply_xx_0_0_1, '0']
+- [epy_block_0_0, '0', digital_constellation_modulator_0_0_0, '0']
+- [epy_block_0_0, '1', blocks_uchar_to_float_0_0, '0']
+- [epy_block_0_0_0, '0', digital_constellation_modulator_0_0_0_1, '0']
+- [epy_block_0_0_0, '1', blocks_uchar_to_float_0_0_1, '0']
+- [epy_block_0_1, '0', digital_constellation_modulator_0_0_0_0, '0']
+- [epy_block_0_1, '1', blocks_uchar_to_float_0_1, '0']
+- [epy_block_2_1, pdu_out, epy_block_0_0, pdus]
+- [epy_block_2_1_0, pdu_out, epy_block_0_1, pdus]
+- [epy_block_2_1_1, pdu_out, epy_block_0_0_0, pdus]
+- [fft_filter_xxx_0_0_0_0, '0', virtual_sink_0_1_0_1_0_0, '0']
+- [fft_filter_xxx_0_0_0_0_0, '0', virtual_sink_0_1_0_1_0, '0']
+- [fft_filter_xxx_0_0_0_0_1, '0', virtual_sink_0_1_0_1_0_0_0, '0']
+- [mmse_resampler_xx_0, '0', blocks_rotator_cc_0, '0']
+- [mmse_resampler_xx_0, '0', qtgui_time_sink_x_0, '0']
+- [virtual_source_1_0_0, '0', blocks_add_xx_0, '0']
+- [virtual_source_1_0_0_0, '0', blocks_add_xx_0, '1']
+- [virtual_source_1_0_0_0_0, '0', blocks_add_xx_0, '2']
+
+metadata:
+  file_format: 1
+  grc_version: 3.10.12.0

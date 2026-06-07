@@ -1,0 +1,49 @@
+file: sync_samples_N2_P2.bin
+
+[SYNC] Template length : 32 samples
+[SYNC] Frame length    : 1600 samples
+[SYNC] Total IQ samples: 723476
+[SYNC] Correlating ...
+[SYNC] Peak 687216 (val=1.000): decode failed, skipping.
+[SYNC] Peak 688844 (val=0.915): decode failed, skipping.
+[SYNC] Offset check: peak_idx=689665 fs=688865 diff=800 expected=800
+
+[SLOT BOUNDARY CHECK]
+  slot=1  expected_start=0  corr_peak_in_window=8  offset=+8  peak_val=0.2795
+  slot=2  expected_start=800  corr_peak_in_window=800  offset=+0  peak_val=0.9953
+[SYNC] Frame 0001: peak_val=0.995 samples [688865:690465]  user=2 frame_seq=1 this_slot=2
+[SYNC] Offset check: peak_idx=690481 fs=690481 diff=0 expected=0
+
+[SLOT BOUNDARY CHECK]
+  slot=1  expected_start=0  corr_peak_in_window=0  offset=+0  peak_val=0.9999
+  slot=2  expected_start=800  corr_peak_in_window=792  offset=-8  peak_val=0.3570
+[SYNC] Frame 0002: peak_val=1.000 samples [690481:692081]  user=2 frame_seq=2 this_slot=1
+[SYNC] Found 2 frame(s).
+
+[SIC] ── New Frame ────────────────────────────────────────
+  slot=01  NO_AC
+  [OFFSET] Learned user=2 ac_off=+0
+  slot=02  DECODED  user=2  d=2  copies@[1, 2]  ac_off=+0
+  CANCELLED slot=01  (user=2  ac_off=+0)
+
+  [RESIDUAL DEBUG] slot=1  after cancellation
+  slot=01  NO_AC
+[SIC] Frame 1 — decoded=1, resolved=1/2 slots
+
+[SIC] ── New Frame ────────────────────────────────────────
+  [OFFSET] Learned user=2 ac_off=+0
+  slot=01  DECODED  user=2  d=2  copies@[1, 2]  ac_off=+0
+  CANCELLED slot=02  (user=2  ac_off=+0)
+[DEBUG] user_id=2 frame_seq=2
+[DEBUG] degree=2 this_slot=2
+[DEBUG] slot_list=[130, 2, 129]
+  slot=02  CRC_FAIL  user=2
+[DEBUG] user_id=2 frame_seq=2
+[DEBUG] degree=2 this_slot=2
+[DEBUG] slot_list=[130, 2, 129]
+  slot=02  CRC_FAIL  user=2
+[SIC] Frame 2 — decoded=1, resolved=1/2 slots
+
+[MAIN] Done — total decoded packets : 2
+[MAIN] Packet log → decoded_packets.csv
+[MAIN] SIC log    → sic_log.csv
