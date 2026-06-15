@@ -11,14 +11,12 @@
 
 from PyQt5 import Qt
 from gnuradio import qtgui
-from PyQt5 import QtCore
 from gnuradio import analog
 from gnuradio import blocks
 import pmt
-from gnuradio import channels
-from gnuradio.filter import firdes
 from gnuradio import digital
 from gnuradio import filter
+from gnuradio.filter import firdes
 import TX_c_epy_block_0 as epy_block_0  # embedded python block
 import TX_c_epy_block_0_0 as epy_block_0_0  # embedded python block
 import TX_c_epy_block_0_1 as epy_block_0_1  # embedded python block
@@ -39,7 +37,7 @@ from gnuradio import eng_notation
 
 class TX_c(gr.top_block, Qt.QWidget):
 
-    def __init__(self, rx_log='rx_log.csv'):
+    def __init__(self):
         gr.top_block.__init__(self, "Not titled yet", catch_exceptions=True)
         Qt.QWidget.__init__(self)
         self.setWindowTitle("Not titled yet")
@@ -71,11 +69,6 @@ class TX_c(gr.top_block, Qt.QWidget):
         self.flowgraph_started = threading.Event()
 
         ##################################################
-        # Parameters
-        ##################################################
-        self.rx_log = rx_log
-
-        ##################################################
         # Variables
         ##################################################
         self.sps = sps = 5
@@ -85,18 +78,14 @@ class TX_c(gr.top_block, Qt.QWidget):
         self.bw = bw = (1+excess_bw)*(samp_rate//sps)
         self.bps = bps = 1
         self.usrp_rate = usrp_rate = 40e3
-        self.user_id3 = user_id3 = 3
         self.user_id2 = user_id2 = 2
         self.user_id1 = user_id1 = 1
-        self.time_offset = time_offset = 1.000
         self.thresh = thresh = 31
         self.taps = taps = [1.0 + 0.0j, ]
         self.rs_ratio = rs_ratio = 1.0
         self.phase_bw = phase_bw = 0.0628
-        self.noise_volt = noise_volt = 0.0
         self.low_pass_filter_taps = low_pass_filter_taps = firdes.low_pass(1.0, samp_rate, (bw//2)+5e3, 10e3, window.WIN_HAMMING, 6.76)
         self.initial_delay = initial_delay = 2
-        self.freq_offset = freq_offset = 0
         self.dist2 = dist2 = [(2, 1.00)]
         self.dist1 = dist1 = [(1, 1.00)]
         self.bpsk = bpsk = digital.constellation_bpsk().base()
@@ -108,15 +97,6 @@ class TX_c(gr.top_block, Qt.QWidget):
         # Blocks
         ##################################################
 
-        self._time_offset_range = qtgui.Range(0.999, 1.001, 0.0001, 1.000, 200)
-        self._time_offset_win = qtgui.RangeWidget(self._time_offset_range, self.set_time_offset, "Timing Offset", "counter_slider", float, QtCore.Qt.Horizontal)
-        self.top_layout.addWidget(self._time_offset_win)
-        self._noise_volt_range = qtgui.Range(0, 1, 0.01, 0.0, 200)
-        self._noise_volt_win = qtgui.RangeWidget(self._noise_volt_range, self.set_noise_volt, "Noise Voltage", "counter_slider", float, QtCore.Qt.Horizontal)
-        self.top_layout.addWidget(self._noise_volt_win)
-        self._freq_offset_range = qtgui.Range(-0.1, 0.1, 0.001, 0, 200)
-        self._freq_offset_win = qtgui.RangeWidget(self._freq_offset_range, self.set_freq_offset, "Frequency Offset", "counter_slider", float, QtCore.Qt.Horizontal)
-        self.top_layout.addWidget(self._freq_offset_win)
         self.root_raised_cosine_filter_0 = filter.fir_filter_ccf(
             1,
             firdes.root_raised_cosine(
@@ -226,20 +206,6 @@ class TX_c(gr.top_block, Qt.QWidget):
         self.epy_block_0_1 = epy_block_0_1.PDU_to_Timed_Byte_Stream()
         self.epy_block_0_0 = epy_block_0_0.IRSA_Packet_Generator(N_slots=N_Slots, slot_duration=T_slot, lambda_dist=dist2, user_id=user_id2, packet_size=packet_size, total_packets=1, tx_probability=1, initial_delay=initial_delay)
         self.epy_block_0 = epy_block_0.IRSA_Packet_Generator(N_slots=N_Slots, slot_duration=T_slot, lambda_dist=dist1, user_id=user_id1, packet_size=packet_size, total_packets=1, tx_probability=1, initial_delay=initial_delay)
-        self.digital_symbol_sync_xx_0 = digital.symbol_sync_cc(
-            digital.TED_MUELLER_AND_MULLER,
-            sps,
-            phase_bw,
-            1.0,
-            1.0,
-            1.5,
-            1,
-            digital.constellation_bpsk().base(),
-            digital.IR_MMSE_8TAP,
-            128,
-            [])
-        self.digital_fll_band_edge_cc_0 = digital.fll_band_edge_cc(sps, excess_bw, 44, phase_bw, False)
-        self.digital_costas_loop_cc_0 = digital.costas_loop_cc(phase_bw, 2, False)
         self.digital_constellation_modulator_0_0_0_0_0 = digital.generic_mod(
             constellation=bpsk,
             differential=True,
@@ -258,13 +224,6 @@ class TX_c(gr.top_block, Qt.QWidget):
             verbose=False,
             log=False,
             truncate=False)
-        self.channels_channel_model_0 = channels.channel_model(
-            noise_voltage=noise_volt,
-            frequency_offset=freq_offset,
-            epsilon=time_offset,
-            taps=taps,
-            noise_seed=0,
-            block_tags=True)
         self.blocks_uchar_to_float_0_1_0 = blocks.uchar_to_float()
         self.blocks_uchar_to_float_0_1 = blocks.uchar_to_float()
         self.blocks_throttle2_0_0 = blocks.throttle( gr.sizeof_gr_complex*1, samp_rate, True, 0 if "auto" == "auto" else max( int(float(0.1) * samp_rate) if "auto" == "time" else int(0.1), 1) )
@@ -276,10 +235,8 @@ class TX_c(gr.top_block, Qt.QWidget):
         self.blocks_message_strobe_0 = blocks.message_strobe(pmt.intern("TEST"), ((int)(N_Slots * T_slot * 1e3)))
         self.blocks_float_to_complex_0_0_0_0 = blocks.float_to_complex(1)
         self.blocks_float_to_complex_0_0_0 = blocks.float_to_complex(1)
-        self.blocks_file_sink_0_0 = blocks.file_sink(gr.sizeof_gr_complex*1, 'RC_samples.bin', False)
+        self.blocks_file_sink_0_0 = blocks.file_sink(gr.sizeof_gr_complex*1, 'rc_samples.bin', False)
         self.blocks_file_sink_0_0.set_unbuffered(False)
-        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, 'sync_samples.bin', False)
-        self.blocks_file_sink_0.set_unbuffered(False)
         self.blocks_add_xx_0 = blocks.add_vcc(1)
         self.analog_const_source_x_0_0_0_0 = analog.sig_source_f(0, analog.GR_CONST_WAVE, 0, 0, 0)
         self.analog_const_source_x_0_0_0 = analog.sig_source_f(0, analog.GR_CONST_WAVE, 0, 0, 0)
@@ -296,7 +253,7 @@ class TX_c(gr.top_block, Qt.QWidget):
         self.connect((self.analog_const_source_x_0, 0), (self.blocks_null_sink_1, 0))
         self.connect((self.analog_const_source_x_0_0_0, 0), (self.blocks_float_to_complex_0_0_0, 1))
         self.connect((self.analog_const_source_x_0_0_0_0, 0), (self.blocks_float_to_complex_0_0_0_0, 1))
-        self.connect((self.blocks_add_xx_0, 0), (self.channels_channel_model_0, 0))
+        self.connect((self.blocks_add_xx_0, 0), (self.blocks_throttle2_0_0, 0))
         self.connect((self.blocks_float_to_complex_0_0_0, 0), (self.blocks_multiply_xx_0_0_0, 1))
         self.connect((self.blocks_float_to_complex_0_0_0_0, 0), (self.blocks_multiply_xx_0_0_0_0, 1))
         self.connect((self.blocks_multiply_xx_0_0_0, 0), (self.fft_filter_xxx_0_0_0_0_0, 0))
@@ -306,14 +263,8 @@ class TX_c(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_throttle2_0_0, 0), (self.root_raised_cosine_filter_0, 0))
         self.connect((self.blocks_uchar_to_float_0_1, 0), (self.blocks_repeat_0_0_0, 0))
         self.connect((self.blocks_uchar_to_float_0_1_0, 0), (self.blocks_repeat_0_0_0_0, 0))
-        self.connect((self.channels_channel_model_0, 0), (self.blocks_throttle2_0_0, 0))
         self.connect((self.digital_constellation_modulator_0_0_0_0, 0), (self.blocks_multiply_xx_0_0_0, 0))
         self.connect((self.digital_constellation_modulator_0_0_0_0_0, 0), (self.blocks_multiply_xx_0_0_0_0, 0))
-        self.connect((self.digital_costas_loop_cc_0, 0), (self.blocks_file_sink_0, 0))
-        self.connect((self.digital_costas_loop_cc_0, 0), (self.qtgui_const_sink_x_0_0, 0))
-        self.connect((self.digital_fll_band_edge_cc_0, 0), (self.digital_symbol_sync_xx_0, 0))
-        self.connect((self.digital_fll_band_edge_cc_0, 0), (self.qtgui_freq_sink_x_0_0, 0))
-        self.connect((self.digital_symbol_sync_xx_0, 0), (self.digital_costas_loop_cc_0, 0))
         self.connect((self.epy_block_0_1, 1), (self.blocks_uchar_to_float_0_1, 0))
         self.connect((self.epy_block_0_1, 0), (self.digital_constellation_modulator_0_0_0_0, 0))
         self.connect((self.epy_block_0_1_0, 1), (self.blocks_uchar_to_float_0_1_0, 0))
@@ -321,8 +272,9 @@ class TX_c(gr.top_block, Qt.QWidget):
         self.connect((self.fft_filter_xxx_0_0_0_0_0, 0), (self.blocks_add_xx_0, 0))
         self.connect((self.fft_filter_xxx_0_0_0_0_0_0, 0), (self.blocks_add_xx_0, 1))
         self.connect((self.fft_filter_xxx_0_0_0_0_0_0_0, 0), (self.blocks_file_sink_0_0, 0))
-        self.connect((self.root_raised_cosine_filter_0, 0), (self.digital_fll_band_edge_cc_0, 0))
         self.connect((self.root_raised_cosine_filter_0, 0), (self.fft_filter_xxx_0_0_0_0_0_0_0, 0))
+        self.connect((self.root_raised_cosine_filter_0, 0), (self.qtgui_const_sink_x_0_0, 0))
+        self.connect((self.root_raised_cosine_filter_0, 0), (self.qtgui_freq_sink_x_0_0, 0))
 
 
     def closeEvent(self, event):
@@ -333,12 +285,6 @@ class TX_c(gr.top_block, Qt.QWidget):
 
         event.accept()
 
-    def get_rx_log(self):
-        return self.rx_log
-
-    def set_rx_log(self, rx_log):
-        self.rx_log = rx_log
-
     def get_sps(self):
         return self.sps
 
@@ -348,7 +294,6 @@ class TX_c(gr.top_block, Qt.QWidget):
         self.set_bw((1+self.excess_bw)*(self.samp_rate//self.sps))
         self.blocks_repeat_0_0_0.set_interpolation((8*self.sps))
         self.blocks_repeat_0_0_0_0.set_interpolation((8*self.sps))
-        self.digital_symbol_sync_xx_0.set_sps(self.sps)
         self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(1, self.samp_rate, ((self.samp_rate//self.sps)), 0.35, (11*self.sps)))
 
     def get_samp_rate(self):
@@ -399,12 +344,6 @@ class TX_c(gr.top_block, Qt.QWidget):
     def set_usrp_rate(self, usrp_rate):
         self.usrp_rate = usrp_rate
 
-    def get_user_id3(self):
-        return self.user_id3
-
-    def set_user_id3(self, user_id3):
-        self.user_id3 = user_id3
-
     def get_user_id2(self):
         return self.user_id2
 
@@ -419,13 +358,6 @@ class TX_c(gr.top_block, Qt.QWidget):
         self.user_id1 = user_id1
         self.epy_block_0.user_id = self.user_id1
 
-    def get_time_offset(self):
-        return self.time_offset
-
-    def set_time_offset(self, time_offset):
-        self.time_offset = time_offset
-        self.channels_channel_model_0.set_timing_offset(self.time_offset)
-
     def get_thresh(self):
         return self.thresh
 
@@ -437,7 +369,6 @@ class TX_c(gr.top_block, Qt.QWidget):
 
     def set_taps(self, taps):
         self.taps = taps
-        self.channels_channel_model_0.set_taps(self.taps)
 
     def get_rs_ratio(self):
         return self.rs_ratio
@@ -450,16 +381,6 @@ class TX_c(gr.top_block, Qt.QWidget):
 
     def set_phase_bw(self, phase_bw):
         self.phase_bw = phase_bw
-        self.digital_costas_loop_cc_0.set_loop_bandwidth(self.phase_bw)
-        self.digital_fll_band_edge_cc_0.set_loop_bandwidth(self.phase_bw)
-        self.digital_symbol_sync_xx_0.set_loop_bandwidth(self.phase_bw)
-
-    def get_noise_volt(self):
-        return self.noise_volt
-
-    def set_noise_volt(self, noise_volt):
-        self.noise_volt = noise_volt
-        self.channels_channel_model_0.set_noise_voltage(self.noise_volt)
 
     def get_low_pass_filter_taps(self):
         return self.low_pass_filter_taps
@@ -477,13 +398,6 @@ class TX_c(gr.top_block, Qt.QWidget):
         self.initial_delay = initial_delay
         self.epy_block_0.initial_delay = self.initial_delay
         self.epy_block_0_0.initial_delay = self.initial_delay
-
-    def get_freq_offset(self):
-        return self.freq_offset
-
-    def set_freq_offset(self, freq_offset):
-        self.freq_offset = freq_offset
-        self.channels_channel_model_0.set_frequency_offset(self.freq_offset)
 
     def get_dist2(self):
         return self.dist2
@@ -525,21 +439,12 @@ class TX_c(gr.top_block, Qt.QWidget):
 
 
 
-def argument_parser():
-    parser = ArgumentParser()
-    parser.add_argument(
-        "--rx-log", dest="rx_log", type=str, default='rx_log.csv',
-        help="Set file [default=%(default)r]")
-    return parser
-
 
 def main(top_block_cls=TX_c, options=None):
-    if options is None:
-        options = argument_parser().parse_args()
 
     qapp = Qt.QApplication(sys.argv)
 
-    tb = top_block_cls(rx_log=options.rx_log)
+    tb = top_block_cls()
 
     tb.start()
     tb.flowgraph_started.set()

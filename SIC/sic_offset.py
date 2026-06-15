@@ -2,7 +2,7 @@
 Here in slots there is a possibility of slot offset for that we are 
 correlate with the access code and identifying the possible start of the packet in the given slot.
 
-The offset complicates the interference cancellation since it doesn't know where the packet boundaries actually are present.    
+The offset complicates the interference cancellation since it doesn't know where the packet boundaries are in the interfered slot.    
 """
 
 """
