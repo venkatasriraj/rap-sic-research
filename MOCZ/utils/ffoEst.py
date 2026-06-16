@@ -12,7 +12,7 @@ def ffo_est(y, Q, K, R):
             idx = (Q * k + q) % len(Yo)
             sumZeros += min( np.abs(Yi[idx]), np.abs(Yo[idx]) )
         min_q[q] = sumZeros
-    q_est= np.argmin(min_q)
+    q_est = np.argmin(min_q)
     # print(f'Estimatied sub-sector: {q_est}')
     theta_est = ( q_est / Q ) * theta_k
     # print(f'Estimated fractional frequency offset: {theta_est}') 

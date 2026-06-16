@@ -12,11 +12,13 @@ import random
 import galois
 import itertools
 
-SNR_db = 20
-
 m = 5
 m = 5
 n = 2**m -1
+
+SNR_db = 20
+Q = 4
+theta_K = 2 * np.pi / n
 
 t = 2
 d_min = 2 * t + 1
@@ -101,29 +103,52 @@ h_com = sigma * ( np.random.randn() + 1j * np.random.randn() )
 
 h_mag = np.abs(h_com)
 h_phase = 180 * np.angle(h_com)/(np.pi)
-print(f'Attenuation: {np.round(h_mag, 6)}, rotation: {np.round(h_phase, 6)}(in degrees) applied by channel')
+# print(f'Attenuation: {np.round(h_mag, 6)}, rotation: {np.round(h_phase, 6)}(in degrees) applied by channel')
+
+## time-varying channel to observe the rotation of zeros in Z-domain
+ch_len = n
+integer_rotation = np.random.randint(n)
+fractional_phase  = np.arange(0, theta_K, theta_K / (2*Q) )
+print(f"Fractional Phase: {fractional_phase}\n")
+fractional_rotate = fractional_phase[3] # random.choice( fractional_phase )
+phase_rotation = theta_K * integer_rotation + fractional_rotate
+
+print(f"Rotation in degrees: {180 * phase_rotation / np.pi}, Fractional rotation: {fractional_rotate},"
+    f" Integer rotation: {integer_rotation}")
+
+h_multipath = [np.exp(1j * i * phase_rotation) for i in range(ch_len+1)]
+# print(f"Multipath channel with phase rotation only: {h_multipath}")
+
+# y_multipath = np.convolve(x_normalized, h_multipath)
+y_multipath = x_normalized * h_multipath
+
+# N: Length of received sequence from channel
+N = n + ch_len
 
 # signal power = 1 (After Normalization)
 noise_var  = 10**(-SNR_db/10)
-noise_vec = np.sqrt(noise_var/2) * ( np.random.randn(n+1) + 1j * np.random.randn(n+1) )
+noise_vec = np.sqrt(noise_var/2) * ( np.random.randn(N) + 1j * np.random.randn(N) )
 # print(f"Noise Vector: {noise_vec}")
 
-y_com = x_normalized * h_com + noise_vec       # transmitting unit power coefficients
+# y_multipath += noise_vec
 
 
-Q = int( 2**( np.log( np.ceil( len(y_com) / n) ) / np.log(2) ) )
+
+# Q = int( 2**( np.log( np.ceil( len(y_multipath) / n ) ) / np.log(2) ) )
+
+# print(f"Upsampling factor Q is {Q}")
 R = np.sqrt(1 + np.sin(np.pi/n))
 
 zero_geometry = codebook_con(R, n)
 
 
-theta_est = ffo_est(y_com, Q, n, R)
+theta_est = ffo_est(y_multipath, Q, n, R)
 print(f'Estiamted fractional frequency rotation: {theta_est}')
 
 # fractional offset correction
-M_theta = np.diag( np.exp(-1j*theta_est) ** np.arange(len(y_com)) )
+M_theta = np.diag( np.exp(-1j*theta_est) ** np.arange(len(y_multipath)) )
 # print(M_theta)
-y_ffo = y_com @ M_theta
+y_ffo = y_multipath @ M_theta
 # print(y_ffo)
 
 #  Ro = np.sqrt(1 + np.sin(np.pi/K))

@@ -27,7 +27,7 @@ print(f'Attenuation: {np.round(h_mag, 6)}, rotation: {np.round(h_phase, 6)}(in d
 y_com = x * h_com
 print(f'Received sequence through complex slow fading channel without noise: {y_com}')
 
-Q = int( 2**( np.log( np.ceil(len(y_com/K)) ) / np.log(2) ) )
+Q = int( 2**( np.log( np.ceil(len(y_com)/K) ) / np.log(2) ) )
 R = np.sqrt(1 + np.sin(np.pi/K))
 
 # codebook construction at RX for REFERENCE
