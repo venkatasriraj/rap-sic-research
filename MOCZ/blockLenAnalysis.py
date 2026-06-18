@@ -3,6 +3,7 @@ Monte-carlo simulations for estimated channel over varying block-length(K).
 We will be considering the slow-fading channel with AWGN.
 These values are calculate without normalizing the signal coefficicents
 in time-domain.
+PAPR analysis should be at Transmitter before PA and DAC.
 For SNR =  we will be analyzing how
 - BER vs K
 - PAPR vs K
@@ -53,7 +54,7 @@ for k in K:
         msg_rx = rx.fftDizet(sig_ffo, Q)
 
         ber += rx.ber(msg_rx, msg)
-        papr += rx.PAPR(sig_rx)
+        papr += tx.PAPR(sig_tx)
         # ----   Signal Reconstruction using the same BMOCZTransmitter Class  -----
         sig_recon = tx.coeffCon(msg_rx)
         ch_coeff_hat = chEst.leastSquares(sig_rx, sig_recon)

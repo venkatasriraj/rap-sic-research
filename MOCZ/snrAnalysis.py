@@ -53,7 +53,7 @@ for snr in SNR_dB:
         msg_rx = rx.fftDizet(sig_ffo, Q)
 
         ber += rx.ber(msg_rx, msg)
-        papr += rx.PAPR(sig_rx)
+        papr += tx.PAPR(sig_tx)
 
         # ----   Signal Reconstruction using the same BMOCZTransmitter Class  -----
         sig_recon = tx.coeffCon(msg_rx)

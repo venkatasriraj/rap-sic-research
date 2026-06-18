@@ -42,10 +42,10 @@ Q = int( 2**( np.log( np.ceil(len(sig_rx)/K) ) / np.log(2) ) )
 sig_ffo = rx.ffoEstCor(sig_rx, Q)
 msg_rx = rx.fftDizet(sig_ffo, Q)
 ber = rx.ber(msg_rx, msg)
-print(f'BER: {ber}')
-## we need to identify the papr after applying the FFT
-papr_rx = rx.PAPR(sig_rx)
-print(f"The PAPR at Receiver is {np.abs(papr_rx)}")
+print(f'BER: {ber}') 
+## we need to identify the papr after applying the FFT at Tx
+papr_tx = tx.PAPR(sig_tx)
+print(f"The PAPR at Receiver is {np.abs(papr_tx)}")
 
 # ----   Signal Reconstruction using the same BMOCZTransmitter Class  -----
 sig_recon = tx.coeffCon(msg_rx)
