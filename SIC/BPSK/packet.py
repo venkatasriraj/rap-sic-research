@@ -19,6 +19,7 @@ class PacketStructure:
         self.accessCode = AccessCode
         self.maxDegree = maxDegree
         self.pktSize = pktSize
+        self.payloadLen = 0
 
     def buildPacket(self, userId, frameNo, degree, thisSlot, slotList):
 
@@ -32,19 +33,38 @@ class PacketStructure:
         protectedData = userId_b + frameNo_b + degree_b + thisSlot_b + slotList_b
 
         random.seed(userId)
-        dataLen = self.pktSize - len(protectedData) - len(self.accessCode)
-        data_b = [random.randint(0,255) & 0xFFFF for _ in range(dataLen)]
+        self.payloadLen = self.pktSize - len(protectedData) - len(self.accessCode) - 4
+        # 4 Bytes for CRC
+        data_b = [random.randint(0,255) & 0xFFFF for _ in range(self.payloadLen)]
         # print(f"Length of payload {len(data_b)}")
         protectedData += data_b
 
         protectedCRC = binascii.crc32( bytes(protectedData) ) & 0xFFFFFFFF
-        protectedCRC_b = list( protectedCRC.to_bytes(4, byteorder='big') )
+        protectedCRC_b = list( protectedCRC.to_bytes(4, byteorder='little') )
             # ---- input to CRC is bytes and we to get unsigned CRC we will mask with 0xFFFFFFFF
         pkt = self.accessCode + protectedData + protectedCRC_b
         return pkt
 
     def parsePacket(self, pkt):
+        AC_Len = len(self.accessCode)
+        idx = AC_Len
+        userId = pkt[idx]; idx += 1
+        frameNo = pkt[idx]; idx += 1
+        degree = pkt[idx]; idx += 1
+        thisSlot = pkt[idx]; idx += 1
+        slotList = pkt[idx: idx+degree]; idx += self.maxDegree
+        payload = pkt[idx: idx + self.payloadLen]; idx += self.payloadLen
+        crc_rx = pkt[idx:idx+4]
 
-        
-
-        return None
+        protected = pkt[AC_Len: AC_Len+1+1+1+1+self.maxDegree+self.payloadLen]
+        crc_act = binascii.crc32( bytes(protected) ) & 0xFFFFFFFF
+        crc_act_b = list( crc_act.to_bytes(4, byteorder='little') )
+        return {
+            "userId": userId,
+            "frameNo": frameNo,
+            "degree": degree,
+            "thisSlot": thisSlot,
+            "slotList": slotList,
+            "payload": payload,
+            "crc_ok": (crc_rx == crc_act_b)
+        }
