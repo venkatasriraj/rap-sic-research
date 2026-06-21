@@ -37,7 +37,9 @@ class BMOCZReceiver(BiMOCZ):
                 sumZeros += min( np.abs(Yi[idx]), np.abs(Yo[idx]) )
             min_q[q] = sumZeros
         # print(min_q)
-        q_est= np.argmin(min_q)
+        #   ---- invalid use of np.argmin on a dict
+        # q_est= np.argmin(min_q)
+        q_est = min(min_q, key=min_q.get)
         # print(f'Estimatied sub-sector: {q_est}')
         theta_est = ( q_est / Q ) * self.theta_K
         # print(f'Estimated fractional frequency offset: {theta_est}') 
@@ -45,7 +47,7 @@ class BMOCZReceiver(BiMOCZ):
     
     def ffoEstCor(self, y, Q):
         phi_hat = self.ffo_est(y, Q)
-        M_theta = np.diag( np.exp(-1j*phi_hat) ** np.arange(len(y)) )
+        M_theta = np.diag( np.exp(-1j*phi_hat) ** np.flip( np.arange(len(y)) ) )
         # print(M_theta)
         y_ffo = y @ M_theta
         return y_ffo
@@ -61,4 +63,26 @@ class BMOCZReceiver(BiMOCZ):
         ber = np.mean(msg_hat != msg)
         return ber
 
-    # should add ACPC decoder
+    def fftConZM(self, y):
+        N_r = len(y)
+        N_fft = self.K * 2
+        Rzm = ( (self.R + self.R**-1)/2 ).astype(complex)
+        scaling_vec = Rzm ** np.arange(N_r)
+        y_scaled = y * scaling_vec
+        y_pad = np.pad(y_scaled, (0, N_fft - N_r), mode='constant')
+        Y_zm = np.abs( np.fft.ifft(y_pad) )
+        return Y_zm
+
+    def ZMDetection(self, y):
+        Y_zm = self.fftConZM(y)
+        # print(Y_zm)
+
+        # gives the integer phase offset
+        k_est =  np.argmin(Y_zm) // 2
+        # l_est = q_est % Q 
+        # # to get sector to which it is rotated
+        # k_est = q_est // Q
+        # print(f"Integer Estimate: {k_est}, Fractional Estimate: {l_est}")
+
+        # print(f"Sector estimation using ZMDetection: {k_est}")
+        return k_est
