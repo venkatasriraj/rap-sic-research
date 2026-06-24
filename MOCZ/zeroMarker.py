@@ -26,7 +26,7 @@ msg = [np.random.randint(2) for i in range(K)]
 
 sig_tx = tx.coeffConZM(msg)
 rotation = np.random.uniform(0, 2*np.pi)
-sig_rx = ch.transmit(sig_tx, rotation)
+sig_rx = ch.transmit(sig_tx, rotationPossible[6])
 print(f"Rotation applied: {rotation} (in rad), {rotation * 180 / np.pi} (in deg)")
 # print(f"Integer rotation applied: {intRotationPossible[6]}")
 msg_un = rx.fftDizet(sig_rx, Q)

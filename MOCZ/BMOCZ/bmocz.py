@@ -1,7 +1,8 @@
 """
 For PAPR analysis for MOCZ, after applying fft when all phases align in 
  time-domain the peak will be observed. For average power in frequency domain, 
- instead we will be calculating in time domain using the parseval's power theorem. 
+ instead we will be calculating in time domain using the parseval's power theorem.
+ NOTE: How is PAPR defined for MOCZ? 
 """
 import numpy as np
 
@@ -21,7 +22,8 @@ class BiMOCZ:
         return zero_cb
 
     def PAPR(self, signal):
-        signal_max = np.abs( np.sum(signal) )
+        # signal_max = np.abs( np.sum(signal) )
+        signal_max = np.max( np.abs(signal) )**2
         signal_power = np.mean( np.abs(signal)**2 )
         papr = signal_max / signal_power
         return papr

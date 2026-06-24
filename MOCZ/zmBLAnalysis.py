@@ -58,7 +58,7 @@ for k in K:
         msg_hat = np.roll(msg_rx, -int_est)
 
         ber += rx.ber(msg_hat, msg)
-        papr += tx.PAPR(sig_norm)
+        papr += tx.PAPR(sig_tx)
     BER_15[k] = ber / noIter
     PAPR_15[k] = papr / noIter
 

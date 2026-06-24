@@ -38,7 +38,7 @@ MSE = {}
 for snr in SNR_dB:
     pcr = [0, 0]
     mse = 0
-    mse_count = 0
+    mse_count = 0.00000000001
     noise_var = 10**(-snr / 10)
     ch = SlowFadingChannel(var=noise_var)
     for i in range(noIter):

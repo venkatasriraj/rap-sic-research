@@ -17,7 +17,7 @@ from CHANNEL import (
     ChannelEstimation
 ) 
 
-SNR_db = 20
+SNR_db = 50
 K = 16
 
 tx = BMOCZTransmitter(K)
@@ -26,6 +26,7 @@ rx = BMOCZReceiver(K)
 msg = [np.random.randint(2) for i in range(K)]
 
 sig_tx = tx.coeffCon(msg) 
+print(type(sig_tx))
 # signal is not normalized and the coefficients are of the order 
 # [x0, x1, x2, x3, ....., xn]
 

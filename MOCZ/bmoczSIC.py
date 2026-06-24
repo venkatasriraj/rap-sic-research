@@ -19,7 +19,7 @@ from CHANNEL import (
     ChannelEstimation
 )
 
-SND_db = 15
+SND_db = 10
 K = 31
 sig_power = 1
 noise_var = sig_power * 10**(-SND_db/10)

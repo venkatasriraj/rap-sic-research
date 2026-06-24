@@ -9,3 +9,5 @@ class MultiPathFading(Channel):
         r = 1 # np.random.random()
         h = r * [ np.exp(1j * rotation * i) for i in range(len(signal)-1, -1, -1) ]
         return signal * h + self.awgn_noise(len(signal))
+
+    
