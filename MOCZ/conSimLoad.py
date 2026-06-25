@@ -27,10 +27,10 @@ degree = 2  # CRDSA
 m = 20
 n = m
 noIter = 100  # gives the simulation over 1000 frames
-G = np.linspace(0.125, 1, 8)
+G = np.linspace(0.1, 1, 10)
 
 K = 32   # 4B
-SNR_dB = np.arange(10, 41, 5)
+SNR_dB = np.arange(-10, 21, 5)
 signal_power = 1
 
 tx = BMOCZTransmitter(K)
@@ -104,7 +104,7 @@ for snr in SNR_dB:
 # plt.title(f"Throughput vs Load over {noIter} Iterations at SNR {snr}")
 # plt.savefig("results/ConSim/Mthr.jpeg")
 
-plt.figure(figsize=(8,6), dpi=400)
+plt.figure(figsize=(8,6), dpi=800)
 # markers = ['o', 's', '^', 'D', 'v', 'p', '*']
 for i, (k, v) in enumerate(thr_snr.items()):
     # marker = markers[i % len(markers)]
@@ -117,7 +117,7 @@ plt.xlabel("Load(g)", fontsize=7, fontweight='bold')
 plt.ylabel("Throughput(T)", fontsize=7) # , fontweight='bold'
 plt.ylim(0, 1.05)
 plt.title(f"Throughput vs Load over {noIter} Iterations", fontsize=7, pad = 4)
-plt.legend(loc='upper right', fontsize=4, framealpha=0.9)
+plt.legend(loc='upper right', fontsize=7, framealpha=0.6)
 plt.tight_layout()
-plt.savefig("results/ConSim/thrLoad.jpeg")
+plt.savefig("results/ConSim/mthrLoad.jpeg")
 # plt.show()

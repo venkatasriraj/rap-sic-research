@@ -8,6 +8,7 @@ System parameters:
 - Slot distribution: CRDSA (x**2)
 """
 import numpy as np
+import random
 import matplotlib.pyplot as plt
 from BPSK import BPSKBase
 from CHANNEL import (
@@ -20,11 +21,11 @@ accessCode = [1, 0] * 4
 lenAc = 4
 degree = 2 
 m = 20; n = m
-noIter = 1
+noIter = 100
 
 pktSize = 32
-SNR_dB = np.arange(-12, 41, 4)
-LOAD = np.linspace(0.125, 1, 8)
+SNR_dB = np.arange(-10, 21, 5)
+LOAD = np.linspace(0.1, 1, 10)
 signal_power = 1
 
 base = BPSKBase()
@@ -48,11 +49,11 @@ for snr in SNR_dB:
                 for s in userSlot:
                     if s not in slot:
                         FRAME[s] = [userId]
-                        slot.add(userId)
+                        slot.add(s)
                     else:
                         FRAME[s] += [userId]
             FRAME = dict( sorted( FRAME.items(), reverse=False ) )
-            frame, h = sim.frameBuild(FRAME),
+            frame, h = sim.frameBuild(FRAME)
             frameBAPM = sim.genBAPM(activeUsers)
 
             pkt_hat, h_hat = sim.frameParse(frame, frameBAPM)
@@ -69,3 +70,13 @@ for snr in SNR_dB:
     per_snr[snr] = per
     ber_snr[snr] = ber
 
+plt.figure(figsize=(8,6), dpi=800)
+for k, v in thr_snr.items():
+    plt.plot(v.keys(), v.values(), linestyle='-', linewidth=0.9, label=f"SNR = {k}")
+plt.grid(True, linestyle='--', alpha=0.6)
+plt.xlabel("Load(g)")
+plt.ylabel("Throughpt (T)")
+plt.title(f"Throughput vs Load over varied SNR for {noIter} iterations")
+plt.legend(loc='lower left', fontsize=7, framealpha=0.6)
+plt.tight_layout()
+plt.savefig("results/ConSim/dthrLoad.jpeg")
