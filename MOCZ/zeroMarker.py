@@ -11,12 +11,10 @@ from BMOCZ import (
 from CHANNEL import MultiPathFading
 
 K = 3
-Q = 7
+Q = 8
 theta_K = np.pi * 2 / K
-rotationPossible = np.arange(0, theta_K, theta_K/8)
+rotationPossible = np.arange(0, theta_K, theta_K/Q)
 intRotationPossible = theta_K * np.arange(K)
-# print(f"Possible Integer Rotaions: {intRotationPossible}\n")
-# print(f"Possible Fractional Rotations: {rotationPossible}\n")
 
 tx = BMOCZTransmitter(K)
 rx = BMOCZReceiver(K)

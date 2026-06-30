@@ -26,6 +26,6 @@ class BiMOCZ:
         signal_max = np.max( np.abs(signal) )**2
         signal_power = np.mean( np.abs(signal)**2 )
         papr = signal_max / signal_power
+        # print(f"Signal Power: {signal_power}, PAPR: {papr}, Signal Energy: "
+        #         f"{signal_power * len(signal)}, Max Abs Coeff: {np.max(np.abs(signal))}")
         return papr
-
-    

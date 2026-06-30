@@ -20,9 +20,8 @@ class Simulation:
     def userSlotGen(self):
         userSlots = {}
         for i in range(1, self.slots+1):
-            userSlots[i] = self.slotsGen(6*i+9)
+            userSlots[i] = self.slotsGen(i)
         return dict(sorted(userSlots.items(), reverse=False))
-
 
     def genBAPM(self, activeUsers):
         bapm = {}
@@ -59,7 +58,7 @@ class Simulation:
                     msg = self.msgGen(u)
                     sig_tx = self.tx.coeffCon(msg)
                     sig_power = np.mean( np.abs(sig_tx)**2 )
-                    sig_tx /= sig_power
+                    sig_tx /= np.sqrt(sig_power)
                     signal += h[u-1] * sig_tx
                 frame[m] = signal               
         return frame, h
@@ -70,10 +69,10 @@ class Simulation:
         interferencedSlots = list(pktsInSlots.keys())
         msg_hat = {}
         h_hat = {}
-        maxIter = self.users
         iterNo = 0
-        # print(f"Interferenced Slots: {interferencedSlots}, Packets In Slots:{pktsInSlots}")
-        while len(interferencedSlots) > 0 and iterNo < maxIter:
+        # singleton = []
+        # users_decoded = []
+        while len(interferencedSlots) > 0 and iterNo < self.users:
             if 1 not in pktsInSlots.values():        
                 return dict(sorted(msg_hat.items(), reverse=False)), dict(sorted(h_hat.items(), reverse=False))
             slot = interferencedSlots[0]
@@ -81,6 +80,7 @@ class Simulation:
             if pktsInSlots[slot] > 1:
                 interferencedSlots += [slot]
             else:
+                # singleton += [slot]
                 iterNo += 1
                 pktsInSlots[slot] -= 1
                 msg_rx = self.rx.fftDizet(frame[slot], self.Q)
@@ -88,23 +88,26 @@ class Simulation:
                 # Coefficients reconstruction using the message decoded
                 sig_recon = self.tx.coeffCon(msg_rx)
                 sig_power = np.mean( np.abs(sig_recon)**2 )
-                sig_recon /= sig_power
+                sig_recon /= np.sqrt(sig_power)
                 # h_est
                 h_est = self.chEst.leastSquares(frame[slot], sig_recon)
-                h_hat[slot] = h_est
+                # h_est = self.chEst.modifiedLS(frame[slot], sig_recon)
                 userId = bapm[slot][0]
+                h_hat[userId] = h_est
+                # if userId == 1:
+                #     print(f"    Estimated h is {h_est}")
                 userSlots = self.userSlots[userId]
+                # users_decoded += [userId]
                 for s in userSlots:
-                    # print(f"@{slot} - userslots: {userSlots}")
+                    bapm[s].remove(userId)
                     if s != slot and s in interferencedSlots:
                         frame[s] -= sig_recon * h_est
                         pktsInSlots[s] -= 1
                         if pktsInSlots[s] < 1:
                             interferencedSlots.remove(s)
-                            # print(f"Discarded Slot: {s}")
-                # interferencedSlots.discard(slot)
                 msg_hat[userId] = msg_rx
-                # print(f"Interenced Slots: {interferencedSlots} - @{slot}")
+        # print(f"    Slots decoded for a frame: {singleton}, {len(singleton)}")
+        # print(f"    Users Decoded for a frame: {users_decoded}, {len(users_decoded)}")
         return dict(sorted(msg_hat.items(), reverse=False)), dict(sorted(h_hat.items(), reverse=False))
 
     def per(self, msg_hat):
@@ -114,3 +117,15 @@ class Simulation:
                 pcr += 1
             bcr += np.sum(val == self.msgGen(key))
         return pcr, bcr
+
+    @staticmethod
+    def maeh(h, h_hat, userId):
+        # print(f"h: {h}\n")
+        # print(f"UserId: {userId}")
+        # print(f"hEst: {h_hat}")
+        if userId in h_hat.keys():
+            # print(f"h: {h[userId-1]}, h_hat: {h_hat[userId]}, MAE is {abs(h[userId-1]-h_hat[userId])}")
+            return abs(h[userId-1]-h_hat[userId])
+        else:
+            # print(f"UserId not available in this frame")
+            return 0

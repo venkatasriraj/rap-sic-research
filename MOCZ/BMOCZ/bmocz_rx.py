@@ -52,7 +52,6 @@ class BMOCZReceiver(BiMOCZ):
         y_ffo = y @ M_theta
         return y_ffo
 
-
     def fftDizet(self, y, Q):
         Y_eval, Y_ctr_eval = self.fftCon(y, Q)
         message_received = ( 1 - np.sign( Y_eval[::Q] - Y_ctr_eval[::Q] ) ) / 2 
@@ -75,14 +74,16 @@ class BMOCZReceiver(BiMOCZ):
 
     def ZMDetection(self, y):
         Y_zm = self.fftConZM(y)
-        # print(Y_zm)
-
-        # gives the integer phase offset
         k_est =  np.argmin(Y_zm) // 2
-        # l_est = q_est % Q 
-        # # to get sector to which it is rotated
-        # k_est = q_est // Q
-        # print(f"Integer Estimate: {k_est}, Fractional Estimate: {l_est}")
-
-        # print(f"Sector estimation using ZMDetection: {k_est}")
         return k_est
+
+    @staticmethod
+    def mae(sig_rx, sig_recon):
+        return np.mean(np.abs(sig_rx - sig_recon))
+
+    @staticmethod
+    def per(msg_rx, msg_tx):
+        if np.all( msg_rx == msg_tx ):
+            return 1
+        else:
+            return 0

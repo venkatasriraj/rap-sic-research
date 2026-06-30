@@ -47,7 +47,7 @@ sig_tx = tx.coeffCon(msg_encoded)
 # signal is not normalized and the coefficients are of the order 
 # [x0, x1, x2, x3, ....., xn]
 sig_power = np.mean( np.abs(sig_tx)**2 )
-sig_norm = sig_tx / sig_power
+sig_norm = sig_tx / np.sqrt(sig_power)
 
 sig_rx = ch.transmit(sig_norm)
 

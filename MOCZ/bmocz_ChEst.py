@@ -31,7 +31,7 @@ print(type(sig_tx))
 # [x0, x1, x2, x3, ....., xn]
 
 sig_power = np.mean( np.abs(sig_tx)**2 )
-sig_norm = sig_tx / sig_power
+sig_norm = sig_tx / np.sqrt(sig_power)
 
 noise_var = sig_power * 10**(-SNR_db/10)
 

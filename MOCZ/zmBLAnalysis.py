@@ -5,7 +5,6 @@ We will be analyzing the system performance over a given block-length.
 For a block-length(K) we will be analyzing how
 - BER vs K
 - PAPR vs K
-
 NOTE: Channel estimation is halted in the case of multipath fading 
 and will be persued later. 
 - MSE of h_est vs K for SNR = 15dB.
@@ -14,7 +13,6 @@ and will be persued later.
 """
 import numpy as np
 import matplotlib.pyplot as plt
-
 from BMOCZ import (
     BMOCZReceiver,
     BMOCZTransmitter
@@ -24,58 +22,96 @@ from CHANNEL import (
     # ChannelEstimation
 )
 
-K = np.arange(2, 41)
-Q = 7
-noIter = 1000
-snr = 15
+K = np.arange(8, 41, 3)
+Q = 8
+noIter = 2000
+# snr = 15
+SNR_dB = np.arange(-10, 21, 5)
 signal_power = 1 
-noise_var = signal_power * 10**(-snr/10)
 
-ch = MultiPathFading(noise_var=noise_var)
-# chEst = ChannelEstimation()
-BER_15 = {}
-PAPR_15 = {}
-# chCoeff_15 = {}
+ber_snr = {}; papr_snr = {}; per_snr = {}; thr_snr = {}
+for snr in SNR_dB:
+    noise_var = signal_power * 10**(-snr/10)
+    ch = MultiPathFading(noise_var=noise_var)
+    ber = {}; papr = {}; per = {}; throughput = {}
+    for k in K:
+        tx = BMOCZTransmitter(k)
+        rx = BMOCZReceiver(k)
+        BER, PAPR, PCR = 0, 0, 0
+        for i in range(noIter):
+            msg = [np.random.randint(2) for i in range(k)]
 
-for k in K:
-    tx = BMOCZTransmitter(k)
-    rx = BMOCZReceiver(k)
-    ber, papr, mse = 0, 0, 0
-    for i in range(noIter):
-        msg = [np.random.randint(2) for i in range(k)]
+            sig_tx = tx.coeffConZM(msg)
+            sig_power = np.mean(np.abs(sig_tx)**2)
+            sig_norm = sig_tx / np.sqrt(sig_power)
 
-        sig_tx = tx.coeffConZM(msg)
-        sig_power = np.mean(np.abs(sig_tx)**2)
-        sig_norm = sig_tx / sig_power
+            rotation = np.random.uniform(0, 2*np.pi)
+            sig_rx = ch.transmit(sig_norm, rotation)
 
-        rotation = np.random.uniform(0, 2*np.pi)
-        sig_rx = ch.transmit(sig_norm, rotation)
+            sig_ffo = rx.ffoEstCor(sig_rx, Q)
+            msg_rx = rx.fftDizet(sig_ffo, Q)
 
-        sig_ffo = rx.ffoEstCor(sig_rx, Q)
-        msg_rx = rx.fftDizet(sig_ffo, Q)
+            int_est = rx.ZMDetection(sig_ffo)
+            msg_hat = np.roll(msg_rx, -int_est)
 
-        int_est = rx.ZMDetection(sig_ffo)
-        msg_hat = np.roll(msg_rx, -int_est)
+            BER += rx.ber(msg_hat, msg)
+            PAPR += tx.PAPR(sig_tx)
+            PCR += rx.per(msg_hat, msg)
+        ber[k] = BER / noIter
+        papr[k] = PAPR / noIter
+        per[k] = 1 - (PCR / noIter)
+        throughput[k] = PCR / noIter
+    print(f"SNR - {snr} done")
+    ber_snr[snr] = ber
+    papr_snr[snr] = papr
+    per_snr[snr] = per
+    thr_snr[snr] = throughput
 
-        ber += rx.ber(msg_hat, msg)
-        papr += tx.PAPR(sig_tx)
-    BER_15[k] = ber / noIter
-    PAPR_15[k] = papr / noIter
-
-plt.figure(1, dpi=400)
-plt.plot(BER_15.keys(), BER_15.values(), '-')
-plt.grid(True)
+plt.figure(1, dpi=800)
+for k, v in ber_snr.items():
+    plt.plot(v.keys(), v.values(), linestyle='-', linewidth=0.9, label=f'SNR = {k}dB')
+plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("Block-Length(K)")
 plt.ylabel("BER")
-plt.title(f"BER vs K over {noIter} iterations for SNR {snr}.")
+plt.title(f"BER vs K over {noIter} packets")
+plt.ylim(0, 1.05)
+plt.legend(loc='upper right', fontsize=7, framealpha=0.6)
+plt.tight_layout()
 plt.savefig("results/zmBER.jpeg")
 
-plt.figure(2, dpi=400)
-plt.plot(PAPR_15.keys(), PAPR_15.values(), '-')
-plt.grid(True)
-plt.xlabel("Block-Length(K)")
-plt.ylabel("Peak to Average Power Ratio (PAPR)")
-plt.title(f"PAPR vs K over {noIter} iterations for SNR {snr}")
-plt.savefig("results/zmPAPR.jpeg")
+# plt.figure(2, dpi=800)
+# for k, v in papr_snr.items():
+#     plt.plot(v.keys(), v.values(), linestyle='-', linewidth=0.9, label=f"SNR = {k}dB")
+# plt.grid(True, linestyle='--', alpha=0.6)
+# plt.xlabel("Block-Length(K)")
+# plt.ylabel("Peak to Average Power Ratio (PAPR)")
+# plt.title(f"PAPR vs K over {noIter} packets")
+# plt.legend(loc='upper right', framealpha=0.6, fonstsize=7)
+# plt.tight_layout()
+# plt.savefig("results/zmPAPR.jpeg")
+
+plt.figure(3, dpi=800)
+for k, v in per_snr.items():
+    plt.plot(v.keys(), v.values(), linestyle='-', linewidth=0.9, label=f'SNR = {k}dB')
+plt.grid(True, linestyle='--', alpha=0.6)
+plt.xlabel("Block-length(K)")
+plt.ylabel("Packet Error Rate (PER)")
+plt.title(f"PER vs K for {noIter} packets")
+plt.ylim(0, 1.05)
+plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
+plt.tight_layout()
+plt.savefig("results/zmPER.jpeg")
+
+plt.figure(4, dpi=800)
+for k, v in thr_snr.items():
+    plt.plot(v.keys(), v.values(), linestyle='-', linewidth=0.9, label=f"SNR = {k}dB")
+plt.grid(True, linestyle='--', alpha=0.6)
+plt.xlabel("Block-length(K)")
+plt.ylabel("Throughpyt(T)")
+plt.title(f"Throughput vs K for {noIter} packets")
+plt.ylim(0, 1.05)
+plt.legend(loc='lower left', framealpha=0.6, fontsize=7)
+plt.tight_layout()
+plt.savefig("results/zmThroughput.jpeg")
 
 # plt.show()

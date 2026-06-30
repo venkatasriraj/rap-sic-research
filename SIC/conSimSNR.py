@@ -19,11 +19,11 @@ from CHANNEL import (
 from simulation import Simulation
 
 accessCode = [1,0,1,0,1,0,1,0]
-lenAC = 4
+lenAC = 0
 degree = 2
 m = 20
 n = m  # number of users
-noIter = 100
+noIter = 1000
 
 pktSize = 32   # in bits (4B)
 LOAD = np.linspace(0.1, 1, 10)
@@ -40,7 +40,11 @@ for load in LOAD:
         PER, BER, THROUGHPUT = 0, 0, 0
         noise_var = signal_power * 10**(-snr/10)
         ch = SlowFadingChannel(noise_var)
-        sim = Simulation(base, ch, chEst, m, n, degree, pktSize, accessCode[:lenAC])
+        if lenAC == 0:
+            pilot = []
+        else:
+            pilot = accessCode[:lenAC]
+        sim = Simulation(base, ch, chEst, m, n, degree, pktSize, pilot)
         userSlotsGen = sim.userSlots
         for i in range(noIter):
             FRAME = {}
@@ -64,7 +68,7 @@ for load in LOAD:
             pcr, bcr_frame = sim.per(pkt_hat)
             PER += ( 1 - (pcr/len(activeUsers)) )
             BER += ( 1 - ( bcr_frame / ( pktSize * len(activeUsers) ) ) )
-            THROUGHPUT += bcr_frame / ( pktSize * len(activeUsers) )
+            THROUGHPUT += pcr / len(activeUsers) 
         per[snr] = PER / noIter
         ber[snr] = (BER / noIter).astype(float)
         throughput[snr] = THROUGHPUT / noIter
@@ -80,8 +84,8 @@ plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("SNR(dB)")
 plt.ylabel("Throughput (T)")
 plt.ylim(0, 1.05)
-plt.title(f"Throughput vs SNR over varied load for {noIter} Iterations")
+plt.title(f"Throughput vs SNR for {noIter} Iters with PilotLen {lenAC}")
 plt.legend(loc='lower left', fontsize=7, framealpha=0.6)
 plt.tight_layout()
-plt.savefig("results/ConSim/dthrSNR.jpeg")
+plt.savefig(f"results/ConSim/PilotLen/d{lenAC}thrSNR.jpeg")
 # plt.show()

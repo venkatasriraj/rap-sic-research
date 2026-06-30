@@ -56,7 +56,7 @@ class Simulation:
                 signal = self.ch.awgn_noise(self.pktSize+1)
                 for u in slotUsers:
                     msg = self.msgGen(u) 
-                    pkt = np.append(self.pilot, msg)
+                    pkt = np.append(self.pilot, msg).astype(np.int32)
                     sig_tx = self.tx.modulate(pkt)
                     signal += h[u-1] * sig_tx
                 frame[m] = signal               
@@ -87,7 +87,10 @@ class Simulation:
                 # Coefficients reconstruction using the message decoded
                 sig_recon = self.tx.modulate(pkt_rx)
                 # h_est
-                h_est = self.chEst.leastSquares(frame[slot][:len(self.pilot)], sig_recon[:len(self.pilot)])
+                if len(self.pilot) == 0:
+                    h_est = self.chEst.leastSquares(frame[slot], sig_recon)
+                else:
+                    h_est = self.chEst.leastSquares(frame[slot][:len(self.pilot)], sig_recon[:len(self.pilot)])
                 h_hat[slot] = h_est
                 userId = bapm[slot][0]  # it has only one element in the slot
 
