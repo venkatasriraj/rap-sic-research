@@ -18,7 +18,7 @@ from CHANNEL import (
 from simulation import Simulation
 
 accessCode = [1, 0] * 4
-lenAc = 8
+lenAc = 0
 degree = 2 
 m = 20; n = m
 noIter = 1000
@@ -27,13 +27,14 @@ pktSize = 32
 SNR_dB = np.arange(-10, 21, 5)
 LOAD = np.linspace(0.1, 1, 10)
 signal_power = 1
+uId = 1
 
 base = BPSKBase()
 chEst = ChannelEstimation()
 
-thr_snr = {}; per_snr = {}; ber_snr = {}
+thr_snr = {}; per_snr = {}; ber_snr = {}; maeh_snr = {}
 for snr in SNR_dB:
-    throughput = {}; per = {}; ber = {}
+    throughput = {}; per = {}; ber = {}; maeh = {} 
     noise_var = signal_power * 10**(-snr/10)
     ch = SlowFadingChannel(noise_var)
     if lenAc == 0:
@@ -43,8 +44,9 @@ for snr in SNR_dB:
     sim = Simulation(base, ch, chEst, m, n, degree, pktSize, pilot)
     userSlotsGen = sim.userSlots
     for load in LOAD:
-        PER, THROUGHPUT, BER = 0, 0, 0
+        PER, THROUGHPUT, BER, MAE, MAE_count = 0, 0, 0, 0, 1e-10
         for i in range(noIter):
+            random.seed(int(load*n) + i)
             FRAME = {}
             slot = set()
             activeUsers = sorted(random.sample( range(1, n+1), int(load*n) ))
@@ -59,20 +61,25 @@ for snr in SNR_dB:
             FRAME = dict( sorted( FRAME.items(), reverse=False ) )
             frame, h = sim.frameBuild(FRAME)
             frameBAPM = sim.genBAPM(activeUsers)
-
             pkt_hat, h_hat = sim.frameParse(frame, frameBAPM)
 
             pcr, bcr_frame = sim.per(pkt_hat)
             PER += ( 1 - (pcr/(len(activeUsers))) )
             BER += ( 1 - ( bcr_frame / (pktSize * len(activeUsers)) ) )
             THROUGHPUT += pcr /  len(activeUsers) # here we have not considered rate = (pktsize - aclen) / pktsize
+            if uId in activeUsers:
+                mae_temp, count = sim.mae(h, h_hat, uId)
+                MAE += mae_temp
+                MAE_count += count
         throughput[load] = THROUGHPUT / noIter
         ber[load] = (BER / noIter).astype(float)
         per[load] = PER / noIter
+        maeh[load] = MAE / MAE_count
     print(f"SNR - {snr} done")
     thr_snr[snr] = throughput
     per_snr[snr] = per
     ber_snr[snr] = ber
+    maeh_snr[snr] = maeh
 
 plt.figure(figsize=(8,6), dpi=800)
 for k, v in thr_snr.items():
@@ -85,3 +92,14 @@ plt.title(f"Throughput vs Load for {noIter} iters with PilotLen {lenAc}")
 plt.legend(loc='lower left', fontsize=7, framealpha=0.6)
 plt.tight_layout()
 plt.savefig(f"results/ConSim/PilotLen/d{lenAc}thrLoad.jpeg")
+
+plt.figure(2, dpi=800)
+for k, v in maeh_snr.items():
+    plt.plot(v.keys(), v.values(), linestyle='-', linewidth=0.9, label=f"SNR = {k}dB")
+plt.grid(True, linestyle='--', alpha=0.6)
+plt.xlabel("Load (g)")
+plt.ylabel(f"MAE of h_est for User-{uId}")
+plt.title(f"MAE of h_est vs SNR for {noIter} iters")
+plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
+plt.tight_layout()
+plt.savefig(f"results/ConSim/PilotLen/d{lenAc}hLoad.jpeg")

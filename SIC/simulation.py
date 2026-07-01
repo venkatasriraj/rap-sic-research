@@ -20,7 +20,7 @@ class Simulation:
     def userSlotGen(self):
         userSlots = {}
         for i in range(1, self.slots+1):
-            userSlots[i] = self.slotsGen(6*i+9)
+            userSlots[i] = self.slotsGen(i)
         return dict(sorted(userSlots.items(), reverse=False))
 
     def genBAPM(self, activeUsers):
@@ -91,8 +91,8 @@ class Simulation:
                     h_est = self.chEst.leastSquares(frame[slot], sig_recon)
                 else:
                     h_est = self.chEst.leastSquares(frame[slot][:len(self.pilot)], sig_recon[:len(self.pilot)])
-                h_hat[slot] = h_est
                 userId = bapm[slot][0]  # it has only one element in the slot
+                h_hat[userId] = h_est
 
                 # -- we will be removing the userid after identifying the user since if ithas multiple 
                 # elements it will always ouputs the same elements and it should also be removed from 
@@ -122,3 +122,10 @@ class Simulation:
                 pcr += 1
             bcr += np.sum(val == pkt)
         return pcr, bcr
+
+    @staticmethod
+    def mae(h, h_hat, uId):
+        if uId in h_hat.keys():
+            return np.abs(h[uId-1] - h_hat[uId]), 1
+        else:
+            return 0, 0

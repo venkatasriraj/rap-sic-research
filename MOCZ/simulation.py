@@ -90,8 +90,8 @@ class Simulation:
                 sig_power = np.mean( np.abs(sig_recon)**2 )
                 sig_recon /= np.sqrt(sig_power)
                 # h_est
-                h_est = self.chEst.leastSquares(frame[slot], sig_recon)
-                # h_est = self.chEst.modifiedLS(frame[slot], sig_recon)
+                # h_est = self.chEst.leastSquares(frame[slot], sig_recon)
+                h_est = self.chEst.modifiedLS(frame[slot], sig_recon)
                 userId = bapm[slot][0]
                 h_hat[userId] = h_est
                 # if userId == 1:
@@ -125,7 +125,7 @@ class Simulation:
         # print(f"hEst: {h_hat}")
         if userId in h_hat.keys():
             # print(f"h: {h[userId-1]}, h_hat: {h_hat[userId]}, MAE is {abs(h[userId-1]-h_hat[userId])}")
-            return abs(h[userId-1]-h_hat[userId])
+            return abs(h[userId-1]-h_hat[userId]), 1
         else:
             # print(f"UserId not available in this frame")
-            return 0
+            return 0, 0

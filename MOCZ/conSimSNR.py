@@ -63,9 +63,10 @@ for load in G:
             frame, h = sim.frameBuild(FRAME)
             frameBAPM = sim.genBAPM(activeUsers)
             msg_hat, h_hat = sim.frameParse(frame, frameBAPM)
-            MAE += sim.maeh(h, h_hat, uId)
             if uId in activeUsers:
-                MAE_count += 1
+                mae_temp, count = sim.maeh(h, h_hat, uId)
+                MAE += mae_temp
+                MAE_count += count
             pcr, bcr_frame = sim.per(msg_hat)
             PER += ( 1 - ( pcr / len(activeUsers) ) )
             BER += ( 1 - (bcr_frame / (K * len(activeUsers))) )

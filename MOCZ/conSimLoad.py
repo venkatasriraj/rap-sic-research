@@ -68,9 +68,10 @@ for snr in SNR_dB:
             frame, h = sim.frameBuild(FRAME)
             frameBAPM = sim.genBAPM(activeUsers)
             msg_hat, h_hat = sim.frameParse(frame, frameBAPM)
-            MAE += sim.maeh(h, h_hat, uId)
             if uId in activeUsers:
-                MAE_count += 1
+                mae_temp, count = sim.maeh(h, h_hat, uId)
+                MAE += mae_temp
+                MAE_count += count
             # print(f"    BAPM for given frame: {frameBAPM}")
             # print(msg_hat)
             pcr, bcr_frame = sim.per(msg_hat)

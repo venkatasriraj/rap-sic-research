@@ -22,7 +22,7 @@ from BPSK import (
 
 accessCode = [0xBB, 0xAA, 0xAA, 0xBB]
 maxDegree = 2
-pktSize = 50 # including CRC 
+pktSize = 32 # including CRC 
 slotLen = (pktSize + 1) * 8
 
 pktStr = PacketStructure(maxDegree=maxDegree, AccessCode=accessCode, pktSize=pktSize)
@@ -30,15 +30,13 @@ tx = IRSATransmitter(slotLen=slotLen)
 rx = IRSAReceiver(accessCode=accessCode)
 chEst = ChannelEstimation()
 
-SNR_dB = np.arange(0, 41, 2)
+SNR_dB = np.arange(-10, 21, 2)
 noIter = 1000
 
-PER = {}
-MSE = {}
+per = {}; mae = {}; throughput = {}
 for snr in SNR_dB:
-    pcr = [0, 0]
-    mse = 0
-    mse_count = 0.00000000001
+    PCR = [0, 0]
+    MAE = 0; mae_count = 1e-10; 
     noise_var = 10**(-snr / 10)
     ch = SlowFadingChannel(var=noise_var)
     for i in range(noIter):
@@ -62,7 +60,7 @@ for snr in SNR_dB:
             continue
         pktU1_info = pktStr.parsePacket(pktU1_hat)
         if pktU1_info and pktU1_info["crc_ok"]:
-            pcr[0] += 1
+            PCR[0] += 1
 
             thisSlot = [i for i in pktU1_info["slotList"] if i != pktU1_info["thisSlot"]]
             pktU1_recon = pktStr.buildPacket(
@@ -85,13 +83,50 @@ for snr in SNR_dB:
                 continue
             pktU2_info = pktStr.parsePacket(pktU2_hat)
             if pktU2_info and pktU2_info["crc_ok"]:
-                pcr[1] += 1
+                PCR[1] += 1
 
             # -- MSE of channel coefficient estimate
-            mse += np.abs(chEstU1 - chCoeffU1)**2
-            mse_count += 1
-    PER[snr] = 1 - ( np.array(pcr) / noIter )
-    MSE[snr] = mse / mse_count
+            MAE += np.abs(chEstU1 - chCoeffU1)
+            mae_count += 1
+    per[snr] = 1 - ( np.array(PCR) / noIter )
+    mae[snr] = MAE / mae_count
+    throughput[snr] = np.array(PCR) / noIter
 
-for snr, per in PER.items():
-    print(f"SNR(dB): {snr}, PER: {per}, MSE of h: {MSE[snr]}")
+# for snr, per in PER.items():
+#     print(f"SNR(dB): {snr}, PER: {per}, MSE of h: {MSE[snr]}")
+plt.figure(1, dpi=800)
+y = PER.values()
+for i in range(2):
+    plt.plot(PER.keys(), y[i], linestyle='-', linewidth=0.9, label=f"Slot-{i+1}")
+plt.grid(True, linestyle='--', alpha=0.6)
+plt.xlabel("SNR(dB)")
+plt.ylabel("Packet Error Rate")
+plt.title(f"PER vs SNR over {noIter} frames")
+plt.legend(loc='lower left', framealpha=0.6, fontsize=7)
+plt.ylim(0, 1.05)
+plt.tight_layout()
+plt.savefig("results/perTest1.jpeg")
+
+plt.figure(2, dpi=800)
+plt.plot(mae.keys(), mae.values(), linestyle='-', linewidth=0.9)
+plt.grid(True, linestyle='--', alpha=0.6)
+plt.xlabel("SNR(dB)")
+plt.ylabel("MAE of h_est")
+plt.title(f"MAE of h_est vs SNR over {noIter} frames")
+plt.legend(loc='lower left', framealpha=0.6, fontsize=7)
+plt.ylim(0, 1.05)
+plt.tight_layout()
+plt.savefig("results/maehTest1.jpeg")
+
+plt.figure(3, dpi=800)
+y = throughput.values()
+for i in range(2):
+    plt.plot(throughput.keys(), y[i], linestyle='-', linewidth=0.9, label=f"Slot-{i+1}")
+plt.grid(True, linestyle='--', alpha=0.6)
+plt.xlabel("SNR(dB)")
+plt.ylabel("Throughput (t)")
+plt.title(f"Throughput vs SNR over {noIter} frames")
+plt.legend(loc='lower left', framealpha=0.6, fontsize=7)
+plt.ylim(0, 1.05)
+plt.tight_layout()
+plt.savefig("results/thrTest1.jpeg")
