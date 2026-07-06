@@ -45,3 +45,10 @@ results/
 # Binary captures
 *.dat
 *.bin
+
+# Data files
+*.pkl
+*.h5
+*.hdf5
+*.h5py
+
