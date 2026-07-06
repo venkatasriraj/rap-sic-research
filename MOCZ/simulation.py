@@ -90,8 +90,8 @@ class Simulation:
                 sig_power = np.mean( np.abs(sig_recon)**2 )
                 sig_recon /= np.sqrt(sig_power)
                 # h_est
-                # h_est = self.chEst.leastSquares(frame[slot], sig_recon)
-                h_est = self.chEst.modifiedLS(frame[slot], sig_recon)
+                h_est = self.chEst.leastSquares(frame[slot], sig_recon)
+                # h_est = self.chEst.modifiedLS(frame[slot], sig_recon)
                 userId = bapm[slot][0]
                 h_hat[userId] = h_est
                 # if userId == 1:

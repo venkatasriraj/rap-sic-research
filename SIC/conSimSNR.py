@@ -19,7 +19,7 @@ from CHANNEL import (
 from simulation import Simulation
 
 accessCode = [1,0,1,0,1,0,1,0]
-lenAC = 0
+lenAC = 8
 degree = 2
 m = 20
 n = m  # number of users

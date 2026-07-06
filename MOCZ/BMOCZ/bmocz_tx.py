@@ -37,9 +37,9 @@ class BMOCZTransmitter(BiMOCZ):
 
     # ZMS: Zero Marker Signal
     def coeffConZM(self, msg):
-        Rzm = (( self.R + self.R**-1 )/2).astype(complex)
+        # Rzm = (( self.R + self.R**-1 )/2).astype(complex)
         zeros = [self.zero_geometry[mk][msg[mk]] for mk in range(self.K)]
-        zeros += [Rzm]
+        zeros += self.Rzm
+        # zeros += self.Rpz
         x = self.toeplitz_iterator(zeros)
         return x[::-1]
-

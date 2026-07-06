@@ -12,6 +12,11 @@ class BiMOCZ:
         self.K = K
         self.R = np.sqrt(1 + np.sin(np.pi/K))
         self.theta_K = (np.pi * 2)/self.K
+        self.Rzm = [-1, 1j, -1j]
+        self.pzFFT = 4
+        self.sep = 1
+        self.Rpz = self.pilotZeroSelection()
+        
 
     def codebook_con(self):
 
@@ -29,3 +34,12 @@ class BiMOCZ:
         # print(f"Signal Power: {signal_power}, PAPR: {papr}, Signal Energy: "
         #         f"{signal_power * len(signal)}, Max Abs Coeff: {np.max(np.abs(signal))}")
         return papr
+
+    # pilot-zero selection based on the 
+    def pilotZeroSelection(self):
+        angles = np.abs( self.theta_K * np.arange(self.K) - np.pi )
+        # centerPZ = np.argmin(angles)
+        centerPZ = self.K // 2
+        # x = sorted( i for i in angles if i >= np.pi*0.5 and i <= np.pi*1.5 )
+        Rpz = angles[centerPZ-self.sep:centerPZ+2*self.sep:self.sep]
+        return list(Rpz)

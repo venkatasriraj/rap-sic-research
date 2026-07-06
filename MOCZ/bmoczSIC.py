@@ -16,8 +16,8 @@ from CHANNEL import (
 K = 32
 sig_power = 1
 Q = 2
-SNR_dB = np.arange(-10, 21, 1)
-noIter = 4000
+SNR_dB = np.arange(-10, 21, 2)
+noIter = 2000
 ch_var = 1
 
 tx = BMOCZTransmitter(K)
@@ -61,8 +61,8 @@ for snr in SNR_dB:
             
             # --- Here we will be implementing modifiedLS to increase
             #  the throughput of the system
-            chEstS1 = chEst.modifiedLS(sig_rxS1, sig_reconS1)
-            # chEstS1 = chEst.leastSquares(sig_rxS1, sig_reconS1)
+            # chEstS1 = chEst.modifiedLS(sig_rxS1, sig_reconS1)
+            chEstS1 = chEst.leastSquares(sig_rxS1, sig_reconS1)
             coeff_error += np.abs(chEstS1 - ch_coeffU1)
             # print(f"h: {ch_coeffU1}, h_est: {chEstS1}, MAE: {np.abs(ch_coeffU1-chEstS1)}")
             # print(f"    min coeff: {np.min(np.abs(sig_reconS1))}, ")

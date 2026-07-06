@@ -38,13 +38,12 @@ mae_minc = {}
 for k in K:
     tx = BMOCZTransmitter(k)
     rx = BMOCZReceiver(k)
-    ber = 0
-    papr = 0
-    chError = 0
+    ber, papr, chError = 0, 0, 0
     for i in range(noIter):
         if i % noIter == 0:
             print(f" {i} Iterations Done for K = {k}")
-        msg = [np.random.randint(2) for i in range(k)]
+        # msg = [np.random.randint(2) for i in range(k)]
+        msg = np.random.randint(0, 2, k, dtype=np.uint8)
 
         sig_tx = tx.coeffCon(msg)
         sig_power = np.mean(np.abs(sig_tx)**2)
@@ -64,12 +63,13 @@ for k in K:
         papr += tx.PAPR(sig_tx)
         # ----   Signal Reconstruction using the same BMOCZTransmitter Class  -----
         sig_recon = tx.coeffCon(msg_rx)
-        sig_power = np.mean(np.abs(sig_recon))
-        sig_recon /= sig_power
+        sig_power = np.mean(np.abs(sig_recon)**2)
+        sig_recon /= np.sqrt(sig_power)
 
         ch_coeff_hat = chEst.leastSquares(sig_rx, sig_recon)
+        # ch_coeff_hat = chEst.modifiedLS(sig_rx, sig_recon)
         if not np.isnan(ch_coeff_hat):
-            chError += np.abs(ch_coeff_hat - ch_coeff)**2
+            chError += np.abs(ch_coeff_hat - ch_coeff)
             index = np.floor( np.log10(np.min(np.abs(sig_recon))) ).astype(int)
             if index not in mae_minc:
                 arr = np.array([np.abs(ch_coeff_hat - ch_coeff), 1])
@@ -87,7 +87,7 @@ for k in K:
                 mae_minc[index][1] += 1
     BER_15[k] = ber / noIter
     PAPR_15[k] = papr / noIter
-    # chCoeff_15[k] = chError / noIter
+    chCoeff_15[k] = chError / noIter
 
 plt.figure(1, dpi=800)
 plt.plot(BER_15.keys(), BER_15.values(), '-')
@@ -106,14 +106,14 @@ plt.xlabel("Block-Length(K)")
 plt.title(f"PAPR vs Block-Length(K) over {noIter} iterations for SNR = {snr}.")
 plt.savefig("results/PAPR_s15.jpeg")
 
-# plt.figure(3, dpi=800)
-# plt.plot(chCoeff_15.keys(), chCoeff_15.values(), '-')
-# plt.grid(True)
-# plt.xlabel("Block-Length(K)")
-# # plt.ylim(0, 30)
-# plt.ylabel("MSE of channel coefficicent(|h|)")
-# plt.title(f"MSE of |h| vs Block-Length(K) over {noIter} iterations for SNR = {snr}.")
-# plt.savefig("results/MSE_h_s15.jpeg")
+plt.figure(3, dpi=800)
+plt.plot(chCoeff_15.keys(), chCoeff_15.values(), '-')
+plt.grid(True)
+plt.xlabel("Block-Length(K)")
+# plt.ylim(0, 30)
+plt.ylabel("MAE of channel coefficicent(|h|)")
+plt.title(f"MAE of |h| vs Block-Length(K) over {noIter} iterations for SNR = {snr}.")
+plt.savefig("results/MAE_h_s15.jpeg")
 
 # plt.show()
 mae_minc = dict(sorted(mae_minc.items(), reverse=False))

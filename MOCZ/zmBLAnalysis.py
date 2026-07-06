@@ -17,15 +17,11 @@ from BMOCZ import (
     BMOCZReceiver,
     BMOCZTransmitter
 )
-from CHANNEL import (
-    MultiPathFading,
-    # ChannelEstimation
-)
+from CHANNEL import MultiPathFading
 
-K = np.arange(8, 41, 3)
-Q = 8
-noIter = 2000
-# snr = 15
+K = np.arange(6, 41, 1)
+Q = 4
+noIter = 10000
 SNR_dB = np.arange(-10, 21, 5)
 signal_power = 1 
 
@@ -51,8 +47,11 @@ for snr in SNR_dB:
             sig_ffo = rx.ffoEstCor(sig_rx, Q)
             msg_rx = rx.fftDizet(sig_ffo, Q)
 
-            int_est = rx.ZMDetection(sig_ffo)
-            msg_hat = np.roll(msg_rx, -int_est)
+            if k % 4 == 0:
+                int_rot_est = rx.fftConPZ(sig_ffo)
+            else:
+                int_rot_est = rx.BLodd(sig_ffo)
+            msg_hat = np.roll(msg_rx, int_rot_est)
 
             BER += rx.ber(msg_hat, msg)
             PAPR += tx.PAPR(sig_tx)
@@ -79,16 +78,16 @@ plt.legend(loc='upper right', fontsize=7, framealpha=0.6)
 plt.tight_layout()
 plt.savefig("results/zmBER.jpeg")
 
-# plt.figure(2, dpi=800)
-# for k, v in papr_snr.items():
-#     plt.plot(v.keys(), v.values(), linestyle='-', linewidth=0.9, label=f"SNR = {k}dB")
-# plt.grid(True, linestyle='--', alpha=0.6)
-# plt.xlabel("Block-Length(K)")
-# plt.ylabel("Peak to Average Power Ratio (PAPR)")
-# plt.title(f"PAPR vs K over {noIter} packets")
-# plt.legend(loc='upper right', framealpha=0.6, fonstsize=7)
-# plt.tight_layout()
-# plt.savefig("results/zmPAPR.jpeg")
+plt.figure(2, dpi=800)
+for k, v in papr_snr.items():
+    plt.plot(v.keys(), v.values(), linestyle='-', linewidth=0.9, label=f"SNR = {k}dB")
+plt.grid(True, linestyle='--', alpha=0.6)
+plt.xlabel("Block-Length(K)")
+plt.ylabel("Peak to Average Power Ratio (PAPR)")
+plt.title(f"PAPR vs K over {noIter} packets")
+plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
+plt.tight_layout()
+plt.savefig("results/zmPAPR.jpeg")
 
 plt.figure(3, dpi=800)
 for k, v in per_snr.items():

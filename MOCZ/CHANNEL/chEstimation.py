@@ -8,23 +8,13 @@ class ChannelEstimation:
         if len(received_sig) != len(recon_sig):
             return ValueError("Length Mismatch between received "
                                 "and reconstructed signal")
-        h_real, h_imag = 1e-12, 1e-12
+        num, den = 0, 0
         for i,j in zip( recon_sig, received_sig ):
-            x= ( i * np.conjugate(j) ) / ( i * np.conjugate(i) )
-            h_real += np.real(x)
-            h_imag += np.imag(x) 
-            # with np.errstate(invalid="raise"):
-            #     try:
-            #         x= ( i * np.conjugate(j) ) / ( i * np.conjugate(i) )
-            #         h_real += np.real(x)
-            #         h_imag += np.imag(x) 
-            #     except FloatingPointError:
-            #         print("-- Runtime Error --")
-            #         print(f"recon: {i}, received: {j} coefficients")        
-            #         print(f"    recon sig: {recon_sig}")    
-            #         print(f'    reveived signal: {received_sig}')
-        return ( h_real - 1j*h_imag )/len(recon_sig)
+            num += np.conjugate(i) * j
+            den += np.conjugate(i) * i
+        return num / den
 
+# invalid implementation - performance of the system is bad
     @staticmethod
     def modifiedLS(received_sig, recon_sig, coeffThresh=0.001):
 
@@ -33,7 +23,7 @@ class ChannelEstimation:
         h_real, h_imag = 1e-12, 1e-12
         for i, j in zip( recon_sig, received_sig):
             if np.abs(i) >= coeffThresh:
-                x = ( i * np.conjugate(j) ) / ( i * np.conjugate(i) )
+                x = ( i * np.conjugate(j) ) / ( i * np.conjugate(i) )       # j * np.conjugate(i) = real(x) -1j*imag(x) 
                 h_real += np.real(x)
                 h_imag += np.imag(x)
         count = np.count_nonzero( np.greater_equal(np.abs(recon_sig), coeffThresh) )

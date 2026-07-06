@@ -58,6 +58,7 @@ class Simulation:
                     msg = self.msgGen(u) 
                     pkt = np.append(self.pilot, msg).astype(np.int32)
                     sig_tx = self.tx.modulate(pkt)
+                    # print(f"Signal Power: {np.mean(np.abs(sig_tx)**2)}")
                     signal += h[u-1] * sig_tx
                 frame[m] = signal               
         return frame, h

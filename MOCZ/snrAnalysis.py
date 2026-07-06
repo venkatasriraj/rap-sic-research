@@ -56,12 +56,13 @@ for snr in SNR_dB:
         ber += rx.ber(msg_rx, msg)
         # ----   Signal Reconstruction using the same BMOCZTransmitter Class  -----
         sig_recon = tx.coeffCon(msg_rx)
-        sig_power = np.mean(np.abs(sig_recon))
+        sig_power = np.mean(np.abs(sig_recon)**2)
         sig_recon /= np.sqrt(sig_power)
 
         ch_coeff_hat = chEst.leastSquares(sig_rx, sig_recon)
+        # ch_coeff_hat = chEst.modifiedLS(sig_rx, sig_recon)
         if not np.isnan(ch_coeff_hat):
-            chError += np.abs(ch_coeff_hat - ch_coeff)**2
+            chError += np.abs(ch_coeff_hat - ch_coeff)
             index = np.floor( np.log10(np.min(np.abs(sig_recon))) ).astype(int)
             if index not in mae_minc:
                 arr = np.array([np.abs(ch_coeff_hat - ch_coeff), 1])
@@ -92,9 +93,9 @@ plt.figure(3, dpi=800)
 plt.plot(chCoeff_32.keys(), chCoeff_32.values(), '-')
 plt.grid(True)
 plt.xlabel("SNR(dB)")
-plt.ylabel("MSE of channel coefficicent(|h|)")
-plt.title(f"MSE of |h| vs SNR over {noIter} iterations for K = {K}.")
-plt.savefig("results/MSE_h_k32.jpeg")
+plt.ylabel("MAE of channel coefficicent(|h|)")
+plt.title(f"MAE of |h| vs SNR over {noIter} iterations for K = {K}.")
+plt.savefig("results/MAE_h_k32.jpeg")
 
 # plt.show()
 mae_minc = dict(sorted(mae_minc.items(), reverse=False))
