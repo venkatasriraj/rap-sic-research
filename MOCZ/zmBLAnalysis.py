@@ -21,7 +21,7 @@ from CHANNEL import MultiPathFading
 
 K = np.arange(6, 41, 1)
 Q = 4
-noIter = 10000
+noIter = 1000
 SNR_dB = np.arange(-10, 21, 5)
 signal_power = 1 
 

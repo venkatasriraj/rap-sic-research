@@ -88,7 +88,7 @@ class BMOCZReceiver(BiMOCZ):
         Y_pz = np.abs( np.fft.ifft( y_pad ) )
         argMin = np.argmin(Y_pz)
         print(f"argMin: {argMin}")
-        rotation_est = np.pi - ( 2 * np.pi * argMin / (self.K * Q) )
+        rotation_est = ( 2 * np.pi * argMin / (self.K * Q) ) - np.pi
         print(f"Rotation Estimation in rad: {rotation_est}")
         rotationMatrix = np.diag( np.exp(-1j * rotation_est) ** np.arange(len(y))[::-1] )
         y_rotated = y @ rotationMatrix
