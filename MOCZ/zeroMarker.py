@@ -10,8 +10,8 @@ from BMOCZ import (
 )
 from CHANNEL import MultiPathFading
 
-K = 6
-Q = 4
+K = 7
+Q = 8
 theta_K = np.pi * 2 / K
 rotationPossible = np.arange(0, theta_K, theta_K/Q)
 intRotationPossible = theta_K * np.arange(K)
@@ -81,7 +81,14 @@ print(f"PAPR obtained for zero-pilot: {papr}")
 
 #  -- complete end to end: rotation estimation using pilot-zero no matter the 
 # block-length and message decoding
-msg_decoded = rx.PZDecodedMsg(sig_rx, Q)
-print(f"\nMessage Transmitted: {msg} \nMessage Decoded: {msg_decoded}")
-ber = rx.ber(msg_decoded, msg)
+# msg_decoded = rx.PZDecodedMsg(sig_rx, Q)
+# print(f"\nMessage Transmitted: {msg} \nMessage Decoded: {msg_decoded}")
+# ber = rx.ber(msg_decoded, msg)
+# print(f"BER: {ber}")
+
+x = rx.intRotationEst(sig_ffo)
+print(f"Integer rotation estimate: {x}")
+msg_rotated = np.roll(msg_rx, x)
+print(f"\nTransmitted Message: {msg}, \n Rotated Message: {msg_rotated}, \n\nReceived Message: {msg_rx}")
+ber = rx.ber(msg_rotated, msg)
 print(f"BER: {ber}")

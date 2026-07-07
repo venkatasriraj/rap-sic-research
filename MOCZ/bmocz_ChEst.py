@@ -4,10 +4,8 @@ We will not be estiming the phase since the channel is slow-fading and
 there will be no effect of channel on Zeros.
 Zero rotation can only be observed in case of CFO.
 """
-
 import numpy as np
 import galois
-
 from BMOCZ import (
     BMOCZReceiver,
     BMOCZTransmitter
@@ -17,9 +15,8 @@ from CHANNEL import (
     ChannelEstimation
 ) 
 
-SNR_db = 50
+SNR_db = 15
 K = 16
-
 tx = BMOCZTransmitter(K)
 rx = BMOCZReceiver(K)
 
@@ -29,14 +26,15 @@ sig_tx = tx.coeffCon(msg)
 print(type(sig_tx))
 # signal is not normalized and the coefficients are of the order 
 # [x0, x1, x2, x3, ....., xn]
-
+print(f"Signal energy: {np.sum(np.abs(sig_tx)**2)}")
 sig_power = np.mean( np.abs(sig_tx)**2 )
-sig_norm = sig_tx / np.sqrt(sig_power)
+# sig_norm = sig_tx / np.sqrt(sig_power)
 
 noise_var = sig_power * 10**(-SNR_db/10)
 
 ch = SlowFadingChannel(noise_var)
 sig_rx, ch_coeff = ch.transmit(sig_tx)
+print(f"Power of Ch coeff: {np.abs(ch_coeff)}")
 
 Q = int( 2**( np.log( np.ceil(len(sig_rx)/K) ) / np.log(2) ) )
 

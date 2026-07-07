@@ -17,7 +17,7 @@ K = 32
 sig_power = 1
 Q = 2
 SNR_dB = np.arange(-10, 21, 2)
-noIter = 2000
+noIter = 10
 ch_var = 1
 
 tx = BMOCZTransmitter(K)
@@ -42,7 +42,11 @@ for snr in SNR_dB:
         sigU2_norm = sigU2 / np.sqrt(sigU2_power)
 
         ch_coeffU1 = np.sqrt(ch_var/2) * ( np.random.randn() + 1j*np.random.randn() )
+        coeffU1_power = np.abs(ch_coeffU1)**2
+        ch_coeffU1 /= np.sqrt(coeffU1_power)
         ch_coeffU2 = np.sqrt(ch_var/2) * ( np.random.randn() + 1j*np.random.randn() )
+        coeffU2_power = np.abs(ch_coeffU2)**2
+        ch_coeffU2 /= np.sqrt(coeffU2_power)
         #  ----  Slot-1: U1 to slow-fading AWGN channel
         sig_rxS1 = ch.sic_transmit([sigU1_norm], [ch_coeffU1])
         #  ------ Slot-2: U1 + U2 through slow-fading AWGN channel
@@ -59,9 +63,7 @@ for snr in SNR_dB:
             sig_reconS1_power = np.mean(np.abs(sig_reconS1)**2)
             sig_reconS1 /= np.sqrt(sig_reconS1_power)
             
-            # --- Here we will be implementing modifiedLS to increase
-            #  the throughput of the system
-            # chEstS1 = chEst.modifiedLS(sig_rxS1, sig_reconS1)
+            # --- Here we will be implementing modifiedLS to increase the throughput of the system
             chEstS1 = chEst.leastSquares(sig_rxS1, sig_reconS1)
             coeff_error += np.abs(chEstS1 - ch_coeffU1)
             # print(f"h: {ch_coeffU1}, h_est: {chEstS1}, MAE: {np.abs(ch_coeffU1-chEstS1)}")
@@ -78,6 +80,7 @@ for snr in SNR_dB:
     pktDetect[snr] = np.array(pcr) / noIter
     con_mae[snr] = con_error / pcr[0]
     coeff_mae[snr] = coeff_error / pcr[0]
+    print(f"SNR: {snr} done")
 
 plt.figure(1, dpi=800)
 plt.plot(pktDetect.keys(), pktDetect.values(), '-', linewidth=0.9)

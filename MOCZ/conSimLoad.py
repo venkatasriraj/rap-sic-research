@@ -26,7 +26,7 @@ from simulation import Simulation
 degree = 2  # CRDSA 
 m = 20
 n = m
-noIter = 1000  # gives the simulation over 1000 frames
+noIter = 10  # gives the simulation over 1000 frames
 G = np.linspace(0.1, 1, 10)
 
 K = 32   # 4B

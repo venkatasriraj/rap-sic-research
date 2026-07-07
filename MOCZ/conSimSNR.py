@@ -24,7 +24,7 @@ from simulation import Simulation
 degree = 2 
 m = 20
 n = m
-noIter = 1000
+noIter = 10
 K = 32
 SNR_dB = np.arange(-10, 21, 5)
 G = np.linspace(0.1, 1, 10)

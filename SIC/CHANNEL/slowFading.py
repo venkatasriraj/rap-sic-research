@@ -10,10 +10,13 @@ class SlowFadingChannel(Channel):
         
     def transmit(self, signal):
         ch_coeff = np.sqrt(self.ch_var/2) * ( np.random.randn() + 1j*np.random.randn() )
-        return signal * ch_coeff + self.awgn_noise(len(signal)), ch_coeff
+        coeffPower = np.abs(ch_coeff)**2
+        ch_coeff_norm = ch_coeff / np.sqrt(coeffPower)
+        return signal * ch_coeff_norm + self.awgn_noise(len(signal)), ch_coeff_norm
         # signal * ch_coeff + self.awgn_noise(len(signal))
     
     def conRayleigh(self, n):
         sigma = np.sqrt(self.ch_var/2)
         h = sigma * ( np.random.randn(n) + 1j*np.random.randn(n))
-        return h
+        h_power = np.abs(h)**2
+        return h / np.sqrt(h_power)

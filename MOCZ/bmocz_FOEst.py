@@ -12,9 +12,9 @@ from BMOCZ import (
 ) 
 from CHANNEL import SlowFadingChannel
 
-SNR_db = 20
-sig_power = 1 # signal will be normalized
-noise_var = sig_power * 10**(-SNR_db/10)
+SNR_db = 15
+signal_power = 1 # signal will be normalized
+noise_var = signal_power * 10**(-SNR_db/10)
 m = 5
 K = 2**m-1
 t = 2 # number of error correcting bits
@@ -49,7 +49,7 @@ sig_tx = tx.coeffCon(msg_encoded)
 sig_power = np.mean( np.abs(sig_tx)**2 )
 sig_norm = sig_tx / np.sqrt(sig_power)
 
-sig_rx = ch.transmit(sig_norm)
+sig_rx, ch_coeff = ch.transmit(sig_norm)
 
 # Q = int( 2**( np.log( np.ceil(len(sig_rx)/K) ) / np.log(2) ) )
 Q = 4
