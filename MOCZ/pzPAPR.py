@@ -6,8 +6,9 @@ import itertools
 import matplotlib.pyplot as plt
 from BMOCZ import BMOCZTransmitter
 
-K = np.arange(24, 41, 8)
-Rzm = [-1, 1j, -1j]
+K = np.arange(1, 18)
+# Rzm = [-1, 1j, -1j]
+Rzm = [-2, -1, 1j, -1j]
 PAPR = {}; PAPR_PZ = {}; PAPR_Reduction = {}
 
 for k in K:
@@ -17,7 +18,7 @@ for k in K:
         msg = np.array(bits)
 
         sig_nopz = tx.coeffCon(msg)
-        sig_pz = tx.coeffConZM(msg, Rzm)
+        sig_pz = tx.coeffConSinglePZ(msg, Rzm)
 
         papr_nopz = tx.PAPR(sig_nopz)
         papr_pz = tx.PAPR(sig_pz)
@@ -35,4 +36,4 @@ plt.xlabel(f"Block-Length(K) {K}")
 plt.ylabel(f"% reduction of PAPR by pilot-zero")
 plt.title(f"% reduction of PAPR by PZ vs K for PZ at {Rzm}")
 plt.savefig(f"results/pzPAPR{Rzm}.jpeg")
-plt.show()
+# plt.show()

@@ -1,6 +1,7 @@
 """
 PAPR analysis for pilot zero inserted in the BMOCZ message zeros
 using updated method for Pilot-Zero
+And the pilot is placed at three locations [-1, 1j, -1j]
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -30,10 +31,10 @@ for snr in SNR_dB:
 
             sig_tx = tx.coeffConZM(msg)
             sig_power = np.mean(np.abs(sig_tx)**2)
-            sig_norm = sig_tx / np.sqrt(sig_power)
+            sig_tx /= np.sqrt(sig_power)
 
             rotation = np.random.uniform(0, 2*np.pi)
-            sig_rx = ch.transmit(sig_norm, rotation)
+            sig_rx = ch.transmit(sig_tx, rotation)
 
             msg_hat = rx.PZDecodedMsg(sig_rx, Q)
 
@@ -58,7 +59,7 @@ plt.xlabel("Msg-Length(K)")
 plt.ylabel("BER")
 plt.title(f"BER vs K over {noIter} packets")
 plt.ylim(0, 1.05)
-plt.legend(loc='upper right', fontsize=7, framealpha=0.6)
+plt.legend(loc='upper left', fontsize=7, framealpha=0.6)
 plt.tight_layout()
 plt.savefig(f"results/pzPAPR/pzBERQ{Q}.jpeg")
 
@@ -69,7 +70,7 @@ plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("Msg-Length(K)")
 plt.ylabel("Peak to Average Power Ratio (PAPR)")
 plt.title(f"PAPR vs K over {noIter} packets")
-plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
+plt.legend(loc='upper left', framealpha=0.6, fontsize=7)
 plt.tight_layout()
 plt.savefig(f"results/pzPAPR/pzPAPRQ{Q}.jpeg")
 

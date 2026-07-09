@@ -43,3 +43,9 @@ class BMOCZTransmitter(BiMOCZ):
         # zeros += self.Rpz
         x = self.toeplitz_iterator(zeros)
         return x[::-1]
+
+    def coeffConSinglePZ(self, msg, singlePZ):
+        zeros = [self.zero_geometry[mk][msg[mk]] for mk in range(self.K)]
+        zeros += singlePZ
+        x = self.toeplitz_iterator(zeros)
+        return x[::-1]

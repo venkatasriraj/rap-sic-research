@@ -9,6 +9,7 @@ class BMOCZReceiver(BiMOCZ):
 
     def __init__(self, K):
         super().__init__(K)
+        # self.singlePZ = singlePZ
 
     def fftCon(self, y, Q):
         N_r = len(y)        
@@ -66,7 +67,6 @@ class BMOCZReceiver(BiMOCZ):
         min_q = {}
         sep = int(np.ceil(fftSize/ 4))  # ---- when Block-length % 4 = 0
         # sep = int(np.ceil(fftSize / 4)) + 1       # for BL % 2 = 0
-        # sep = Q
         for k in range(fftSize):
             sumZeros = Y_pz[(k-sep)%fftSize] + Y_pz[k] + Y_pz[(k+sep)%fftSize]
             min_q[k] = sumZeros
@@ -100,7 +100,6 @@ class BMOCZReceiver(BiMOCZ):
     
     def PZDecodedMsg(self, y, Q):
         y_rotated = self.PZRotationCorrected(y, Q)
-        y_fft = self.fftSig(y_rotated)
         # msg_decoded = self.fftDizet(y_rotated, 2)
         Yo, Yi = self.PZfftCon(y_rotated)
         msg_received = ( 1 + np.sign( Yi - Yo ) ) / 2
@@ -132,6 +131,7 @@ class BMOCZReceiver(BiMOCZ):
             int_rotation_est = ( int(self.K / 2) - argMin )
         return int_rotation_est
     
+    # ----  unable to find the correct relation to INTEGER ESTIMATE for EVEN and ODD BL
     def intRotationEst(self, y):
         fftSize = self.K * 4
         y_fft = np.pad( y, (0, fftSize - len(y)), mode='constant' )
@@ -153,6 +153,27 @@ class BMOCZReceiver(BiMOCZ):
             return 1
         else:
             return 0
+
+    #  ------ Method to etimate the rotation of zeros using single pilot placed in z-domain
+    def estRotation(self, y, Q, singlePZ):
+        lenSignal = len(y)
+        N_fft = self.K * Q
+        scaling_vec = np.abs(singlePZ[0]) ** np.arange(lenSignal)
+        y_scaled = y * scaling_vec
+        y_pad = np.pad(y_scaled, (0, N_fft - lenSignal), mode='constant')
+        Y_singlePZ = np.abs( np.fft.ifft(y_pad) )
+        argMin = np.argmin(Y_singlePZ)
+        rotation_hat = ( np.pi * 2 * argMin / (N_fft) ) - np.angle(singlePZ[0])
+        return rotation_hat
+
+    def singlePZDecodedMsg(self, y, Q, singlePZ):
+        rotation_hat = self.estRotation(y, Q, singlePZ) 
+        rotationMatrix = np.diag( np.exp(-1j*rotation_hat) ** np.flip(np.arange(len(y))) )
+        y_corrected = y @ rotationMatrix
+        # y_fft = self.fftSig(y_corrected)
+        Yo, Yi = self.PZfftCon(y_corrected)
+        msgDecoded = ( 1 + np.sign(Yi - Yo) ) / 2
+        return msgDecoded, rotation_hat
 
     # ---- VERIFY THIS AND CHECK WHERE IT IS NOT WORKING
     def fftConZM(self, y):

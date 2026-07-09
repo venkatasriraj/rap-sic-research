@@ -86,7 +86,7 @@ plt.ylabel("BER")
 plt.title(f"BER vs SNR over {noIter} iterations for K = {K}.")
 plt.savefig(f"results/SNRAnalysis/BER_k{K}.jpeg")
 
-plt.figure(3, dpi=800)
+plt.figure(2, dpi=800)
 plt.plot(chCoeff_32.keys(), chCoeff_32.values(), '-')
 plt.grid(True)
 plt.xlabel("SNR(dB)")

@@ -13,6 +13,7 @@ class SlowFadingChannel(Channel):
         coeffPower = np.abs(ch_coeff)**2
         ch_coeff_norm = ch_coeff / np.sqrt(coeffPower)
         return signal * ch_coeff_norm + self.awgn_noise(len(signal)), ch_coeff_norm
+        # return self.awgn_noise(len(signal)), ch_coeff_norm
 
     def conRayleigh(self, n):
         sigma = np.sqrt(self.ch_var/2)
