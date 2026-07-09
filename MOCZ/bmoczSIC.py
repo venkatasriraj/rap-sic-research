@@ -69,7 +69,7 @@ for snr in SNR_dB:
             # print(f"h: {ch_coeffU1}, h_est: {chEstS1}, MAE: {np.abs(ch_coeffU1-chEstS1)}")
             # print(f"    min coeff: {np.min(np.abs(sig_reconS1))}, ")
             
-            con_error += rx.mae(sig_rxS1, sig_reconS1 * chEstS1)
+            con_error += rx.mae(sig_rxS1, sig_reconS1 * chEstS1) / np.sum( np.abs(sig_rxS1) )
             # err_count += 1
             sig_recovS2 = sig_rxS2 - chEstS1 * sig_reconS1
 

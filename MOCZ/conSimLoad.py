@@ -30,7 +30,7 @@ noIter = 10  # gives the simulation over 1000 frames
 G = np.linspace(0.1, 1, 10)
 
 K = 32   # 4B
-SNR_dB = np.arange(-10, 21, 5)
+SNR_dB = np.arange(-10, 20, 5)
 signal_power = 1
 uId = 1
 

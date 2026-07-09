@@ -95,7 +95,6 @@ plt.title(f"Throughput vs SNR for {noIter} Iters with PilotLen {lenAC}")
 plt.legend(loc='lower left', fontsize=7, framealpha=0.6)
 plt.tight_layout()
 plt.savefig(f"results/ConSim/PilotLen/d{lenAC}thrSNR.jpeg")
-# plt.show()
 
 plt.figure(2, dpi=800)
 for k, v in maeh_load.items():

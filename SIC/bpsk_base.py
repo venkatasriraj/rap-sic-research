@@ -68,5 +68,7 @@ acModulated = tx.modulate(acBits)
 print(f"acReceiverd: {acReceived}")
 chEstU1 = chEst.leastSquares(acReceived, acModulated)
 print(f"Channel Coefficient: {chCoeffU1}, Estimated Channel Coefficient: {chEstU1}")
-
+print(f"Power: {np.abs(chCoeffU1)}, Power: {np.abs(chEstU1)}")
+print(f"MAE of estimated channel coefficient: {np.abs(chCoeffU1 - chEstU1)}")
 ber = rx.ber(pkt_hat, pktU1)
+print(f"BER: {ber}")

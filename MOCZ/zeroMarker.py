@@ -27,16 +27,19 @@ msg = np.random.randint(0, 2, K)
 # msg = np.ones(K, dtype=np.uint8)
 
 sig_tx = tx.coeffConZM(msg)
+sig_power = np.mean(np.abs(sig_tx))
+print(f"Signal Power: {sig_power}, SNR: {sig_power / 0.01}")
 rotation = np.random.uniform(0, 2*np.pi)
 sig_rx = ch.transmit(sig_tx, rotation)
 print(f"Rotation applied: {rotation} (in rad), {rotation * 180 / np.pi} (in deg)")
 msg_un = rx.fftDizet(sig_rx, Q)
 # print(f"Uncorrected msg: {msg_un}")
 
-# --- ZMDetection is giving BER even without NOISE check the implementation
 sig_ffo = rx.ffoEstCor(sig_rx, Q)
 msg_rx = rx.fftDizet(sig_ffo, Q)
 # ----- Zero-Marker rotation identification
+# --- ZMDetection is giving BER even without NOISE check the implementation
+# --- This METHOD doesn't work since the pilots and their plcaing have been changed
 # integer_rotate = rx.ZMDetection(sig_ffo)
 
 # msg_rotated = np.roll(msg_rx, -integer_rotate)
@@ -47,14 +50,8 @@ msg_rx = rx.fftDizet(sig_ffo, Q)
 papr = tx.PAPR(sig_tx)
 print(f"PAPR obtained for zero-pilot: {papr}")
 
-# int_rot_est = rx.PZInteger(sig_ffo)
-# print(f"Integer rotation estimate: {int_rot_est}")
-# msg_rotated = np.roll(msg_rx, int_rot_est)
-# print(f"\nTransmitted Message: {msg}, \n Rotated Message: {msg_rotated}, \n\nReceived Message: {msg_rx}")
-# ber = rx.ber(msg_rotated, msg)
-# print(f"BER: {ber}")
-
 # -- pz case wise implementations
+# --- for CASE-1(a): BL is MULTIPLE of 4
 # x = rx.fftConPZ(sig_ffo)
 # print(f"Integer rotation estimate: {x}")
 # msg_rotated = np.roll(msg_rx, x)
@@ -81,14 +78,15 @@ print(f"PAPR obtained for zero-pilot: {papr}")
 
 #  -- complete end to end: rotation estimation using pilot-zero no matter the 
 # block-length and message decoding
-# msg_decoded = rx.PZDecodedMsg(sig_rx, Q)
-# print(f"\nMessage Transmitted: {msg} \nMessage Decoded: {msg_decoded}")
-# ber = rx.ber(msg_decoded, msg)
-# print(f"BER: {ber}")
-
-x = rx.intRotationEst(sig_ffo)
-print(f"Integer rotation estimate: {x}")
-msg_rotated = np.roll(msg_rx, x)
-print(f"\nTransmitted Message: {msg}, \n Rotated Message: {msg_rotated}, \n\nReceived Message: {msg_rx}")
-ber = rx.ber(msg_rotated, msg)
+msg_decoded = rx.PZDecodedMsg(sig_rx, Q).astype(int)
+print(f"\nMessage Transmitted: {msg} \nMessage Decoded: {msg_decoded}")
+ber = rx.ber(msg_decoded, msg)
 print(f"BER: {ber}")
+
+# ---- unable to find the correct relation to INTEGER ESTIMATE for EVEN and ODD BL
+# x = rx.intRotationEst(sig_ffo)
+# print(f"Integer rotation estimate: {x}")
+# msg_rotated = np.roll(msg_rx, x)
+# print(f"\nTransmitted Message: {msg}, \n Rotated Message: {msg_rotated}, \n\nReceived Message: {msg_rx}")
+# ber = rx.ber(msg_rotated, msg)
+# print(f"BER: {ber}")

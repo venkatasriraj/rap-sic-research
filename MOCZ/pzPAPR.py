@@ -17,7 +17,7 @@ for k in K:
         msg = np.array(bits)
 
         sig_nopz = tx.coeffCon(msg)
-        sig_pz = tx.coeffpzPAPR(msg, Rzm)
+        sig_pz = tx.coeffConZM(msg, Rzm)
 
         papr_nopz = tx.PAPR(sig_nopz)
         papr_pz = tx.PAPR(sig_pz)

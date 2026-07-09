@@ -62,16 +62,15 @@ class BMOCZReceiver(BiMOCZ):
         fftSize = self.K * Q 
         y_pad = np.pad( y, (0, fftSize - len(y)), mode='constant' )
         Y_pz = np.abs( np.fft.ifft( y_pad ) )
-
         #  --- MODIFICATION: estimatinf rotation using all 3 pz
         min_q = {}
-        sep = int(np.ceil(fftSize/ 4))
+        sep = int(np.ceil(fftSize/ 4))  # ---- when Block-length % 4 = 0
+        # sep = int(np.ceil(fftSize / 4)) + 1       # for BL % 2 = 0
+        # sep = Q
         for k in range(fftSize):
             sumZeros = Y_pz[(k-sep)%fftSize] + Y_pz[k] + Y_pz[(k+sep)%fftSize]
             min_q[k] = sumZeros
         q_est = min(min_q, key=min_q.get)
-        
-
         argMin = np.argmin(Y_pz)
         # rotation_est = ( argMin - ( self.K * Q / 2 ) ) * 2 * np.pi / (self.K * Q)
         # ---- replaced argMin to q_est 
@@ -170,13 +169,3 @@ class BMOCZReceiver(BiMOCZ):
         Y_zm = self.fftConZM(y)
         k_est =  np.argmin(Y_zm) // 2
         return k_est
-
-    def PZInteger(self, y):
-        y0 = sum(y[::4])
-        y1 = sum(y[1::4])
-        y2 = sum(y[2::4])
-        y3 = sum(y[3::4])
-        y_fft = np.array([y0, y1, y2, y3])
-        Y_pz = np.abs( np.fft.ifft(y_fft) )
-        int_est = np.argmax(Y_pz)
-        return int_est * self.K / 4
