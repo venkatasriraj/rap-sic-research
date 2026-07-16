@@ -16,14 +16,14 @@ from CHANNEL import MultiPathFading
 
 K = np.arange(6, 41)
 Q = 16
-noIter = 500
+noIter = 10
 SNR_dB = np.arange(-10, 21, 10)
 signal_power = 1
 
 ber_snr = {}; papr_snr = {}; thr_snr = {}; rotation_snr = {}
 for snr in SNR_dB:
     noise_var = signal_power * 10**(-snr/10)
-    ch = MultiPathFading(noise_var)
+    ch = MultiPathFading(noise_var, pathLoss=1)
     ber = {}; papr = {}; throughput = {}; rotationMAE = {}
     for k in K:
         tx = BMOCZTransmitter(k)
@@ -86,7 +86,7 @@ plt.xlabel("Msg-len(K)")
 plt.grid(True, alpha=0.6, linestyle='--')
 plt.ylabel("Throughput")
 plt.title(f"Throughput vs K for {noIter} iters")
-plt.legend(loc='upper right', fontsize=7, framealpha=0.6)
+plt.legend(loc='upper right', fontsize=7, framealpha=0.5)
 plt.tight_layout()
 plt.savefig(f"results/singlePZ/thrQ{Q}")
 

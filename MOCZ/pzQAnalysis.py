@@ -1,4 +1,5 @@
 """
+pilot-zero is placed at radius twice of outer circle radius
 Here we will be studying the impact of Q over-sampling factor 
 in estimation of rotation and MAE of it
 - does it improve throughput
@@ -15,12 +16,12 @@ from CHANNEL import MultiPathFading
 
 Q = np.arange(4, 33, 4)
 K = np.arange(13, 21)
-noIter = 1000
+noIter = 10
 snr = 20
 signal_power = 1
 
 noise_var = signal_power * 10**(-snr/10)
-ch = MultiPathFading(noise_var)
+ch = MultiPathFading(noise_var, pathLoss=1)
 ber_K = {}; thr_K = {}; rotation_K = {}
 for k in K:
     tx = BMOCZTransmitter(k)
@@ -59,6 +60,7 @@ plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("Over-Sampling factor(Q)")
 plt.ylabel("BER")
 plt.title(f"BER vs Q for {noIter} iters")
+plt.legend(loc='upper left', framealpha=0.6, fontsize=7)
 plt.tight_layout()
 plt.savefig(f"results/singlePZ/Q/ber{K}.jpeg")
 
@@ -69,7 +71,7 @@ plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("Over-Sampling factor(Q)")
 plt.ylabel("Throughput")
 plt.title(f"Throughput vs Q for {noIter} iters")
-plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
+plt.legend(loc='lower left', framealpha=0.5, fontsize=7)
 plt.tight_layout()
 plt.savefig(f"results/singlePZ/Q/thr{K}.jpeg")
 

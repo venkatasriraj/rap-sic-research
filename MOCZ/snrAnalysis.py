@@ -10,7 +10,6 @@ For K = 31 we will be analyzing how
 """
 import numpy as np
 import matplotlib.pyplot as plt
-
 from BMOCZ import (
     BMOCZReceiver,
     BMOCZTransmitter
@@ -23,6 +22,7 @@ from CHANNEL import (
 SNR_dB = np.arange(-10, 21, 2)
 noIter = 10
 signal_power = 1
+pathLoss = 1
 K = 32
 tx = BMOCZTransmitter(K)
 rx = BMOCZReceiver(K)
@@ -32,9 +32,9 @@ BER_32 = {}; PER_32 = {}; chCoeff_32 = {}; mae_minc = {}
 for snr in SNR_dB:
     ber, chError, pcr = 0, 0, 0
     noise_var = signal_power * 10**(-snr/10)
-    ch = SlowFadingChannel(noise_var)
+    ch = SlowFadingChannel(noise_var, pathLoss)
     for i in range(noIter):
-        msg = np.random.randint(0, 2, K, dtype=np.uint8)
+        msg = np.random.randint(0, 2, K)
         
         sig_tx = tx.coeffCon(msg)
         sig_power = np.mean( np.abs(sig_tx)**2 )
@@ -70,7 +70,7 @@ for snr in SNR_dB:
         #     else:
         #         mae_minc[index][0] += -np.inf
         #         mae_minc[index][1] += 1
-        chError += np.abs(ch_coeff_hat - ch_coeff)
+        chError += np.abs(ch_coeff_hat - ch_coeff) / abs(ch_coeff)
         ber += rx.ber(msg_rx, msg)
         pcr += rx.per(msg_rx, msg)
     BER_32[snr] = ber / noIter

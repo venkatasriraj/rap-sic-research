@@ -17,7 +17,7 @@ K = 32
 sig_power = 1
 Q = 2
 SNR_dB = np.arange(-10, 21, 2)
-noIter = 10
+noIter = 1000
 ch_var = 1
 
 tx = BMOCZTransmitter(K)
@@ -42,11 +42,7 @@ for snr in SNR_dB:
         sigU2_norm = sigU2 / np.sqrt(sigU2_power)
 
         ch_coeffU1 = np.sqrt(ch_var/2) * ( np.random.randn() + 1j*np.random.randn() )
-        coeffU1_power = np.abs(ch_coeffU1)**2
-        ch_coeffU1 /= np.sqrt(coeffU1_power)
         ch_coeffU2 = np.sqrt(ch_var/2) * ( np.random.randn() + 1j*np.random.randn() )
-        coeffU2_power = np.abs(ch_coeffU2)**2
-        ch_coeffU2 /= np.sqrt(coeffU2_power)
         #  ----  Slot-1: U1 to slow-fading AWGN channel
         sig_rxS1 = ch.sic_transmit([sigU1_norm], [ch_coeffU1])
         #  ------ Slot-2: U1 + U2 through slow-fading AWGN channel
@@ -58,28 +54,30 @@ for snr in SNR_dB:
         msgS1 = rx.fftDizet(sig_rxS1, Q)
         if rx.ber(msgS1, msgU1) == 0:
             pcr[0] += 1
-            # --- Slot-2
-            sig_reconS1 = tx.coeffCon(msgS1)
-            sig_reconS1_power = np.mean(np.abs(sig_reconS1)**2)
-            sig_reconS1 /= np.sqrt(sig_reconS1_power)
-            
-            # --- Here we will be implementing modifiedLS to increase the throughput of the system
-            chEstS1 = chEst.leastSquares(sig_rxS1, sig_reconS1)
-            coeff_error += np.abs(chEstS1 - ch_coeffU1)
-            # print(f"h: {ch_coeffU1}, h_est: {chEstS1}, MAE: {np.abs(ch_coeffU1-chEstS1)}")
-            # print(f"    min coeff: {np.min(np.abs(sig_reconS1))}, ")
-            
-            con_error += rx.mae(sig_rxS1, sig_reconS1 * chEstS1) / np.sum( np.abs(sig_rxS1) )
-            # err_count += 1
-            sig_recovS2 = sig_rxS2 - chEstS1 * sig_reconS1
+        # -- here we will be reconstructing the packet with the message decode
+        #  and estimating the channel
+        # --- Slot-2
+        sig_reconS1 = tx.coeffCon(msgS1)
+        sig_reconS1_power = np.mean(np.abs(sig_reconS1)**2)
+        sig_reconS1 /= np.sqrt(sig_reconS1_power)
+        
+        # --- Here we will be implementing modifiedLS to increase the throughput of the system
+        chEstS1 = chEst.leastSquares(sig_rxS1, sig_reconS1)
+        coeff_error += np.abs(chEstS1 - ch_coeffU1)
+        # print(f"h: {ch_coeffU1}, h_est: {chEstS1}, MAE: {np.abs(ch_coeffU1-chEstS1)}")
+        # print(f"    min coeff: {np.min(np.abs(sig_reconS1))}, ")
+        
+        con_error += rx.mae(sig_rxS1, sig_reconS1 * chEstS1) / np.mean( np.abs(sig_rxS1) )
+        # we are measuring the construced signal error even when decoded message is wrong
+        sig_recovS2 = sig_rxS2 - chEstS1 * sig_reconS1
 
-            msgS2 = rx.fftDizet(sig_recovS2, Q)
-            if rx.ber(msgS2, msgU2) == 0:
-                pcr[1] += 1
+        msgS2 = rx.fftDizet(sig_recovS2, Q)
+        if rx.ber(msgS2, msgU2) == 0:
+            pcr[1] += 1
     per[snr] = 1 - ( np.array(pcr) / noIter )
     pktDetect[snr] = np.array(pcr) / noIter
-    con_mae[snr] = con_error / pcr[0]
-    coeff_mae[snr] = coeff_error / pcr[0]
+    con_mae[snr] = con_error / noIter
+    coeff_mae[snr] = coeff_error / noIter
     print(f"SNR: {snr} done")
 
 plt.figure(1, dpi=800)

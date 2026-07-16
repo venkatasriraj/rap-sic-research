@@ -18,7 +18,7 @@ intRotationPossible = theta_K * np.arange(K)
 
 tx = BMOCZTransmitter(K)
 rx = BMOCZReceiver(K)
-ch = MultiPathFading(noise_var=0.01)
+ch = MultiPathFading(noise_var=0.01, pathLoss=1)
 
 # experiment for pilot zero-selection
 # l = tx.pilotZeroSelection()
@@ -95,6 +95,8 @@ msg = np.random.randint(0, 2, K)
 singlePZ = [2*tx.R]
 # print(f"The radius of the outer circle is: {tx.R},\n Radius for pilo-zero will be {singlePZ}")
 sig_tx = tx.coeffConSinglePZ(msg, singlePZ)
+sig_power = np.mean(np.abs(sig_tx)**2)
+sig_tx /= np.sqrt(sig_power)
 rotation = np.random.uniform(0, 2*np.pi)
 sig_rx = ch.transmit(sig_tx, rotation)
 

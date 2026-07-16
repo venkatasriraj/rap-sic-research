@@ -9,7 +9,6 @@ System parameters:
 We will also be genrating a BAPM (Binary Access Pattern Matrix) which defines the slots 
 in which users will be transmitting.
 """
-
 import numpy as np
 import random
 import matplotlib.pyplot as plt
@@ -33,6 +32,7 @@ K = 32   # 4B
 SNR_dB = np.arange(-10, 20, 5)
 signal_power = 1
 uId = 1
+pathLoss = 1
 
 tx = BMOCZTransmitter(K)
 rx = BMOCZReceiver(K)
@@ -42,22 +42,18 @@ thr_snr = {}; per_snr = {}; ber_snr = {}; mae_hEst = {}
 for snr in SNR_dB:
     noise_var = signal_power * 10**(-snr/10)
     ch = SlowFadingChannel(noise_var)
-    sim = Simulation(tx, rx, ch, chEst, m, n, degree, K, Q=4)
-    userSlotsGen = sim.userSlots
     throughput = {}; per = {}; ber = {}; mae_herr = {}
     for g in G:
         PER, BER, THROUGHPUT, MAE, MAE_count = 0, 0, 0, 0, 1e-10
+        seedNo = abs(int(g*n*3 + snr) )
+        sim = Simulation(tx, rx, ch, chEst, m, n, degree, K, Q=4, seed=seedNo)
         for i in range(noIter):
-            random.seed(int(g*n) + i)
+            userSlotsGen = sim.userSlotGen()
             FRAME = {}
             slot = set()
-            activeUsers = sorted( random.sample(range(1, n+1), int(g*m)) )
-            # if snr == 20:
-            #     print(f"Load - {g}, Active Users: {activeUsers}")
+            activeUsers = sorted( sim.rng.sample(range(1, n+1), int(g*m)) )
             for userId in activeUsers:
                 userSlot = userSlotsGen[userId]
-                # if snr == 20:
-                #     print(f"    UserId: {userId} -- SlotList: {userSlot}")
                 for s in userSlot:
                     if s not in slot:
                         FRAME[s] = [userId]
@@ -66,14 +62,12 @@ for snr in SNR_dB:
                         FRAME[s] += [userId] 
             FRAME = dict(sorted(FRAME.items(), reverse=False))
             frame, h = sim.frameBuild(FRAME)
-            frameBAPM = sim.genBAPM(activeUsers)
-            msg_hat, h_hat = sim.frameParse(frame, frameBAPM)
+            frameBAPM = sim.genBAPM(activeUsers, userSlotsGen)
+            msg_hat, h_hat = sim.frameParse(frame, frameBAPM, userSlotsGen)
             if uId in activeUsers:
                 mae_temp, count = sim.maeh(h, h_hat, uId)
                 MAE += mae_temp
                 MAE_count += count
-            # print(f"    BAPM for given frame: {frameBAPM}")
-            # print(msg_hat)
             pcr, bcr_frame = sim.per(msg_hat)
             PER += ( 1 - (pcr/(len(activeUsers))) )
             BER += ( 1 - ( bcr_frame / ( K * len(activeUsers) ) ) )
@@ -89,8 +83,6 @@ for snr in SNR_dB:
     ber_snr[snr] = ber
     mae_hEst[snr] = mae_herr
 
-# for k, v in mae_hEst.items():
-#     print(f"SNR {k} -- {v}")
 plt.figure(figsize=(8,6), dpi=800)
 # markers = ['o', 's', '^', 'D', 'v', 'p', '*']
 for i, (k, v) in enumerate(mae_hEst.items()):
@@ -103,7 +95,7 @@ plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("Load(g)", fontsize=7, fontweight='bold')
 plt.ylabel(f"MAE of h_est for user-{uId}", fontsize=7) # , fontweight='bold'
 plt.title(f"MAE of h vs Load over {noIter} Iterations", fontsize=7, pad = 4)
-plt.legend(loc='upper right', fontsize=7, framealpha=0.6)
+plt.legend(loc='upper left', fontsize=7, framealpha=0.6)
 plt.tight_layout()
 plt.savefig("results/ConSim/mhLoad.jpeg")
 

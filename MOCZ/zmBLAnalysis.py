@@ -28,7 +28,7 @@ signal_power = 1
 ber_snr = {}; papr_snr = {}; per_snr = {}; thr_snr = {}
 for snr in SNR_dB:
     noise_var = signal_power * 10**(-snr/10)
-    ch = MultiPathFading(noise_var=noise_var)
+    ch = MultiPathFading(noise_var=noise_var, pathLoss=1)
     ber = {}; papr = {}; per = {}; throughput = {}
     for k in K:
         tx = BMOCZTransmitter(k)
@@ -86,7 +86,7 @@ plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("Msg-Length(K)")
 plt.ylabel("Peak to Average Power Ratio (PAPR)")
 plt.title(f"PAPR vs K over {noIter} packets")
-plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
+plt.legend(loc='upper left', framealpha=0.6, fontsize=7)
 plt.tight_layout()
 plt.savefig(f"results/IRO/zmPAPRQ{Q}.jpeg")
 
@@ -98,7 +98,7 @@ plt.xlabel("Msg-length(K)")
 plt.ylabel("Packet Error Rate (PER)")
 plt.title(f"PER vs K for {noIter} packets")
 plt.ylim(0, 1.05)
-plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
+plt.legend(loc='lower right', framealpha=0.6, fontsize=7)
 plt.tight_layout()
 plt.savefig(f"results/IRO/zmPERQ{Q}.jpeg")
 
@@ -110,7 +110,7 @@ plt.xlabel("Msg-length(K)")
 plt.ylabel("Throughpyt(T)")
 plt.title(f"Throughput vs K for {noIter} packets")
 plt.ylim(0, 1.05)
-plt.legend(loc='lower left', framealpha=0.6, fontsize=7)
+plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
 plt.tight_layout()
 plt.savefig(f"results/IRO/zmThroughputQ{Q}.jpeg")
 

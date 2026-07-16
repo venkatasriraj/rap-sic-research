@@ -8,10 +8,8 @@ For SNR =  we will be analyzing how
 - PAPR vs K
 - MSE of h_est vs K
 """
-
 import numpy as np
 import matplotlib.pyplot as plt
-
 from BMOCZ import (
     BMOCZReceiver,
     BMOCZTransmitter
@@ -20,16 +18,16 @@ from CHANNEL import (
     SlowFadingChannel,
     ChannelEstimation
 )
-
 BER_15 = {}; PAPR_15 = {}; PER_15 = {}; chCoeff_15 ={}; mae_minc = {}   
 
 K = np.arange(6, 41, 1)
 noIter = 10
 snr = 15
+pathLoss = 1
 signal_power = 1
 noise_var = signal_power * 10**(-snr/10)
 
-ch = SlowFadingChannel(noise_var)
+ch = SlowFadingChannel(noise_var, pathLoss)
 chEst = ChannelEstimation()
 for k in K:
     tx = BMOCZTransmitter(k)
@@ -41,7 +39,6 @@ for k in K:
         sig_tx = tx.coeffCon(msg)
         sig_power = np.mean(np.abs(sig_tx)**2)
         sig_tx /= np.sqrt(sig_power)
-        # print(f"Signal Power: {sig_power}, Signal after normalizing: {np.mean(np.abs(sig_tx)**2)}")
         
         sig_rx, ch_coeff = ch.transmit(sig_tx)
 
@@ -56,7 +53,7 @@ for k in K:
         sig_recon /= np.sqrt(sig_power)
 
         ch_coeff_hat = chEst.leastSquares(sig_rx, sig_recon)
-        chError += np.abs(ch_coeff_hat - ch_coeff)
+        chError += np.abs(ch_coeff_hat - ch_coeff) / np.abs(ch_coeff)
         # --- MODIFIED LS is not required Since we've updated our LS ESTIMATOR for h --------
         # ch_coeff_hat = chEst.modifiedLS(sig_rx, sig_recon)
         # if not np.isnan(ch_coeff_hat):
@@ -84,7 +81,6 @@ for k in K:
     PAPR_15[k] = papr / noIter
     chCoeff_15[k] = chError / noIter
     print(f"Msg-len: {k} done")
-    # chError will be same as normalised MAE since the power of h = 1
 
 plt.figure(1, dpi=800)
 plt.plot(BER_15.keys(), BER_15.values(), '-')

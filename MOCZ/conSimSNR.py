@@ -7,7 +7,6 @@ System parameters:
 - Payload (packet size): 32 bits
 - Slot distribution: CRDSA (x**2)
 """
-
 import numpy as np
 import random
 import matplotlib.pyplot as plt
@@ -30,6 +29,7 @@ SNR_dB = np.arange(-10, 21, 5)
 G = np.linspace(0.1, 1, 10)
 signal_power = 1
 uId = 1
+pathLoss = 1
 
 tx = BMOCZTransmitter(K)
 rx = BMOCZReceiver(K)
@@ -41,16 +41,14 @@ for load in G:
     for snr in SNR_dB:
         THROUGHPUT, BER, PER, MAE, MAE_count = 0, 0, 0, 0, 1e-10
         noise_var = signal_power * 10**(-snr/10)
-        ch = SlowFadingChannel(noise_var)
-        sim = Simulation(tx, rx, ch, chEst, m, n, degree, K, Q=4)
-        userSlotsGen = sim.userSlots
+        ch = SlowFadingChannel(noise_var, pathLoss)
+        seedNo = abs(int(load*n*3 + snr) )
+        sim = Simulation(tx, rx, ch, chEst, m, n, degree, K, Q=4, seed=seedNo)
         for i in range(noIter):
-            random.seed(int(load*n) + i)
+            userSlotsGen = sim.userSlotGen()
             FRAME = {}
             slot = set()
-            activeUsers = sorted( random.sample( range(1, n+1), int(load * n) ) )
-            # if snr == 20:
-            #     print(f"Active Users: {activeUsers}")
+            activeUsers = sorted( sim.rng.sample( range(1, n+1), int(load * n) ) )
             for userId in activeUsers:
                 userSlot = userSlotsGen[userId]
                 for s in userSlot:
@@ -61,8 +59,8 @@ for load in G:
                         FRAME[s] += [userId]
             FRAME = dict( sorted( FRAME.items(), reverse=False ) )
             frame, h = sim.frameBuild(FRAME)
-            frameBAPM = sim.genBAPM(activeUsers)
-            msg_hat, h_hat = sim.frameParse(frame, frameBAPM)
+            frameBAPM = sim.genBAPM(activeUsers, userSlotsGen)
+            msg_hat, h_hat = sim.frameParse(frame, frameBAPM, userSlotsGen)
             if uId in activeUsers:
                 mae_temp, count = sim.maeh(h, h_hat, uId)
                 MAE += mae_temp
@@ -89,7 +87,7 @@ plt.xlabel("SNR(dB)")
 plt.ylabel("Throughput (T)")
 plt.ylim(0, 1.05)
 plt.title(f"Throughput vs SNR over {noIter} iterations")
-plt.legend(loc='lower left', fontsize=7, framealpha=0.6)
+plt.legend(loc='upper left', fontsize=7, framealpha=0.6)
 plt.tight_layout()
 plt.savefig("results/ConSim/mthrSNR.jpeg")
 

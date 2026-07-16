@@ -28,6 +28,7 @@ SNR_dB = np.arange(-10, 21, 5)
 LOAD = np.linspace(0.1, 1, 10)
 signal_power = 1
 uId = 1
+pathLoss = 1
 
 base = BPSKBase()
 chEst = ChannelEstimation()
@@ -36,20 +37,20 @@ thr_snr = {}; per_snr = {}; ber_snr = {}; maeh_snr = {}
 for snr in SNR_dB:
     throughput = {}; per = {}; ber = {}; maeh = {} 
     noise_var = signal_power * 10**(-snr/10)
-    ch = SlowFadingChannel(noise_var)
+    ch = SlowFadingChannel(noise_var, pathLoss)
     if lenAc == 0:
         pilot = []
     else:
         pilot = accessCode[:lenAc]
-    sim = Simulation(base, ch, chEst, m, n, degree, pktSize, pilot)
-    userSlotsGen = sim.userSlots
     for load in LOAD:
+        seedNo = abs(int(load*n*3 + snr) )
+        sim = Simulation(base, ch, chEst, m, n, degree, pktSize, pilot, seedNo)
         PER, THROUGHPUT, BER, MAE, MAE_count = 0, 0, 0, 0, 1e-10
         for i in range(noIter):
-            random.seed(int(load*n) + i)
+            userSlotsGen = sim.userSlotGen()
             FRAME = {}
             slot = set()
-            activeUsers = sorted(random.sample( range(1, n+1), int(load*n) ))
+            activeUsers = sorted(sim.rng.sample( range(1, n+1), int(load*n) ))
             for userId in activeUsers:
                 userSlot = userSlotsGen[userId]
                 for s in userSlot:
@@ -60,8 +61,8 @@ for snr in SNR_dB:
                         FRAME[s] += [userId]
             FRAME = dict( sorted( FRAME.items(), reverse=False ) )
             frame, h = sim.frameBuild(FRAME)
-            frameBAPM = sim.genBAPM(activeUsers)
-            pkt_hat, h_hat = sim.frameParse(frame, frameBAPM)
+            frameBAPM = sim.genBAPM(activeUsers, userSlotsGen)
+            pkt_hat, h_hat = sim.frameParse(frame, frameBAPM, userSlotsGen)
 
             pcr, bcr_frame = sim.per(pkt_hat)
             PER += ( 1 - (pcr/(len(activeUsers))) )
@@ -89,7 +90,7 @@ plt.xlabel("Load(g)")
 plt.ylim(0, 1.05)
 plt.ylabel("Throughpt (T)")
 plt.title(f"Throughput vs Load for {noIter} iters with PilotLen {lenAc}")
-plt.legend(loc='lower left', fontsize=7, framealpha=0.6)
+plt.legend(loc='upper left', fontsize=7, framealpha=0.6)
 plt.tight_layout()
 plt.savefig(f"results/ConSim/PilotLen/d{lenAc}thrLoad.jpeg")
 

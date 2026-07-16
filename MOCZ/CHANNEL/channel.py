@@ -2,8 +2,9 @@ import numpy as np
 
 class Channel:
 
-    def __init__(self, noise_var):
+    def __init__(self, noise_var, pathLoss):
         self.noise_var = noise_var
+        self.pathLoss = pathLoss
 
     def transmit():
         raise NotImplementedError(

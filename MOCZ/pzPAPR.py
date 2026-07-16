@@ -6,7 +6,7 @@ import itertools
 import matplotlib.pyplot as plt
 from BMOCZ import BMOCZTransmitter
 
-K = np.arange(1, 18)
+K = np.arange(1, 10)
 # Rzm = [-1, 1j, -1j]
 Rzm = [-2, -1, 1j, -1j]
 PAPR = {}; PAPR_PZ = {}; PAPR_Reduction = {}
