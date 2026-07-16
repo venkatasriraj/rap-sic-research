@@ -1,5 +1,5 @@
 """
-Monte-carlo Simulation to verify redduction in PAPR by a insertion of pilot-zero
+Monte-carlo Simulation to verify reduction in PAPR by a insertion of pilot-zero
 """
 import numpy as np
 import itertools
