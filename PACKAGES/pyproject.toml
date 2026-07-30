@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wirelessComm"  
+version = "0.1.0"
+description = "Test Library"
+authors = [
+    {name = "X"}
+]
+requires-python = ">3.9"
+
+dependencies = [
+    "numpy>=2.0",
+    "galois>=0.4.0",
+    "scipy>=1.13"
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
