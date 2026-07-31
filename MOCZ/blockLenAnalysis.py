@@ -10,11 +10,17 @@ For SNR =  we will be analyzing how
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from BMOCZ import (
+# from BMOCZ import (
+#     BMOCZReceiver,
+#     BMOCZTransmitter
+# )
+# from CHANNEL import (
+#     SlowFadingChannel,
+#     ChannelEstimation
+# )
+from wirelessComm import (
     BMOCZReceiver,
-    BMOCZTransmitter
-)
-from CHANNEL import (
+    BMOCZTransmitter,
     SlowFadingChannel,
     ChannelEstimation
 )

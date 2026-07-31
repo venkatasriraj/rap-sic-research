@@ -8,11 +8,16 @@ in estimation of rotation and MAE of it
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from BMOCZ import (
+# from BMOCZ import (
+#     BMOCZReceiver,
+#     BMOCZTransmitter
+# )
+# from CHANNEL import MultiPathFading
+from wirelessComm import (
     BMOCZReceiver,
-    BMOCZTransmitter
+    BMOCZTransmitter,
+    MultiPathFading
 )
-from CHANNEL import MultiPathFading
 
 Q = np.arange(4, 33, 4)
 K = np.arange(13, 21)

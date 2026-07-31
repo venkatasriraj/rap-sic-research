@@ -5,11 +5,17 @@ and used during reconstruction of packet. Distinct channels for users have been 
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from BMOCZ import (
+# from BMOCZ import (
+#     BMOCZReceiver,
+#     BMOCZTransmitter
+# )
+# from CHANNEL import (
+#     SlowFadingChannel,
+#     ChannelEstimation
+# )
+from wirelessComm import (
     BMOCZReceiver,
-    BMOCZTransmitter
-)
-from CHANNEL import (
+    BMOCZTransmitter,
     SlowFadingChannel,
     ChannelEstimation
 )

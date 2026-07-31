@@ -9,12 +9,19 @@ packetStructure and added thisSlot attribute to identify the position of the pac
 in the slot and perform interference cancellation.
 """
 import numpy as np
-
-from CHANNEL import (
+import matplotlib.pyplot as plt
+# from CHANNEL import (
+#     SlowFadingChannel,
+#     ChannelEstimation
+# )
+# from BPSK import (
+#     IRSATransmitter,
+#     IRSAReceiver,
+#     PacketStructure
+# )
+from wirelessComm import (
     SlowFadingChannel,
-    ChannelEstimation
-)
-from BPSK import (
+    ChannelEstimation,
     IRSATransmitter,
     IRSAReceiver,
     PacketStructure
@@ -31,14 +38,14 @@ rx = IRSAReceiver(accessCode=accessCode)
 chEst = ChannelEstimation()
 
 SNR_dB = np.arange(-10, 21, 2)
-noIter = 1000
+noIter = 10
 
 per = {}; mae = {}; throughput = {}
 for snr in SNR_dB:
     PCR = [0, 0]
     MAE = 0; mae_count = 1e-10; 
     noise_var = 10**(-snr / 10)
-    ch = SlowFadingChannel(var=noise_var)
+    ch = SlowFadingChannel(noise_var=noise_var)
     for i in range(noIter):
         pktU11 = pktStr.buildPacket(1, 1, 2, 1, [1,2])
         sigU11 = tx.pkt_to_iq(pktU11)
@@ -95,9 +102,9 @@ for snr in SNR_dB:
 # for snr, per in PER.items():
 #     print(f"SNR(dB): {snr}, PER: {per}, MSE of h: {MSE[snr]}")
 plt.figure(1, dpi=800)
-y = PER.values()
 for i in range(2):
-    plt.plot(PER.keys(), y[i], linestyle='-', linewidth=0.9, label=f"Slot-{i+1}")
+    y = [val[i] for val in per.values()]
+    plt.plot(per.keys(), y, linestyle='-', linewidth=0.9, label=f"Slot-{i+1}")
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("SNR(dB)")
 plt.ylabel("Packet Error Rate")
@@ -113,15 +120,14 @@ plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("SNR(dB)")
 plt.ylabel("MAE of h_est")
 plt.title(f"MAE of h_est vs SNR over {noIter} frames")
-plt.legend(loc='lower left', framealpha=0.6, fontsize=7)
 plt.ylim(0, 1.05)
 plt.tight_layout()
 plt.savefig("results/maehTest1.jpeg")
 
 plt.figure(3, dpi=800)
-y = throughput.values()
 for i in range(2):
-    plt.plot(throughput.keys(), y[i], linestyle='-', linewidth=0.9, label=f"Slot-{i+1}")
+    y = [val[i] for val in throughput.values()]
+    plt.plot(throughput.keys(), y, linestyle='-', linewidth=0.9, label=f"Slot-{i+1}")
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("SNR(dB)")
 plt.ylabel("Throughput (t)")

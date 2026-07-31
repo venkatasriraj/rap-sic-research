@@ -6,14 +6,20 @@ Zero rotation can only be observed in case of CFO.
 """
 import numpy as np
 import galois
-from BMOCZ import (
+# from BMOCZ import (
+#     BMOCZReceiver,
+#     BMOCZTransmitter
+# ) 
+# from CHANNEL import (
+#     SlowFadingChannel,
+#     ChannelEstimation
+# ) 
+from wirelessComm import (
     BMOCZReceiver,
-    BMOCZTransmitter
-) 
-from CHANNEL import (
+    BMOCZTransmitter,
     SlowFadingChannel,
     ChannelEstimation
-) 
+)
 
 SNR_db = 15
 K = 16

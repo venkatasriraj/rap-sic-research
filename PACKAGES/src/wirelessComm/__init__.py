@@ -2,12 +2,21 @@ from .BMOCZ import (
     ACPC,
     BiMOCZ,
     BMOCZReceiver,
-    BMOCZTransmitter
+    BMOCZTransmitter,
+    moczSIMULATION
 )
 from .CHANNEL import (
     SlowFadingChannel,
     Channel,
-    ChannelEstimation
+    ChannelEstimation,
+    MultiPathFading
+)
+from .BPSK import (
+    BPSKBase,
+    dbpskSIMULATION,
+    IRSAReceiver,
+    IRSATransmitter,
+    PacketStructure
 )
 
 # now we can import from MyLib

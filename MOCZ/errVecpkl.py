@@ -11,19 +11,20 @@ which will be computed here
 import numpy as np
 import pickle
 import json
-from BMOCZ import (
-    BMOCZReceiver,
-    BMOCZTransmitter
-)
-from CHANNEL import (
-    SlowFadingChannel,
-)
+# from BMOCZ import (
+#     BMOCZReceiver,
+#     BMOCZTransmitter
+# )
+# from CHANNEL import (
+#     SlowFadingChannel,
+# )
+from wirelessComm import BMOCZReceiver, BMOCZTransmitter, SlowFadingChannel
 
 K = 32
 Q = 2
 SNR_dB = np.arange(-10, 21, 5)
 signal_power = 1
-noIter = 10000
+noIter = 10
 tx = BMOCZTransmitter(K)
 rx = BMOCZReceiver(K)
 data = {}; messages = {}; error_vec = {}; decoded_msg = {}

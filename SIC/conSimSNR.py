@@ -10,26 +10,34 @@ System parameters:
 import numpy as np
 import random
 import matplotlib.pyplot as plt
-from BPSK import BPSKBase
-from CHANNEL import (
+# from BPSK import (
+#     BPSKBase,
+#     dbpskSIMULATION
+# ) 
+# from CHANNEL import (
+#     SlowFadingChannel,
+#     ChannelEstimation
+# )
+from wirelessComm import (
+    BPSKBase,
+    dbpskSIMULATION,
     SlowFadingChannel,
     ChannelEstimation
 )
-from simulation import Simulation
 
-accessCode = [1,0,1,0,1,0,1,0]
-lenAC = 8
 degree = 2
 m = 20
 n = m  # number of users
 noIter = 10
-
-pktSize = 32   # in bits (4B)
 LOAD = np.linspace(0.1, 1, 10)
 SNR_dB = np.arange(-10, 21, 5)
 signal_power = 1 
 uId = 1
 pathLoss = 1
+
+pktSize = 32   # in bits (4B)
+accessCode = [1,0,1,0,1,0,1,0]
+lenAC = 8
 
 base = BPSKBase()
 chEst = ChannelEstimation()
@@ -47,7 +55,7 @@ for load in LOAD:
         else:
             pilot = accessCode[:lenAC]
         seedNo = abs(int(load*n*3 + snr) )
-        sim = Simulation(base, ch, chEst, m, n, degree, pktSize, pilot, seedNo)
+        sim = dbpskSIMULATION(base, ch, chEst, m, n, degree, pktSize, pilot, seedNo)
         for i in range(noIter):
             userSlotsGen = sim.userSlotGen()
             FRAME = {}
@@ -79,7 +87,7 @@ for load in LOAD:
             # for throughput we will only be considering the payload
             pkt_hat, h_hat = sim.frameParse(frame, frameBAPM, userSlotsGen)
             if uId in activeUsers:
-                mae_temp, count = sim.mae(h, h_hat, uId)
+                mae_temp, count = sim.maeh(h, h_hat, uId)
                 MAE += mae_temp
                 MAE_count += count
             pcr, bcr_frame = sim.per(pkt_hat)

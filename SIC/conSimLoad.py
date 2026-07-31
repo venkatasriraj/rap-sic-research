@@ -10,18 +10,26 @@ System parameters:
 import numpy as np
 import random
 import matplotlib.pyplot as plt
-from BPSK import BPSKBase
-from CHANNEL import (
+# from BPSK import (
+#     BPSKBase,
+#     dbpskSIMULATION
+# ) 
+# from CHANNEL import (
+#     SlowFadingChannel,
+#     ChannelEstimation
+# )
+from wirelessComm import (
+    BPSKBase,
+    dbpskSIMULATION,
     SlowFadingChannel,
     ChannelEstimation
 )
-from simulation import Simulation
 
 accessCode = [1, 0] * 4
 lenAc = 8
 degree = 2 
 m = 20; n = m
-noIter = 1000
+noIter = 10
 
 pktSize = 32
 SNR_dB = np.arange(-10, 21, 5)
@@ -44,7 +52,7 @@ for snr in SNR_dB:
         pilot = accessCode[:lenAc]
     for load in LOAD:
         seedNo = abs(int(load*n*3 + snr) )
-        sim = Simulation(base, ch, chEst, m, n, degree, pktSize, pilot, seedNo)
+        sim = dbpskSIMULATION(base, ch, chEst, m, n, degree, pktSize, pilot, seedNo)
         PER, THROUGHPUT, BER, MAE, MAE_count = 0, 0, 0, 0, 1e-10
         for i in range(noIter):
             userSlotsGen = sim.userSlotGen()
@@ -69,7 +77,7 @@ for snr in SNR_dB:
             BER += ( 1 - ( bcr_frame / (pktSize * len(activeUsers)) ) )
             THROUGHPUT += pcr /  len(activeUsers) # here we have not considered rate = (pktsize - aclen) / pktsize
             if uId in activeUsers:
-                mae_temp, count = sim.mae(h, h_hat, uId)
+                mae_temp, count = sim.maeh(h, h_hat, uId)
                 MAE += mae_temp
                 MAE_count += count
         throughput[load] = THROUGHPUT / noIter

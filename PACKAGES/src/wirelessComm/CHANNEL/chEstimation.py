@@ -4,7 +4,6 @@ class ChannelEstimation:
 
     @staticmethod
     def leastSquares(received_sig, recon_sig):
-
         if len(received_sig) != len(recon_sig):
             return ValueError("Length Mismatch between received "
                                 "and reconstructed signal")

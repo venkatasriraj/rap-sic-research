@@ -10,15 +10,22 @@ System parameters:
 import numpy as np
 import random
 import matplotlib.pyplot as plt
-from BMOCZ import (
+# from BMOCZ import (
+#     BMOCZReceiver,
+#     BMOCZTransmitter
+# )
+# from CHANNEL import (
+#     SlowFadingChannel,
+#     ChannelEstimation
+# )
+# from moczSimulation import moczSIMULATION
+from wirelessComm import (
     BMOCZReceiver,
-    BMOCZTransmitter
-)
-from CHANNEL import (
+    BMOCZTransmitter,
     SlowFadingChannel,
-    ChannelEstimation
+    ChannelEstimation,
+    moczSIMULATION
 )
-from simulation import Simulation
 
 degree = 2 
 m = 20
@@ -43,7 +50,7 @@ for load in G:
         noise_var = signal_power * 10**(-snr/10)
         ch = SlowFadingChannel(noise_var, pathLoss)
         seedNo = abs(int(load*n*3 + snr) )
-        sim = Simulation(tx, rx, ch, chEst, m, n, degree, K, Q=4, seed=seedNo)
+        sim = moczSIMULATION(tx, rx, ch, chEst, m, n, degree, K, Q=4, seed=seedNo)
         for i in range(noIter):
             userSlotsGen = sim.userSlotGen()
             FRAME = {}

@@ -1,14 +1,17 @@
 """
 Implementation of Zero-Marker in BMOCZ to solve rotation of zeros due to CFO.
 """
-
 import numpy as np
-
-from BMOCZ import (
+# from BMOCZ import (
+#     BMOCZTransmitter,
+#     BMOCZReceiver
+# )
+# from CHANNEL import MultiPathFading
+from wirelessComm import (
     BMOCZTransmitter,
-    BMOCZReceiver
+    BMOCZReceiver,
+    MultiPathFading
 )
-from CHANNEL import MultiPathFading
 
 K = 8
 Q = 16

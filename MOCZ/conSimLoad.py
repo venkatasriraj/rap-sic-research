@@ -12,27 +12,34 @@ in which users will be transmitting.
 import numpy as np
 import random
 import matplotlib.pyplot as plt
-from BMOCZ import (
+# from BMOCZ import (
+#     BMOCZReceiver,
+#     BMOCZTransmitter
+# )
+# from CHANNEL import (
+#     SlowFadingChannel,
+#     ChannelEstimation
+# )
+# from moczSimulation import moczSIMULATION
+from wirelessComm import (
     BMOCZReceiver,
-    BMOCZTransmitter
-)
-from CHANNEL import (
+    BMOCZTransmitter,
     SlowFadingChannel,
-    ChannelEstimation
+    ChannelEstimation,
+    moczSIMULATION
 )
-from simulation import Simulation
 
 degree = 2  # CRDSA 
 m = 20
 n = m
 noIter = 10  # gives the simulation over 1000 frames
 G = np.linspace(0.1, 1, 10)
-
-K = 32   # 4B
 SNR_dB = np.arange(-10, 20, 5)
 signal_power = 1
 uId = 1
 pathLoss = 1
+
+K = 32   # 4B
 
 tx = BMOCZTransmitter(K)
 rx = BMOCZReceiver(K)
@@ -46,7 +53,7 @@ for snr in SNR_dB:
     for g in G:
         PER, BER, THROUGHPUT, MAE, MAE_count = 0, 0, 0, 0, 1e-10
         seedNo = abs(int(g*n*3 + snr) )
-        sim = Simulation(tx, rx, ch, chEst, m, n, degree, K, Q=4, seed=seedNo)
+        sim = moczSIMULATION(tx, rx, ch, chEst, m, n, degree, K, Q=4, seed=seedNo)
         for i in range(noIter):
             userSlotsGen = sim.userSlotGen()
             FRAME = {}

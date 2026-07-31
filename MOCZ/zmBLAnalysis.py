@@ -13,11 +13,16 @@ and will be persued later.
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from BMOCZ import (
+# from BMOCZ import (
+#     BMOCZReceiver,
+#     BMOCZTransmitter
+# )
+# from CHANNEL import MultiPathFading
+from wirelessComm import (
+    BMOCZTransmitter,
     BMOCZReceiver,
-    BMOCZTransmitter
+    MultiPathFading
 )
-from CHANNEL import MultiPathFading
 
 K = np.arange(6, 41, 1)
 Q = 8

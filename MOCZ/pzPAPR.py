@@ -4,7 +4,8 @@ Monte-carlo Simulation to verify reduction in PAPR by a insertion of pilot-zero
 import numpy as np
 import itertools
 import matplotlib.pyplot as plt
-from BMOCZ import BMOCZTransmitter
+# from BMOCZ import BMOCZTransmitter
+from wirelessComm import BMOCZTransmitter
 
 K = np.arange(1, 10)
 # Rzm = [-1, 1j, -1j]
@@ -28,12 +29,13 @@ for k in K:
     PAPR[k] = papr_nopz_max
     PAPR_PZ[k] = papr_pz_max
     PAPR_Reduction[k] = ( papr_nopz_max - papr_pz_max ) * 100 / papr_nopz_max
-    print(f"Blocl-length {k} done")
+    print(f"Block-length {k} done")
 
 plt.figure(1, dpi=800)
 plt.plot(PAPR_Reduction.keys(), PAPR_Reduction.values(), linestyle='-', linewidth=0.9)
 plt.xlabel(f"Block-Length(K) {K}")
 plt.ylabel(f"% reduction of PAPR by pilot-zero")
 plt.title(f"% reduction of PAPR by PZ vs K for PZ at {Rzm}")
-plt.savefig(f"results/pzPAPR{Rzm}.jpeg")
+plt.grid(True, alpha=0.6, linestyle='--')
+plt.savefig(f"results/pzPAPR/{Rzm}.jpeg")
 # plt.show()

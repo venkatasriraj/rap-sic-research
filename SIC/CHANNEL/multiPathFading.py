@@ -1,6 +1,6 @@
 import numpy as np
 
-from .channel import Channel
+from CHANNEL import Channel
 
 class MultiPathFading(Channel):
 

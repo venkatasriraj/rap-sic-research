@@ -5,15 +5,20 @@ Where user 1 transmits on slot-1 and user 2 transmits on slot-2.
 
 Since we are using Differnetial Coding scheme the slot length will be increased by 1B.
 """
-
 import numpy as np
-
-from BPSK import (
+# from BPSK import (
+#     PacketStructure,
+#     IRSAReceiver,
+#     IRSATransmitter
+# )
+# from CHANNEL import (
+#     SlowFadingChannel,
+#     ChannelEstimation
+# )
+from wirelessComm import (
     PacketStructure,
     IRSAReceiver,
-    IRSATransmitter
-)
-from CHANNEL import (
+    IRSATransmitter,
     SlowFadingChannel,
     ChannelEstimation
 )

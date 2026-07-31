@@ -3,17 +3,22 @@ Here we will be saving the data in HDF5 format to access only necessary data
 """
 import numpy as np
 import h5py
-from BMOCZ import (
+# from BMOCZ import (
+#     BMOCZReceiver,
+#     BMOCZTransmitter
+# )
+# from CHANNEL import SlowFadingChannel
+from wirelessComm import (
     BMOCZReceiver,
-    BMOCZTransmitter
+    BMOCZTransmitter,
+    SlowFadingChannel
 )
-from CHANNEL import SlowFadingChannel
 
 K = 32
 Q = 2
 SNR_dB = np.arange(-10, 21, 1)
 signal_power = 1
-noIter = int(1e5)
+noIter = int(1e1)
 
 tx = BMOCZTransmitter(K)
 rx = BMOCZReceiver(K)

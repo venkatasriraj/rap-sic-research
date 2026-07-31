@@ -10,14 +10,20 @@ For K = 31 we will be analyzing how
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from BMOCZ import (
+# from BMOCZ import (
+#     BMOCZReceiver,
+#     BMOCZTransmitter
+# ) 
+# from CHANNEL import (
+#     SlowFadingChannel,
+#     ChannelEstimation
+# ) 
+from wirelessComm import (
+    BMOCZTransmitter,
     BMOCZReceiver,
-    BMOCZTransmitter
-) 
-from CHANNEL import (
     SlowFadingChannel,
     ChannelEstimation
-) 
+)
 
 SNR_dB = np.arange(-10, 21, 2)
 noIter = 10
