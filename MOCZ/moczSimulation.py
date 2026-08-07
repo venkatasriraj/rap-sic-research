@@ -1,8 +1,6 @@
 import random
 import numpy as np
 
-from CHANNEL import SlowFadingChannel
-
 class moczSIMULATION:
 
     def __init__(self, tx, rx, ch, chEst, slots=20, users=20, degree=2, K=32, Q=7, seed=None):

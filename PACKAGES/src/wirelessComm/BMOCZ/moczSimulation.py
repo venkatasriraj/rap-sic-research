@@ -64,7 +64,7 @@ class moczSIMULATION:
         msg_hat = {}
         h_hat = {}
         iterNo = 0
-        while len(interferencedSlots) > 0 and iterNo < self.users:
+        while len(interferencedSlots) > 0 and iterNo < self.users*2:
             if 1 not in pktsInSlots.values():        
                 return dict(sorted(msg_hat.items(), reverse=False)), dict(sorted(h_hat.items(), reverse=False))
             slot = interferencedSlots[0]
@@ -96,7 +96,7 @@ class moczSIMULATION:
                 msg_hat[userId] = msg_rx
         return dict(sorted(msg_hat.items(), reverse=False)), dict(sorted(h_hat.items(), reverse=False))
 
-    def frameParseNoSIC(self, frame, bapm, userSlots):
+    def frameParseNoSIC(self, frame, bapm):
         pktsInSlots = {k:len(v) for k, v in bapm.items()}
         pktsInSlots = dict( sorted( pktsInSlots.items(), key=lambda item: item[1] ) )
         interferencedSlots = list(pktsInSlots.keys())
@@ -110,7 +110,39 @@ class moczSIMULATION:
             userId = bapm[slot][0]
             msg_hat[userId] = msg_rx
         return dict(sorted(msg_hat.items(), reverse=False))
-        
+
+    # perfect channel state information (CSI) is available at Rx
+    def frameParseCSI(self, frame, bapm, userSlots, h):
+        pktsInSlots = {k:len(v) for k, v in bapm.items()}
+        pktsInSlots = dict(sorted(pktsInSlots.items(), key = lambda item: item[1]))
+        interferencedSlots = list(pktsInSlots.keys())
+        msg_hat = {}
+        iterNo = 0
+        while len(interferencedSlots) > 0 and iterNo < 2*self.users:
+            if 1 not in pktsInSlots.values():
+                return dict(sorted(msg_hat.items(), reverse=False))
+            slot = interferencedSlots[0]
+            interferencedSlots.remove(slot)
+            if pktsInSlots[slot] > 1:
+                interferencedSlots += [slot]
+            else:
+                iterNo += 1
+                userId = bapm[slot][0]
+                uSlot = userSlots[userId]
+                pktsInSlots[slot] -= 1
+                msg_rx = self.rx.fftDizet(frame[slot], self.Q)
+                msg_hat[userId] = msg_rx
+                sig_recon = self.tx.coeffCon(msg_rx)
+                sig_power = np.mean(np.abs(sig_recon)**2)
+                sig_recon /= np.sqrt(sig_power)
+                for s in uSlot:
+                    bapm[s].remove(userId)
+                    if s != slot and s in interferencedSlots:
+                        frame[s] -= sig_recon * h[userId-1]
+                        pktsInSlots[s] -= 1
+                        if pktsInSlots[s] < 1:
+                            interferencedSlots.remove(s)
+        return dict(sorted(msg_hat.items(), reverse=False))
 
     def per(self, msg_hat):
         pcr, bcr = 0, 0

@@ -8,16 +8,7 @@ System parameters:
 - Slot distribution: CRDSA (x**2)
 """
 import numpy as np
-import random
 import matplotlib.pyplot as plt
-# from BPSK import (
-#     BPSKBase,
-#     dbpskSIMULATION
-# ) 
-# from CHANNEL import (
-#     SlowFadingChannel,
-#     ChannelEstimation
-# )
 from wirelessComm import (
     BPSKBase,
     dbpskSIMULATION,
@@ -28,7 +19,7 @@ from wirelessComm import (
 degree = 2
 m = 20
 n = m  # number of users
-noIter = 10
+noIter = int(1e3)
 LOAD = np.linspace(0.1, 1, 10)
 SNR_dB = np.arange(-10, 21, 5)
 signal_power = 1 
@@ -37,7 +28,7 @@ pathLoss = 1
 
 pktSize = 32   # in bits (4B)
 accessCode = [1,0,1,0,1,0,1,0]
-lenAC = 8
+lenAC = 0
 
 base = BPSKBase()
 chEst = ChannelEstimation()
@@ -115,7 +106,7 @@ plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("SNR(dB)")
 plt.ylabel("Throughput (T)")
 plt.ylim(0, 1.05)
-plt.title(f"Throughput vs SNR for {noIter} Iters with PilotLen {lenAC}")
+plt.title(f"{noIter} frames per point with PilotLen {lenAC}")
 plt.legend(loc='upper left', fontsize=7, framealpha=0.6)
 plt.tight_layout()
 plt.savefig(f"results/ConSim/PilotLen/d{lenAC}thrSNR.jpeg")
@@ -126,7 +117,7 @@ for k, v in maeh_load.items():
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("SNR(dB)")
 plt.ylabel(f"MAE of h_est for User-{uId}")
-plt.title(f"MAE of h_est vs SNR for {noIter} iters")
+plt.title(f"{noIter} frames per point with PilotLen {lenAC}")
 plt.legend(loc="upper right", framealpha=0.6, fontsize=7)
 plt.tight_layout()
 plt.savefig(f"results/ConSim/PilotLen/d{lenAC}hSNR.jpeg")

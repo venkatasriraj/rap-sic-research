@@ -4,7 +4,6 @@ Monte-carlo Simulation to verify reduction in PAPR by a insertion of pilot-zero
 import numpy as np
 import itertools
 import matplotlib.pyplot as plt
-# from BMOCZ import BMOCZTransmitter
 from wirelessComm import BMOCZTransmitter
 
 K = np.arange(1, 10)

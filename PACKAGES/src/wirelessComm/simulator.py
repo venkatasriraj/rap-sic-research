@@ -18,19 +18,21 @@ def simulator(sim, load, noIter, sicMode = True, uId = 1):
         FRAME = dict(sorted( FRAME.items(), reverse=False ))
         frame, h = sim.frameBuild(FRAME)
         frameBAPM = sim.genBAPM(activeUsers, userSlotsGen)
-        if sicMode:
+        if sicMode == "normal":
             pkt_hat, h_hat = sim.frameParse(frame, frameBAPM, userSlotsGen)
             if uId in activeUsers:
                 mae_temp, count = sim.maeh(h, h_hat, uId)
                 MAE += mae_temp
                 MAE_count += count
-        else:
-            pkt_hat = sim.frameParseNoSIC(frame, frameBAPM, userSlotsGen)
+        elif sicMode == "noSIC":
+            pkt_hat = sim.frameParseNoSIC(frame, frameBAPM)
+        elif sicMode == "CSI":
+            pkt_hat = sim.frameParseCSI(frame, frameBAPM, userSlotsGen, h)
         pcr, bcr_frame = sim.per(pkt_hat)
         PER += ( 1 - (pcr/len(activeUsers)) )
         BER += ( 1 - (bcr_frame / ( sim.pktSize * len(activeUsers) )) )
         THROUGHPUT += pcr / len(activeUsers)
-    if sicMode:
+    if sicMode == "normal":
         return PER, BER, THROUGHPUT, MAE, MAE_count
     else:
         return PER, BER, THROUGHPUT

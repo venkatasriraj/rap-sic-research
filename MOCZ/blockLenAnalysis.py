@@ -10,14 +10,6 @@ For SNR =  we will be analyzing how
 """
 import numpy as np
 import matplotlib.pyplot as plt
-# from BMOCZ import (
-#     BMOCZReceiver,
-#     BMOCZTransmitter
-# )
-# from CHANNEL import (
-#     SlowFadingChannel,
-#     ChannelEstimation
-# )
 from wirelessComm import (
     BMOCZReceiver,
     BMOCZTransmitter,
@@ -27,7 +19,8 @@ from wirelessComm import (
 BER_15 = {}; PAPR_15 = {}; PER_15 = {}; chCoeff_15 ={}; mae_minc = {}   
 
 K = np.arange(6, 41, 1)
-noIter = 10
+Q = 4
+noIter = int(1e5)
 snr = 15
 pathLoss = 1
 signal_power = 1
@@ -48,7 +41,7 @@ for k in K:
         
         sig_rx, ch_coeff = ch.transmit(sig_tx)
 
-        Q = int( 2**( np.log( np.ceil(len(sig_rx)/k) ) / np.log(2) ) )  # Q = 2
+        # Q = int( 2**( np.log( np.ceil(len(sig_rx)/k) ) / np.log(2) ) )  # Q = 2
 
         sig_ffo = rx.ffoEstCor(sig_rx, Q)
         msg_rx = rx.fftDizet(sig_ffo, Q)
@@ -93,7 +86,7 @@ plt.plot(BER_15.keys(), BER_15.values(), '-')
 plt.grid(True)
 plt.xlabel("Msg-Length(K)")
 plt.ylabel("BER")
-plt.title(f"BER vs Msg-Length(K) over {noIter} iterations for SNR = {snr}.")
+plt.title(f"{noIter} packets per point for SNR = {snr}dB.")
 plt.savefig(f"results/BLAnalysis/BER_s{snr}.jpeg")
 
 plt.figure(2,dpi=800)
@@ -101,7 +94,7 @@ plt.plot(PAPR_15.keys(), PAPR_15.values(), '-')
 plt.grid(True)
 plt.ylabel("Peak to Average Power Ratio (PAPR)")
 plt.xlabel("Msg-Length(K)")
-plt.title(f"PAPR vs Msg-Length(K) over {noIter} iterations for SNR = {snr}.")
+plt.title(f"{noIter} packets per point for SNR = {snr}dB.")
 plt.savefig(f"results/BLAnalysis/PAPR_s{snr}.jpeg")
 
 plt.figure(3, dpi=800)
@@ -109,7 +102,7 @@ plt.plot(chCoeff_15.keys(), chCoeff_15.values(), '-')
 plt.grid(True)
 plt.xlabel("Msg-Length(K)")
 plt.ylabel("MAE of channel coefficicent(|h|)")
-plt.title(f"MAE of |h| vs Msg-Length(K) over {noIter} iterations for SNR = {snr}.")
+plt.title(f"{noIter} packets per point for SNR = {snr}dB.")
 plt.savefig(f"results/BLAnalysis/MAE_h_s{snr}.jpeg")
 
 plt.figure(4, dpi=800)
@@ -117,7 +110,7 @@ plt.plot(PER_15.keys(), PER_15.values(), '-')
 plt.grid(True)
 plt.xlabel("Msg-Length(K)")
 plt.ylabel("PER")
-plt.title(f"PER vs Msg-Length(K) over {noIter} iterations for SNR = {snr}.")
+plt.title(f"{noIter} packets per point for SNR = {snr}dB.")
 plt.savefig(f"results/BLAnalysis/PER_s{snr}.jpeg")
 
 # plt.show()

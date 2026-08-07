@@ -10,14 +10,6 @@ For K = 31 we will be analyzing how
 """
 import numpy as np
 import matplotlib.pyplot as plt
-# from BMOCZ import (
-#     BMOCZReceiver,
-#     BMOCZTransmitter
-# ) 
-# from CHANNEL import (
-#     SlowFadingChannel,
-#     ChannelEstimation
-# ) 
 from wirelessComm import (
     BMOCZTransmitter,
     BMOCZReceiver,
@@ -26,10 +18,11 @@ from wirelessComm import (
 )
 
 SNR_dB = np.arange(-10, 21, 2)
-noIter = 10
+noIter = int(1e5)
 signal_power = 1
 pathLoss = 1
 K = 32
+Q = 4
 tx = BMOCZTransmitter(K)
 rx = BMOCZReceiver(K)
 chEst = ChannelEstimation()
@@ -48,7 +41,7 @@ for snr in SNR_dB:
 
         sig_rx, ch_coeff = ch.transmit(sig_tx)
 
-        Q = int( 2**( np.log( np.ceil(len(sig_rx)/K) ) / np.log(2) ) )
+        # Q = int( 2**( np.log( np.ceil(len(sig_rx)/K) ) / np.log(2) ) )
 
         sig_ffo = rx.ffoEstCor(sig_rx, Q)
         msg_rx = rx.fftDizet(sig_ffo, Q)
@@ -89,7 +82,7 @@ plt.plot(BER_32.keys(), BER_32.values(), '-')
 plt.grid(True)
 plt.xlabel("SNR(dB)")
 plt.ylabel("BER")
-plt.title(f"BER vs SNR over {noIter} iterations for K = {K}.")
+plt.title(f"{noIter} packets per point for Msg Len = {K}.")
 plt.savefig(f"results/SNRAnalysis/BER_k{K}.jpeg")
 
 plt.figure(2, dpi=800)
@@ -97,7 +90,7 @@ plt.plot(chCoeff_32.keys(), chCoeff_32.values(), '-')
 plt.grid(True)
 plt.xlabel("SNR(dB)")
 plt.ylabel("MAE of channel coefficicent(|h|)")
-plt.title(f"MAE of |h| vs SNR over {noIter} iterations for K = {K}.")
+plt.title(f"{noIter} packets per point for Msg Len = {K}.")
 plt.savefig(f"results/SNRAnalysis/MAE_h_k{K}.jpeg")
 
 plt.figure(3, dpi=800)
@@ -105,7 +98,7 @@ plt.plot(PER_32.keys(), PER_32.values(), '-')
 plt.grid(True)
 plt.xlabel("SNR(dB)")
 plt.ylabel("PER")
-plt.title(f"PER vs SNR over {noIter} iterations for K = {K}.")
+plt.title(f"{noIter} packets per point for Msg Len = {K}.")
 plt.savefig(f"results/SNRAnalysis/PER_k{K}.jpeg")
 
 # plt.show()

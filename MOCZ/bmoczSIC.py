@@ -5,14 +5,6 @@ and used during reconstruction of packet. Distinct channels for users have been 
 """
 import numpy as np
 import matplotlib.pyplot as plt
-# from BMOCZ import (
-#     BMOCZReceiver,
-#     BMOCZTransmitter
-# )
-# from CHANNEL import (
-#     SlowFadingChannel,
-#     ChannelEstimation
-# )
 from wirelessComm import (
     BMOCZReceiver,
     BMOCZTransmitter,
@@ -21,9 +13,9 @@ from wirelessComm import (
 )
 K = 32
 sig_power = 1
-Q = 2
-SNR_dB = np.arange(-10, 21, 2)
-noIter = 1000
+Q = 4
+SNR_dB = np.arange(-10, 21, 5)
+noIter = int(1e2)
 ch_var = 1
 
 tx = BMOCZTransmitter(K)
@@ -91,7 +83,7 @@ plt.plot(pktDetect.keys(), pktDetect.values(), '-', linewidth=0.9)
 plt.xlabel("SNR(dB)")
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.ylabel(f"Throughput (T)")
-plt.title(f"Throughput vs SNR over {noIter} packets transmitted")
+plt.title(f"{noIter} packets per point")
 plt.savefig("results/detectPkts.jpeg")
 
 plt.figure(2, dpi=800)
@@ -103,7 +95,7 @@ plt.ylabel(f"Packets Detected for {noIter} packets")
 plt.ylim(0, 1.05)
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.legend(loc="lower left", framealpha=0.6, fontsize=7)
-plt.title(f"PER vs SNR over {noIter} frames")
+plt.title(f"{noIter} packets per point")
 plt.tight_layout()
 plt.savefig("results/SICper.jpeg")
 

@@ -1,15 +1,8 @@
 """
 Implementation of Interger and fractional phase offset estimation.
 """
-
 import numpy as np
 import galois
-# from BMOCZ import (
-#     BMOCZReceiver,
-#     BMOCZTransmitter,
-#     ACPC
-# ) 
-# from CHANNEL import SlowFadingChannel
 from wirelessComm import (
     BMOCZReceiver,
     BMOCZTransmitter,

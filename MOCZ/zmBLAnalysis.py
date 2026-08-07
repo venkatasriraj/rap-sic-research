@@ -13,11 +13,6 @@ and will be persued later.
 """
 import numpy as np
 import matplotlib.pyplot as plt
-# from BMOCZ import (
-#     BMOCZReceiver,
-#     BMOCZTransmitter
-# )
-# from CHANNEL import MultiPathFading
 from wirelessComm import (
     BMOCZTransmitter,
     BMOCZReceiver,
@@ -26,7 +21,7 @@ from wirelessComm import (
 
 K = np.arange(6, 41, 1)
 Q = 8
-noIter = 10
+noIter = int(1e3)
 SNR_dB = np.arange(-10, 21, 5)
 signal_power = 1 
 
@@ -78,7 +73,7 @@ for k, v in ber_snr.items():
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("Msg-Length(K)")
 plt.ylabel("BER")
-plt.title(f"BER vs K over {noIter} packets")
+plt.title(f"{noIter} packets per point")
 plt.ylim(0, 1.05)
 plt.legend(loc='upper right', fontsize=7, framealpha=0.6)
 plt.tight_layout()
@@ -90,7 +85,7 @@ for k, v in papr_snr.items():
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("Msg-Length(K)")
 plt.ylabel("Peak to Average Power Ratio (PAPR)")
-plt.title(f"PAPR vs K over {noIter} packets")
+plt.title(f"{noIter} packets per point")
 plt.legend(loc='upper left', framealpha=0.6, fontsize=7)
 plt.tight_layout()
 plt.savefig(f"results/IRO/zmPAPRQ{Q}.jpeg")
@@ -101,7 +96,7 @@ for k, v in per_snr.items():
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("Msg-length(K)")
 plt.ylabel("Packet Error Rate (PER)")
-plt.title(f"PER vs K for {noIter} packets")
+plt.title(f"{noIter} packets per point")
 plt.ylim(0, 1.05)
 plt.legend(loc='lower right', framealpha=0.6, fontsize=7)
 plt.tight_layout()
@@ -113,7 +108,7 @@ for k, v in thr_snr.items():
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("Msg-length(K)")
 plt.ylabel("Throughpyt(T)")
-plt.title(f"Throughput vs K for {noIter} packets")
+plt.title(f"{noIter} packets per point")
 plt.ylim(0, 1.05)
 plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
 plt.tight_layout()

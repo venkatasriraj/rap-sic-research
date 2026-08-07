@@ -10,17 +10,7 @@ We will also be genrating a BAPM (Binary Access Pattern Matrix) which defines th
 in which users will be transmitting.
 """
 import numpy as np
-import random
 import matplotlib.pyplot as plt
-# from BMOCZ import (
-#     BMOCZReceiver,
-#     BMOCZTransmitter
-# )
-# from CHANNEL import (
-#     SlowFadingChannel,
-#     ChannelEstimation
-# )
-# from moczSimulation import moczSIMULATION
 from wirelessComm import (
     BMOCZReceiver,
     BMOCZTransmitter,
@@ -32,14 +22,15 @@ from wirelessComm import (
 degree = 2  # CRDSA 
 m = 20
 n = m
-noIter = 10  # gives the simulation over 1000 frames
+noIter = int(1e5)  # gives the simulation over 1000 frames
 G = np.linspace(0.1, 1, 10)
-SNR_dB = np.arange(-10, 20, 5)
+SNR_dB = np.arange(-10, 21, 5)
 signal_power = 1
 uId = 1
 pathLoss = 1
 
 K = 32   # 4B
+Q = 4
 
 tx = BMOCZTransmitter(K)
 rx = BMOCZReceiver(K)
@@ -53,7 +44,7 @@ for snr in SNR_dB:
     for g in G:
         PER, BER, THROUGHPUT, MAE, MAE_count = 0, 0, 0, 0, 1e-10
         seedNo = abs(int(g*n*3 + snr) )
-        sim = moczSIMULATION(tx, rx, ch, chEst, m, n, degree, K, Q=4, seed=seedNo)
+        sim = moczSIMULATION(tx, rx, ch, chEst, m, n, degree, K, Q=Q, seed=seedNo)
         for i in range(noIter):
             userSlotsGen = sim.userSlotGen()
             FRAME = {}
@@ -101,7 +92,7 @@ for i, (k, v) in enumerate(mae_hEst.items()):
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("Load(g)", fontsize=7, fontweight='bold')
 plt.ylabel(f"MAE of h_est for user-{uId}", fontsize=7) # , fontweight='bold'
-plt.title(f"MAE of h vs Load over {noIter} Iterations", fontsize=7, pad = 4)
+plt.title(f"{noIter} frames per point", fontsize=7, pad = 4)
 plt.legend(loc='upper left', fontsize=7, framealpha=0.6)
 plt.tight_layout()
 plt.savefig("results/ConSim/mhLoad.jpeg")
@@ -118,7 +109,7 @@ plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("Load(g)", fontsize=7, fontweight='bold')
 plt.ylabel("Throughput(T)", fontsize=7) # , fontweight='bold'
 plt.ylim(0, 1.05)
-plt.title(f"Throughput vs Load over {noIter} Iterations", fontsize=7, pad = 4)
+plt.title(f"{noIter} frames per point", fontsize=7, pad = 4)
 plt.legend(loc='upper right', fontsize=7, framealpha=0.6)
 plt.tight_layout()
 plt.savefig("results/ConSim/mthrLoad.jpeg")

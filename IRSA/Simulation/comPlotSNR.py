@@ -14,18 +14,18 @@ from wirelessComm.simulator import simulator
 # Simulation Parameters
 m, n = 20, 20
 degree = 2
-noIter = 1000
-LOAD = 0.3
+noIter = int(1e2)
+LOAD = 0.7
 SNR_dB = np.arange(-10, 21, 5)
 signal_power = 1
 pathLoss = 1
 uId = 1
-Modes = [True, False]   # for SIC
+Modes = ["normal", "noSIC", "CSI"]   # for SIC
 packetSize = 32  # K = packetSize
-colors = ["tab:blue", "tab:blue", "tab:green", "tab:green", "tab:purple", "tab:purple"]
-linestyles = ["--", "-.", "--", "-.", "--", "-."]
-markers = ["o", "s", "^", "D", "*", "x"]
-labels = ["MOCZ-IRSA", "MOCZ-SA", "DBPSK-IRSA-pilot", "DBPSK-SA-pilot", "DBPSK-IRSA-NOpilot", "DBPSK-SA-NOpilot"]
+colors = ["tab:blue", "tab:green", "tab:purple"]
+linestyles = ["--", "-.", "-"]
+markers = ["o", "s", "^"]
+labels = ["MOCZ", "MOCZ-noSIC", "MOCZ-CSI", "DBPSK-pilot", "DBPSK-pilot-noSIC", "DBPSK-pilot-CSI", "DBPSK-decDir", "DBPSK-decDir-noSIC", "DBPSK-decDir-CSI"]
 # BMOCZ Parameters
 Q = 4
 # DBPSK Parameters
@@ -38,23 +38,23 @@ bpsk = BPSKBase()
 chEst = ChannelEstimation()
 
 throughput_sic = {}; per_sic = {}; ber_sic = {}; maeh_sic = {}
-for mode in range(6):
-    sicMode = True if mode % 2 == 0 else False
+for mode in range(len(labels)):
+    sicMode = "normal" if mode % 3 == 0 else "noSIC" if mode % 3 == 1 else "CSI"
     throughput = {}; per = {}; ber = {}; maeh = {}
     for snr in SNR_dB:
         noise_var = signal_power * 10**(-snr/10)
         ch = SlowFadingChannel(noise_var, pathLoss)
         seedNo = abs(int(LOAD * n * 3 + snr + mode))
-        if mode // 2 == 2: # no-pilot DBPSK
+        if mode // 3 == 2: # no-pilot DBPSK
             pilot = []
             sim = dbpskSIMULATION(bpsk, ch, chEst, m, n, degree, packetSize, pilot, seedNo)
-        elif mode // 2 == 1: # 8-bit pilot
+        elif mode // 3 == 1: # 8-bit pilot
             pilot = accessCode
             sim = dbpskSIMULATION(bpsk, ch, chEst, m, n, degree, packetSize, pilot, seedNo)
         else: # MOCZ
             sim = moczSIMULATION(moczTx, moczRx, ch, chEst, m, n, degree, packetSize, Q, seedNo)
 
-        if sicMode == True:
+        if sicMode == "normal":
             PER, BER, THROUGHPUT, MAE, MAE_count = simulator(sim, LOAD, noIter, sicMode=sicMode, uId=uId)
             maeh[snr] = MAE / MAE_count
         else:
@@ -66,56 +66,57 @@ for mode in range(6):
     throughput_sic[mode] = throughput
     per_sic[mode] = per
     ber_sic[mode] = ber
-    if sicMode:
+    if sicMode == "normal":
         maeh_sic[mode] = maeh
 
 plt.figure(figsize=(8,6), dpi=800)
 for i, (k, v) in enumerate(throughput_sic.items()):
-    plt.plot(v.keys(), v.values(), color=colors[i], linestyle=linestyles[i],
-                marker=markers[i], linewidth=1.2, markersize=5, label=labels[i])
+    plt.plot(v.keys(), v.values(), color=colors[i//3], linestyle=linestyles[i%3],
+                marker=markers[i%3], linewidth=1.2, markersize=5, label=labels[i])
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("SNR(dB)")
 plt.ylabel("Throughput")
 plt.ylim(0, 1.05)
-plt.title(f"Throught vs SNR comparison plot for Load = {LOAD}")
+plt.title(f"{noIter} frames per point for Load = {LOAD}")
 plt.legend(loc='upper left', framealpha=0.6, fontsize=7)
 plt.tight_layout()
 plt.savefig(f"results/comPlot/thrSNR{LOAD}.jpeg")
 
 plt.figure(figsize=(8,6), dpi=800)
 for i, (k,v) in enumerate(per_sic.items()):
-    plt.plot(v.keys(), v.values(), color=colors[i], linestyle=linestyles[i],
-                marker=markers[i], markersize=5, linewidth=1.2, label=labels[i])
+    plt.plot(v.keys(), v.values(), color=colors[i//3], linestyle=linestyles[i%3],
+                marker=markers[i%3], markersize=5, linewidth=1.2, label=labels[i])
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("SNR(dB)")
 plt.ylabel("PER")
 plt.ylim(0, 1.05)
-plt.title(f"PER vs SNR comparison plot for Load = {LOAD}")
+plt.title(f"{noIter} frames per point for Load = {LOAD}")
 plt.legend(loc="upper right", framealpha=0.6, fontsize=7)
 plt.tight_layout()
 plt.savefig(f"results/comPlot/perSNR{LOAD}.jpeg")
 
 plt.figure(figsize=(8,6), dpi=800)
 for i, (k, v) in enumerate(ber_sic.items()):
-    plt.plot(v.keys(), v.values(), color=colors[i], linestyle=linestyles[i],
-                marker=markers[i], markersize=5, linewidth=1.2, label=labels[i])
+    plt.plot(v.keys(), v.values(), color=colors[i//3], linestyle=linestyles[i%3],
+                marker=markers[i%3], markersize=5, linewidth=1.2, label=labels[i])
 plt.grid(True, alpha=0.6, linestyle='--')
 plt.xlabel("SNR(dB)")
 plt.ylabel("BER")
 plt.ylim(0, 1.05)
-plt.title(f"BER vs SNR comparison plot for Load = {LOAD}")
+plt.title(f"{noIter} frames per point for Load = {LOAD}")
 plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
 plt.tight_layout()
 plt.savefig(f"results/comPlot/berSNR{LOAD}.jpeg")
 
 plt.figure(figsize=(8,6), dpi=800)
 for i, (k,v) in enumerate(maeh_sic.items()):
-    plt.plot(v.keys(), v.values(), color=colors[2*i], linestyle=linestyles[2*i],
-                marker=markers[2*i], markersize=5, linewidth=1.2, label=labels[2*i])
+    plt.plot(v.keys(), v.values(), color=colors[i], linestyle=linestyles[i],
+                marker=markers[i], markersize=5, linewidth=1.2, label=labels[3*i])
 plt.grid(True, alpha=0.6, linestyle='--')
 plt.xlabel("SNR(dB)")
-plt.ylabel(f"User-{uId} MAE of h")
-plt.title(f"MAE of h vs SNR comparison plot for Load = {LOAD}")
+plt.ylim(0, 1.05)
+plt.ylabel(f"User-{uId} Normalized MAE of h")
+plt.title(f"{noIter} frames per point for Load = {LOAD}")
 plt.legend(loc="upper right", framealpha=0.6, fontsize=7)
 plt.tight_layout()
 plt.savefig(f"results/comPlot/maehSNR{LOAD}.jpeg")

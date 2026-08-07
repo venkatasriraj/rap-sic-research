@@ -10,14 +10,6 @@ System parameters:
 import numpy as np
 import random
 import matplotlib.pyplot as plt
-# from BPSK import (
-#     BPSKBase,
-#     dbpskSIMULATION
-# ) 
-# from CHANNEL import (
-#     SlowFadingChannel,
-#     ChannelEstimation
-# )
 from wirelessComm import (
     BPSKBase,
     dbpskSIMULATION,
@@ -26,10 +18,10 @@ from wirelessComm import (
 )
 
 accessCode = [1, 0] * 4
-lenAc = 8
+lenAc = 0
 degree = 2 
 m = 20; n = m
-noIter = 10
+noIter = int(1e3)
 
 pktSize = 32
 SNR_dB = np.arange(-10, 21, 5)
@@ -97,7 +89,7 @@ plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("Load(g)")
 plt.ylim(0, 1.05)
 plt.ylabel("Throughpt (T)")
-plt.title(f"Throughput vs Load for {noIter} iters with PilotLen {lenAc}")
+plt.title(f"{noIter} frames per point with PilotLen {lenAc}")
 plt.legend(loc='upper left', fontsize=7, framealpha=0.6)
 plt.tight_layout()
 plt.savefig(f"results/ConSim/PilotLen/d{lenAc}thrLoad.jpeg")
@@ -108,7 +100,7 @@ for k, v in maeh_snr.items():
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("Load (g)")
 plt.ylabel(f"MAE of h_est for User-{uId}")
-plt.title(f"MAE of h_est vs SNR for {noIter} iters")
+plt.title(f"{noIter} frames per point with PilotLen {lenAc}")
 plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
 plt.tight_layout()
 plt.savefig(f"results/ConSim/PilotLen/d{lenAc}hLoad.jpeg")

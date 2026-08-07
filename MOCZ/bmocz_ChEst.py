@@ -5,15 +5,6 @@ there will be no effect of channel on Zeros.
 Zero rotation can only be observed in case of CFO.
 """
 import numpy as np
-import galois
-# from BMOCZ import (
-#     BMOCZReceiver,
-#     BMOCZTransmitter
-# ) 
-# from CHANNEL import (
-#     SlowFadingChannel,
-#     ChannelEstimation
-# ) 
 from wirelessComm import (
     BMOCZReceiver,
     BMOCZTransmitter,

@@ -8,11 +8,6 @@ We will be studying
 """
 import numpy as np
 import matplotlib.pyplot as plt
-# from BMOCZ import (
-#     BMOCZReceiver,
-#     BMOCZTransmitter
-# )
-# from CHANNEL import MultiPathFading
 from wirelessComm import (
     BMOCZTransmitter,
     BMOCZReceiver,
@@ -21,8 +16,8 @@ from wirelessComm import (
 
 K = np.arange(6, 41)
 Q = 16
-noIter = 10
-SNR_dB = np.arange(-10, 21, 10)
+noIter = int(1e3)
+SNR_dB = np.arange(-10, 21, 5)
 signal_power = 1
 
 ber_snr = {}; papr_snr = {}; thr_snr = {}; rotation_snr = {}
@@ -68,7 +63,7 @@ plt.grid(True, alpha=0.6, linestyle='--')
 plt.xlabel("Msg-len(K)")
 plt.ylabel("BER")
 plt.ylim(0,1.05)
-plt.title(f"BER vs K for {noIter} iters")
+plt.title(f"{noIter} packets per point")
 plt.legend(loc='upper left', framealpha=0.6, fontsize=7) 
 plt.tight_layout()
 plt.savefig(f"results/singlePZ/berQ{Q}")   
@@ -79,7 +74,7 @@ for k, v in papr_snr.items():
 plt.xlabel("Msg-len(K)")
 plt.ylabel("PAPR")
 plt.grid(True, alpha=0.6, linestyle='--')
-plt.title(f"PAPR vs K for {noIter} iters")
+plt.title(f"{noIter} packets per point")
 plt.legend(loc='upper left', framealpha=0.6, fontsize=7)
 plt.tight_layout()
 plt.savefig(f"results/singlePZ/paprQ{Q}")
@@ -90,7 +85,7 @@ for k, v in thr_snr.items():
 plt.xlabel("Msg-len(K)")
 plt.grid(True, alpha=0.6, linestyle='--')
 plt.ylabel("Throughput")
-plt.title(f"Throughput vs K for {noIter} iters")
+plt.title(f"{noIter} packets per point")
 plt.legend(loc='upper right', fontsize=7, framealpha=0.5)
 plt.tight_layout()
 plt.savefig(f"results/singlePZ/thrQ{Q}")
@@ -101,7 +96,7 @@ for k, v in rotation_snr.items():
 plt.xlabel("Msg-len(K)")
 plt.ylabel("MAE of estimated rotation")
 plt.grid(True, alpha=0.6, linestyle='--')
-plt.title(f"MAE of rotation vs K for {noIter} iters")
+plt.title(f"{noIter} packets per point")
 plt.legend(loc='upper right', fontsize=7, framealpha=0.6)
 plt.tight_layout()
 plt.savefig(f"results/singlePZ/rotationQ{Q}")

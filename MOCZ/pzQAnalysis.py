@@ -8,11 +8,6 @@ in estimation of rotation and MAE of it
 """
 import numpy as np
 import matplotlib.pyplot as plt
-# from BMOCZ import (
-#     BMOCZReceiver,
-#     BMOCZTransmitter
-# )
-# from CHANNEL import MultiPathFading
 from wirelessComm import (
     BMOCZReceiver,
     BMOCZTransmitter,
@@ -21,7 +16,7 @@ from wirelessComm import (
 
 Q = np.arange(4, 33, 4)
 K = np.arange(13, 21)
-noIter = 10
+noIter = int(1e3)
 snr = 20
 signal_power = 1
 
@@ -64,7 +59,7 @@ for k, v in ber_K.items():
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("Over-Sampling factor(Q)")
 plt.ylabel("BER")
-plt.title(f"BER vs Q for {noIter} iters")
+plt.title(f"{noIter} packets per point")
 plt.legend(loc='upper left', framealpha=0.6, fontsize=7)
 plt.tight_layout()
 plt.savefig(f"results/singlePZ/Q/ber{K}.jpeg")
@@ -75,7 +70,7 @@ for k, v in thr_K.items():
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("Over-Sampling factor(Q)")
 plt.ylabel("Throughput")
-plt.title(f"Throughput vs Q for {noIter} iters")
+plt.title(f"{noIter} packets per point")
 plt.legend(loc='lower left', framealpha=0.5, fontsize=7)
 plt.tight_layout()
 plt.savefig(f"results/singlePZ/Q/thr{K}.jpeg")
@@ -86,7 +81,7 @@ for k, v in rotation_K.items():
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("Over-Sampling factor(Q)")
 plt.ylabel("MAE of rotation")
-plt.title(f"MAE of rotation vs Q for {noIter} iters")
+plt.title(f"{noIter} packets per point")
 plt.legend(loc='upper left', framealpha=0.6, fontsize=7)
 plt.tight_layout()
 plt.savefig(f"results/singlePZ/Q/rotation{K}.jpeg")

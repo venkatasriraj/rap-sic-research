@@ -8,17 +8,7 @@ System parameters:
 - Slot distribution: CRDSA (x**2)
 """
 import numpy as np
-import random
 import matplotlib.pyplot as plt
-# from BMOCZ import (
-#     BMOCZReceiver,
-#     BMOCZTransmitter
-# )
-# from CHANNEL import (
-#     SlowFadingChannel,
-#     ChannelEstimation
-# )
-# from moczSimulation import moczSIMULATION
 from wirelessComm import (
     BMOCZReceiver,
     BMOCZTransmitter,
@@ -30,8 +20,9 @@ from wirelessComm import (
 degree = 2 
 m = 20
 n = m
-noIter = 10
+noIter = 10000
 K = 32
+Q = 4
 SNR_dB = np.arange(-10, 21, 5)
 G = np.linspace(0.1, 1, 10)
 signal_power = 1
@@ -50,7 +41,7 @@ for load in G:
         noise_var = signal_power * 10**(-snr/10)
         ch = SlowFadingChannel(noise_var, pathLoss)
         seedNo = abs(int(load*n*3 + snr) )
-        sim = moczSIMULATION(tx, rx, ch, chEst, m, n, degree, K, Q=4, seed=seedNo)
+        sim = moczSIMULATION(tx, rx, ch, chEst, m, n, degree, K, Q=Q, seed=seedNo)
         for i in range(noIter):
             userSlotsGen = sim.userSlotGen()
             FRAME = {}
@@ -93,7 +84,7 @@ plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("SNR(dB)")
 plt.ylabel("Throughput (T)")
 plt.ylim(0, 1.05)
-plt.title(f"Throughput vs SNR over {noIter} iterations")
+plt.title(f"{noIter} frames per point")
 plt.legend(loc='upper left', fontsize=7, framealpha=0.6)
 plt.tight_layout()
 plt.savefig("results/ConSim/mthrSNR.jpeg")
@@ -104,7 +95,7 @@ for k, v in mae_hEst.items():
 plt.grid(True, alpha=0.6, linestyle='--')
 plt.xlabel("SNR(dB)")
 plt.ylabel(f"MAE of h_est for user-{uId}")
-plt.title(f"MAE of h_est vs SNR over {noIter} frames")
+plt.title(f"{noIter} frames per point")
 plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
 plt.tight_layout()
 plt.savefig("results/ConSim/mhSNR.jpeg")
