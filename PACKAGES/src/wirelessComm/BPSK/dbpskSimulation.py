@@ -75,7 +75,8 @@ class dbpskSIMULATION:
             else:
                 iterNo += 1
                 pktsInSlots[slot] -= 1
-                pkt_rx = self.tx.demodulate(frame[slot])
+                # pkt_rx = self.tx.demodulate(frame[slot])
+                pkt_rx = self.tx.differentialDemodulation(frame[slot])
                 # ---  DBPSK doesn't have any error detection mechanism in this simulation
                 # Coefficients reconstruction using the message decoded
                 sig_recon = self.tx.modulate(pkt_rx)
@@ -109,7 +110,8 @@ class dbpskSIMULATION:
             slot = interferencedSlots[0]
             interferencedSlots.remove(slot)
             pktsInSlots[slot] -= 1
-            msg_rx = self.tx.demodulate(frame[slot])
+            # msg_rx = self.tx.demodulate(frame[slot])
+            msg_rx = self.tx.differentialDemodulation(frame[slot])
             userId = bapm[slot][0]
             msg_hat[userId] = msg_rx
         return dict(sorted(msg_hat.items(), reverse=False))
@@ -133,7 +135,8 @@ class dbpskSIMULATION:
                 userId = bapm[slot][0]
                 uSlots = userSlots[userId]
                 pktsInSlots[slot] -= 1
-                msg_rx = self.tx.demodulate(frame[slot])
+                # msg_rx = self.tx.demodulate(frame[slot])
+                msg_rx = self.tx.differentialDemodulation(frame[slot])
                 msg_hat[userId] = msg_rx 
                 sig_recon = self.tx.modulate(msg_rx)
                 for s in uSlots:

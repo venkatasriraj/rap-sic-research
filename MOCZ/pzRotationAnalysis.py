@@ -14,9 +14,9 @@ from wirelessComm import (
     MultiPathFading
 )
 
-K = np.arange(6, 41)
-Q = 16
-noIter = int(1e3)
+K = np.arange(11, 31)
+Q = 32
+noIter = int(1e4)
 SNR_dB = np.arange(-10, 21, 5)
 signal_power = 1
 
@@ -28,7 +28,7 @@ for snr in SNR_dB:
     for k in K:
         tx = BMOCZTransmitter(k)
         rx = BMOCZReceiver(k)
-        singlePZ = [2 * tx.R]
+        singlePZ = [-1.25 * tx.R]
         BER, PCR, PAPR, ROTATION = 0, 0, 0, 0
         for i in range(noIter):
             msg = np.random.randint(0, 2, k)
@@ -40,12 +40,20 @@ for snr in SNR_dB:
             rotation = np.random.uniform(0, np.pi*2)
             sig_rx = ch.transmit(sig_tx, rotation)
             
-            msg_hat, rotation_hat = rx.singlePZDecodedMsg(sig_rx, Q, singlePZ)
+            msg_hat, rotate_hat = rx.singlePZDecodedMsg(sig_rx, Q, singlePZ)
             
             BER += rx.ber(msg_hat, msg)
             PCR += rx.per(msg_hat, msg)
             PAPR += tx.PAPR(sig_tx)
-            ROTATION += np.abs(rotation - rotation_hat) / rotation
+            # maeRotate = np.abs(rotation - rotation_hat) if rotation < np.pi else np.abs(rotation - rotation_hat - 2*np.pi) 
+            # if rotation < np.angle(singlePZ[0]):
+            #     maeRotate = np.abs(rotation + np.pi - rotate_hat)
+            # else:
+            #     maeRotate = np.abs(rotation - np.pi - rotate_hat)
+            deviationR = np.abs(rotation - rotate_hat)
+            maeRotate = deviationR if deviationR <= np.pi else 2*np.pi - deviationR
+            # print(f"rotation: {rotation}, est rotation: {rotation_hat}, {maeRotate}, {maeRotate/rotation}")
+            ROTATION += maeRotate / rotation
         ber[k] = BER / noIter
         papr[k] = PAPR / noIter
         throughput[k] = PCR / noIter

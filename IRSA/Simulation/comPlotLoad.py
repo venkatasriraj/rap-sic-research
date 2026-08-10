@@ -14,7 +14,7 @@ from wirelessComm.simulator import simulator
 # Simulation Parameters
 m, n = 20, 20
 degree = 2
-noIter = int(1e2)
+noIter = int(1e3)
 LOAD = np.linspace(0.1, 1, 10)
 SNR_dB = 5
 signal_power = 1

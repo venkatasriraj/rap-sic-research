@@ -18,7 +18,7 @@ from wirelessComm import (
 )
 
 accessCode = [1, 0] * 4
-lenAc = 0
+lenAc = 8
 degree = 2 
 m = 20; n = m
 noIter = int(1e3)

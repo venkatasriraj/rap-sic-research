@@ -30,7 +30,8 @@ class BPSKBase:
     @staticmethod
     def differentialEncoding(bits):
         encodedBits = []
-        prevBit = bits[0]
+        # prevBit = bits[0]
+        prevBit = 0
         encodedBits.append(prevBit)
         for i in bits:
             prevBit = i ^ prevBit
@@ -45,3 +46,14 @@ class BPSKBase:
             decodedBits.append(bits[i] ^ previousBit)
             previousBit = bits[i]
         return np.array(decodedBits)
+
+    # ------  same as differential encoding
+    # def differentialModulation(self, bits):
+    #     return None
+
+    def differentialDemodulation(self, symbols):
+        decoded = []
+        for i in range(len(symbols)-1):
+            bit = 1 if np.real( symbols[i+1] * np.conj(symbols[i]) ) < 0 else 0
+            decoded += [bit]
+        return np.array(decoded)

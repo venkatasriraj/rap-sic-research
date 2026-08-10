@@ -163,17 +163,18 @@ class BMOCZReceiver(BiMOCZ):
         y_pad = np.pad(y_scaled, (0, N_fft - lenSignal), mode='constant')
         Y_singlePZ = np.abs( np.fft.ifft(y_pad) )
         argMin = np.argmin(Y_singlePZ)
-        rotation_hat = ( np.pi * 2 * argMin / (N_fft) ) - np.angle(singlePZ[0])
-        return rotation_hat
+        rotate_hat = ( np.pi * 2 * argMin / (N_fft) )
+        return rotate_hat
 
     def singlePZDecodedMsg(self, y, Q, singlePZ):
-        rotation_hat = self.estRotation(y, Q, singlePZ) 
+        rotate_hat = self.estRotation(y, Q, singlePZ) 
+        rotation_hat = rotate_hat - np.angle(singlePZ[0]) # if rotate_hat >= 0 else (2*np.pi + rotate_hat)
         rotationMatrix = np.diag( np.exp(-1j*rotation_hat) ** np.flip(np.arange(len(y))) )
         y_corrected = y @ rotationMatrix
         # y_fft = self.fftSig(y_corrected)
         Yo, Yi = self.PZfftCon(y_corrected)
         msgDecoded = ( 1 + np.sign(Yi - Yo) ) / 2
-        return msgDecoded, rotation_hat
+        return msgDecoded, rotate_hat
 
     # ---- VERIFY THIS AND CHECK WHERE IT IS NOT WORKING
     def fftConZM(self, y):

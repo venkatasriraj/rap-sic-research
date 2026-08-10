@@ -27,13 +27,15 @@ class BMOCZTransmitter(BiMOCZ):
                 T = toeplitz(column, row)
 
                 c = T @ c
-        return c.flatten()
+                x = c.flatten()
+        return x[::-1]  # changed here
 
     def coeffCon(self, msg):
         zeros = [self.zero_geometry[mk][msg[mk]] for mk in range(self.K)]
         # print(f'\nZeroes selected wrt to message to be transmitted: {np.round(zeros, 6)}\n')
         x = self.toeplitz_iterator(zeros)        
-        return x[::-1]          # x = [ x0, x1, x2, ....., xK]
+        # return x[::-1]          # x = [ x0, x1, x2, ....., xK]
+        return x                    # x = [ x0, x1, x2, ....., xK]
 
     # ZMS: Zero Marker Signal
     def coeffConZM(self, msg):
@@ -42,10 +44,12 @@ class BMOCZTransmitter(BiMOCZ):
         zeros += self.Rzm
         # zeros += self.Rpz
         x = self.toeplitz_iterator(zeros)
-        return x[::-1]
+        # return x[::-1]
+        return x
 
     def coeffConSinglePZ(self, msg, singlePZ):
         zeros = [self.zero_geometry[mk][msg[mk]] for mk in range(self.K)]
         zeros += singlePZ
         x = self.toeplitz_iterator(zeros)
-        return x[::-1]
+        # return x[::-1]
+        return x
