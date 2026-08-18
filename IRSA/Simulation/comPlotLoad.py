@@ -1,6 +1,8 @@
 """
 Combined plots for BMOCZ and DBPSK with and without pilot
 with baseline for system performance without SIC over varied Load
+n: number of users
+m: number of slots
 """
 import numpy as np
 import matplotlib.pyplot as plt

@@ -21,7 +21,7 @@ from wirelessComm import (
 
 degree = 2  # CRDSA 
 m = 20
-n = m
+n = m # number of users
 noIter = int(1e5)  # gives the simulation over 1000 frames
 G = np.linspace(0.1, 1, 10)
 SNR_dB = np.arange(-10, 21, 5)
@@ -69,7 +69,7 @@ for snr in SNR_dB:
             pcr, bcr_frame = sim.per(msg_hat)
             PER += ( 1 - (pcr/(len(activeUsers))) )
             BER += ( 1 - ( bcr_frame / ( K * len(activeUsers) ) ) )
-            THROUGHPUT += pcr / len(activeUsers) 
+            THROUGHPUT += pcr / n
         per[g] = PER / noIter
         ber[g] = (BER / noIter).astype(float)
         throughput[g] = THROUGHPUT / noIter

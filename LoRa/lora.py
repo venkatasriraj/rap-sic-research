@@ -16,7 +16,7 @@ class LoRa:
         return np.sum( np.flip(binArr) * pow2 )
 
     def dec2bin(self, dec):
-        bin = np.array(dec%2)
+        bin = np.array([dec%2])
         while dec//2 !=0:
             dec //= 2
             bin = np.append(bin, dec%2)   
@@ -29,7 +29,8 @@ class LoRa:
         return np.exp( 1j * phase_t )
 
     def genSymChirp(self, refChirp, symbol):
-        return np.roll(refChirp, int(symbol))
+        sampPerChirp = len(refChirp) / 2**self.SF
+        return np.roll(refChirp, int(-symbol * sampPerChirp))
 
     def modulation(self, msg):
         rem = len(msg) % self.SF
@@ -38,20 +39,24 @@ class LoRa:
         chirp = np.array([])
         refChirp = self.genRefChirp()
         for i in range(len(msg)//self.SF):
-            symbol = self.bin2dec(msg[i : i+self.SF])
+            symbol = self.bin2dec(msg[i*self.SF : (i+1) * self.SF])
             chirp = np.append(chirp, self.genSymChirp(refChirp, symbol))
-        return None
+        return chirp
 
     def demodulation(self, rxChirp):
         refChirp = self.genRefChirp()
         numSamples = len(refChirp)
         msg_decoded = []
-        for i in range(len(rxChirp//numSamples) + 1):
+        reminder = len(rxChirp) % numSamples
+        addZeros = 0 if reminder == 0 else numSamples-reminder
+        rxChirp = np.append(rxChirp, [0]*addZeros)
+        numSym = len(rxChirp) // numSamples
+        for i in range(numSym):
             symChirp = rxChirp[i*numSamples: (i+1)*numSamples]
-            if len(symChirp) != numSamples:
-                symChirp = np.append(symChirp, [0]*(numSamples - len(symChirp)))
+            # if len(symChirp) != numSamples:
+            #     symChirp = np.append(symChirp, [0]*(numSamples - len(symChirp)))
             dechirp = symChirp * np.conj(refChirp)
             fftTone = np.fft.fft(dechirp)
             symbol_hat = np.argmax( np.abs(fftTone) )
             msg_decoded = np.append(msg_decoded, self.dec2bin(symbol_hat))
-        return msg_decoded
+        return msg_decoded.astype(np.uint16)

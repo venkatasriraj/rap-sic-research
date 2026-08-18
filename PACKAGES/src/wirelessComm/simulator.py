@@ -31,7 +31,7 @@ def simulator(sim, load, noIter, sicMode = True, uId = 1):
         pcr, bcr_frame = sim.per(pkt_hat)
         PER += ( 1 - (pcr/len(activeUsers)) )
         BER += ( 1 - (bcr_frame / ( sim.pktSize * len(activeUsers) )) )
-        THROUGHPUT += pcr / len(activeUsers)
+        THROUGHPUT += pcr / sim.users
     if sicMode == "normal":
         return PER, BER, THROUGHPUT, MAE, MAE_count
     else:

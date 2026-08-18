@@ -20,7 +20,8 @@ from wirelessComm import (
 accessCode = [1, 0] * 4
 lenAc = 8
 degree = 2 
-m = 20; n = m
+m = 20; 
+n = m # number of users
 noIter = int(1e3)
 
 pktSize = 32
@@ -67,7 +68,7 @@ for snr in SNR_dB:
             pcr, bcr_frame = sim.per(pkt_hat)
             PER += ( 1 - (pcr/(len(activeUsers))) )
             BER += ( 1 - ( bcr_frame / (pktSize * len(activeUsers)) ) )
-            THROUGHPUT += pcr /  len(activeUsers) # here we have not considered rate = (pktsize - aclen) / pktsize
+            THROUGHPUT += pcr /  n # here we have not considered rate = (pktsize - aclen) / pktsize
             if uId in activeUsers:
                 mae_temp, count = sim.maeh(h, h_hat, uId)
                 MAE += mae_temp

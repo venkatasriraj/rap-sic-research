@@ -84,7 +84,7 @@ for load in LOAD:
             pcr, bcr_frame = sim.per(pkt_hat)
             PER += ( 1 - (pcr/len(activeUsers)) )
             BER += ( 1 - ( bcr_frame / ( pktSize * len(activeUsers) ) ) )
-            THROUGHPUT += pcr / len(activeUsers) 
+            THROUGHPUT += pcr / n 
             # print(f"Thr: {THROUGHPUT}, MAE: {MAE}, MAE count: {MAE_count}")
         per[snr] = PER / noIter
         ber[snr] = (BER / noIter).astype(float)

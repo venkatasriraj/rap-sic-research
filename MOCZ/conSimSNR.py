@@ -19,7 +19,7 @@ from wirelessComm import (
 
 degree = 2 
 m = 20
-n = m
+n = m # number of users
 noIter = 10000
 K = 32
 Q = 4
@@ -66,7 +66,7 @@ for load in G:
             pcr, bcr_frame = sim.per(msg_hat)
             PER += ( 1 - ( pcr / len(activeUsers) ) )
             BER += ( 1 - (bcr_frame / (K * len(activeUsers))) )
-            THROUGHPUT += ( pcr /  len(activeUsers) )
+            THROUGHPUT += ( pcr /  n )
         throughput[snr] = THROUGHPUT / noIter
         per[snr] = PER / noIter
         ber[snr] = (BER / noIter).astype(float)

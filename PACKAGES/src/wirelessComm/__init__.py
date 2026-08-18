@@ -18,6 +18,7 @@ from .BPSK import (
     IRSATransmitter,
     PacketStructure
 )
+from .performanceParameters import PerformanceParameters
 
 # now we can import from MyLib
 # from MyLib import BMOCZ
