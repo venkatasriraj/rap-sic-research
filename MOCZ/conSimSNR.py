@@ -19,12 +19,14 @@ from wirelessComm import (
 
 degree = 2 
 m = 20
-n = m # number of users
+n = 20 # number of users
 noIter = 10000
 K = 32
 Q = 4
+peakLoad = int(n/m)
 SNR_dB = np.arange(-10, 21, 5)
-G = np.linspace(0.1, 1, 10)
+# G = np.linspace(0.1, 1, 10)
+G = np.arange(0.1, peakLoad+0.1, 0.1)
 signal_power = 1
 uId = 1
 pathLoss = 1

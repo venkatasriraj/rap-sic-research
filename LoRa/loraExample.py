@@ -6,9 +6,8 @@ then for a symbol we need total BW = BW * 2**SF = 32MHz
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import spectrogram
-from lora import LoRa
 from wirelessComm import (
-    MultiPathFading, SlowFadingChannel, PerformanceParameters
+    MultiPathFading, SlowFadingChannel, PerformanceParameters, LoRa
 )
 
 SF = 8

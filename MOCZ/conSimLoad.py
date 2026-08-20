@@ -21,9 +21,11 @@ from wirelessComm import (
 
 degree = 2  # CRDSA 
 m = 20
-n = m # number of users
+n = 20 # number of users
 noIter = int(1e5)  # gives the simulation over 1000 frames
-G = np.linspace(0.1, 1, 10)
+peakLoad = int(n/m)
+# G = np.linspace(0.1, 1, 10)
+G = np.arange(0.1, peakLoad+0.1, 0.1)
 SNR_dB = np.arange(-10, 21, 5)
 signal_power = 1
 uId = 1

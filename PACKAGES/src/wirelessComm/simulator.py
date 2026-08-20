@@ -5,7 +5,7 @@ def simulator(sim, load, noIter, sicMode = True, uId = 1):
         userSlotsGen = sim.userSlotGen()
         FRAME = {}
         slot = set()
-        activeUsers = sorted( sim.rng.sample( range(1, sim.users+1), int(load*sim.users) ) )
+        activeUsers = sorted( sim.rng.sample( range(1, sim.users+1), int(load*sim.slots) ) )
 
         for userId in activeUsers:
             userSlot = userSlotsGen[userId]

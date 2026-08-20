@@ -21,12 +21,13 @@ accessCode = [1, 0] * 4
 lenAc = 8
 degree = 2 
 m = 20; 
-n = m # number of users
+n = 20 # number of users
 noIter = int(1e3)
-
+peakLoad = int(n/m)
 pktSize = 32
 SNR_dB = np.arange(-10, 21, 5)
-LOAD = np.linspace(0.1, 1, 10)
+# LOAD = np.linspace(0.1, 1, 10)
+LOAD = np.arange(0.1, peakLoad+0.1, 0.1)
 signal_power = 1
 uId = 1
 pathLoss = 1

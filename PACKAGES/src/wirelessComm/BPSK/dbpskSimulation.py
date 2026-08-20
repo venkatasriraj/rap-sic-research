@@ -19,7 +19,7 @@ class dbpskSIMULATION:
 
     def userSlotGen(self):
         userSlots = {}
-        for i in range(1, self.slots+1):
+        for i in range(1, self.users+1):
             userSlots[i] = self.rng.sample(range(1, self.slots+1), self.degree)
         return dict(sorted(userSlots.items(), reverse=False))
 

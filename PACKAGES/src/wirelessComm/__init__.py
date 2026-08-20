@@ -18,6 +18,7 @@ from .BPSK import (
     IRSATransmitter,
     PacketStructure
 )
+from .LORA import LoRa
 from .performanceParameters import PerformanceParameters
 
 # now we can import from MyLib

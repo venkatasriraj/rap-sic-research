@@ -14,10 +14,12 @@ from wirelessComm import (
 from wirelessComm.simulator import simulator
 
 # Simulation Parameters
-m, n = 20, 20
+m, n = 20, 40
 degree = 2
 noIter = int(1e3)
-LOAD = np.linspace(0.1, 1, 10)
+# LOAD = np.linspace(0.1, 1, 10)
+peakLoad = int(n/m)
+LOAD = np.arange(0.1, peakLoad+0.1, 0.1)
 SNR_dB = 5
 signal_power = 1
 pathLoss = 1

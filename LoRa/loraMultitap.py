@@ -4,9 +4,8 @@ channel power(variance) = 1
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from lora import LoRa
 from wirelessComm import (
-    MultiPathFading, PerformanceParameters
+    MultiPathFading, PerformanceParameters, LoRa
 )
 SF = np.arange(7, 16, 1)
 SNR_dB = np.arange(-20, 21, 5)
