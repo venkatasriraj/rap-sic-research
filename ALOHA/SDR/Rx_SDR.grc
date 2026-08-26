@@ -1,29 +1,25 @@
 options:
   parameters:
+    alias: ''
     author: venka
     catch_exceptions: 'True'
-    category: '[GRC Hier Blocks]'
-    cmake_opt: ''
     comment: ''
     copyright: ''
     description: ''
-    gen_cmake: 'On'
     gen_linking: dynamic
     generate_options: qt_gui
+    generator_class_name: PythonQtGuiGenerator
+    generator_module: gnuradio.grc.workflows.python_qt_gui
     hier_block_src_path: '.:'
     id: RxA
     max_nouts: '0'
     output_language: python
-    placement: (0,0)
     qt_qss_theme: ''
     realtime_scheduling: ''
     run: 'True'
     run_command: '{python} -u {filename}'
-    run_options: prompt
-    sizing_mode: fixed
     thread_safe_setters: ''
     title: Not titled yet
-    window_size: (1000,1000)
   states:
     bus_sink: false
     bus_source: false
@@ -382,6 +378,7 @@ blocks:
     alias: ''
     comment: ''
     filter_size: '44'
+    improved_loop_filter: 'False'
     maxoutbuf: '0'
     minoutbuf: '0'
     rolloff: excess_bw
@@ -581,15 +578,14 @@ blocks:
     _io_cache: '(''access_code_correlator'', ''access_code_correlator'', [(''packet_size'',
       ''56''), (''threshold'', ''28''), (''log_file'', "''rx_decoded_packets.csv''")],
       [(''0'', ''byte'', 1)], [(''0'', ''byte'', 1), (''pdu_out'', ''message'', 1)],
-      ''\n    Bitwise sliding-window access code correlator with CRC32 verification.\n\n    TX
-      packet wire format:\n        [access_code : 4 B]              <- correlated
-      against, consumed\n        [seq_num     : 2 B big-endian]\n        [user_id     :
-      2 B big-endian]\n        [random data : (packet_size-16) B]\n        [CRC32       :
-      4 B little-endian] <- over AC+seq+uid+random\n        [filler      : 8 B]              <-
-      flush bytes, discarded\n\n    Parameters\n    ----------\n    packet_size :
-      int   Total bytes from Random_Packet_Generator (default 56)\n    threshold   :
-      int   Min bit matches out of 32 to accept AC (default 28)\n    log_file    :
-      str   CSV output path\n    '', [''log_file'', ''packet_size'', ''threshold''])'
+      ''\nBitwise sliding-window access code correlator with CRC32 verification.\n\nTX
+      packet wire format:\n    [access_code : 4 B]              <- correlated against,
+      consumed\n    [seq_num     : 2 B big-endian]\n    [user_id     : 2 B big-endian]\n    [random
+      data : (packet_size-16) B]\n    [CRC32       : 4 B little-endian] <- over AC+seq+uid+random\n    [filler      :
+      8 B]              <- flush bytes, discarded\n\nParameters\n----------\npacket_size
+      : int   Total bytes from Random_Packet_Generator (default 56)\nthreshold   :
+      int   Min bit matches out of 32 to accept AC (default 28)\nlog_file    : str   CSV
+      output path\n'', [''log_file'', ''packet_size'', ''threshold''])'
     bus_sink: false
     bus_source: false
     bus_structure: null

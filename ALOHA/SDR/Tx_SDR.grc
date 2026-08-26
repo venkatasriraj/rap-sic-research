@@ -1,29 +1,25 @@
 options:
   parameters:
+    alias: ''
     author: venka
     catch_exceptions: 'True'
-    category: '[GRC Hier Blocks]'
-    cmake_opt: ''
     comment: ''
     copyright: ''
     description: ''
-    gen_cmake: 'On'
     gen_linking: dynamic
     generate_options: qt_gui
+    generator_class_name: PythonQtGuiGenerator
+    generator_module: gnuradio.grc.workflows.python_qt_gui
     hier_block_src_path: '.:'
     id: accessCode
     max_nouts: '0'
     output_language: python
-    placement: (0,0)
     qt_qss_theme: ''
     realtime_scheduling: ''
     run: 'True'
     run_command: '{python} -u {filename}'
-    run_options: prompt
-    sizing_mode: fixed
     thread_safe_setters: ''
     title: Not titled yet
-    window_size: (1000,1000)
   states:
     bus_sink: false
     bus_source: false
@@ -869,14 +865,14 @@ blocks:
     _io_cache: "('random_packet_generator', 'Random_Packet_Generator', [('mean_interval',\
       \ '0.1'), ('packet_size', '100'), ('user_id', '1'), ('log_file', \"'transmitted_packets.csv'\"\
       ), ('total_packets', '10'), ('initial_delay', '2.0')], [], [('pdu_out', 'message',\
-      \ 1)], \"\\n    Random Packet Generator with embedded userid and sequence number.\\\
-      n\\n    Packet payload layout:\\n        [0:2]  \u2013 seq_num  : 2 bytes, big-endian\
-      \ uint16\\n        [2:4]  \u2013 user_id  : 2 bytes, big-endian uint16  (0\u2013\
-      65535)\\n        [4:]   \u2013 random data : fills the rest up to packet_size\
-      \ bytes\\n\\n    The PMT metadata dict carries:\\n        'packet_num' \u2192\
-      \ seq_num  (used by Packet Header Generator block)\\n        'user_id'    \u2192\
-      \ user_id  (informational)\\n    \", ['initial_delay', 'log_file', 'mean_interval',\
-      \ 'packet_size', 'total_packets', 'user_id'])"
+      \ 1)], \"\\nRandom Packet Generator with embedded userid and sequence number.\\\
+      n\\nPacket payload layout:\\n    [0:2]  \u2013 seq_num  : 2 bytes, big-endian\
+      \ uint16\\n    [2:4]  \u2013 user_id  : 2 bytes, big-endian uint16  (0\u2013\
+      65535)\\n    [4:]   \u2013 random data : fills the rest up to packet_size bytes\\\
+      n\\nThe PMT metadata dict carries:\\n    'packet_num' \u2192 seq_num  (used\
+      \ by Packet Header Generator block)\\n    'user_id'    \u2192 user_id  (informational)\\\
+      n\", ['initial_delay', 'log_file', 'mean_interval', 'packet_size', 'total_packets',\
+      \ 'user_id'])"
     bus_sink: false
     bus_source: false
     bus_structure: null
@@ -1005,14 +1001,14 @@ blocks:
     _io_cache: "('random_packet_generator', 'Random_Packet_Generator', [('mean_interval',\
       \ '0.1'), ('packet_size', '100'), ('user_id', '1'), ('log_file', \"'transmitted_packets.csv'\"\
       ), ('total_packets', '10'), ('initial_delay', '2.0')], [], [('pdu_out', 'message',\
-      \ 1)], \"\\n    Random Packet Generator with embedded userid and sequence number.\\\
-      n\\n    Packet payload layout:\\n        [0:2]  \u2013 seq_num  : 2 bytes, big-endian\
-      \ uint16\\n        [2:4]  \u2013 user_id  : 2 bytes, big-endian uint16  (0\u2013\
-      65535)\\n        [4:]   \u2013 random data : fills the rest up to packet_size\
-      \ bytes\\n\\n    The PMT metadata dict carries:\\n        'packet_num' \u2192\
-      \ seq_num  (used by Packet Header Generator block)\\n        'user_id'    \u2192\
-      \ user_id  (informational)\\n    \", ['initial_delay', 'log_file', 'mean_interval',\
-      \ 'packet_size', 'total_packets', 'user_id'])"
+      \ 1)], \"\\nRandom Packet Generator with embedded userid and sequence number.\\\
+      n\\nPacket payload layout:\\n    [0:2]  \u2013 seq_num  : 2 bytes, big-endian\
+      \ uint16\\n    [2:4]  \u2013 user_id  : 2 bytes, big-endian uint16  (0\u2013\
+      65535)\\n    [4:]   \u2013 random data : fills the rest up to packet_size bytes\\\
+      n\\nThe PMT metadata dict carries:\\n    'packet_num' \u2192 seq_num  (used\
+      \ by Packet Header Generator block)\\n    'user_id'    \u2192 user_id  (informational)\\\
+      n\", ['initial_delay', 'log_file', 'mean_interval', 'packet_size', 'total_packets',\
+      \ 'user_id'])"
     bus_sink: false
     bus_source: false
     bus_structure: null
@@ -1141,14 +1137,14 @@ blocks:
     _io_cache: "('random_packet_generator', 'Random_Packet_Generator', [('mean_interval',\
       \ '0.1'), ('packet_size', '100'), ('user_id', '1'), ('log_file', \"'transmitted_packets.csv'\"\
       ), ('total_packets', '10'), ('initial_delay', '2.0')], [], [('pdu_out', 'message',\
-      \ 1)], \"\\n    Random Packet Generator with embedded userid and sequence number.\\\
-      n\\n    Packet payload layout:\\n        [0:2]  \u2013 seq_num  : 2 bytes, big-endian\
-      \ uint16\\n        [2:4]  \u2013 user_id  : 2 bytes, big-endian uint16  (0\u2013\
-      65535)\\n        [4:]   \u2013 random data : fills the rest up to packet_size\
-      \ bytes\\n\\n    The PMT metadata dict carries:\\n        'packet_num' \u2192\
-      \ seq_num  (used by Packet Header Generator block)\\n        'user_id'    \u2192\
-      \ user_id  (informational)\\n    \", ['initial_delay', 'log_file', 'mean_interval',\
-      \ 'packet_size', 'total_packets', 'user_id'])"
+      \ 1)], \"\\nRandom Packet Generator with embedded userid and sequence number.\\\
+      n\\nPacket payload layout:\\n    [0:2]  \u2013 seq_num  : 2 bytes, big-endian\
+      \ uint16\\n    [2:4]  \u2013 user_id  : 2 bytes, big-endian uint16  (0\u2013\
+      65535)\\n    [4:]   \u2013 random data : fills the rest up to packet_size bytes\\\
+      n\\nThe PMT metadata dict carries:\\n    'packet_num' \u2192 seq_num  (used\
+      \ by Packet Header Generator block)\\n    'user_id'    \u2192 user_id  (informational)\\\
+      n\", ['initial_delay', 'log_file', 'mean_interval', 'packet_size', 'total_packets',\
+      \ 'user_id'])"
     bus_sink: false
     bus_source: false
     bus_structure: null

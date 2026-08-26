@@ -4,10 +4,8 @@ Implementation of Interger and fractional phase offset estimation.
 import numpy as np
 import galois
 from wirelessComm import (
-    BMOCZReceiver,
-    BMOCZTransmitter,
-    ACPC,
-    SlowFadingChannel
+    BMOCZReceiver, BMOCZTransmitter, ACPC, 
+    SlowFadingChannel, MultiPathFading
 )
 
 SNR_db = 15
@@ -19,27 +17,27 @@ t = 2 # number of error correcting bits
 
 tx = BMOCZTransmitter(K)
 rx = BMOCZReceiver(K)
-ch = SlowFadingChannel(noise_var)
+# ch = SlowFadingChannel(noise_var)
+ch = MultiPathFading(noise_var)
 # we will be implementing ACPC(31, 21,,5)
-acpc = ACPC(m)
-gen_poly, bch_gen_poly = acpc.gen_poly(t)
+acpc = ACPC(m, t)
 
-gen_degree = gen_poly.degree
-bch_gen_degree = bch_gen_poly.degree
-# print(f"Generator polyniomial degree is {gen_degree}")
-B = K - gen_degree
-k_outer = K - bch_gen_degree
-
-G, H = acpc.con_systematic(B, gen_poly)
-G_bch, H_bch = acpc.con_systematic(k_outer, bch_gen_poly)
-
-aff_trans = galois.GF2.Zeros(G_bch.shape[0])
-aff_trans[0] = 1
-g_affine = aff_trans @ G_bch
+# gen_poly, bch_gen_poly = acpc.gen_poly(t)
+# gen_degree = gen_poly.degree
+# bch_gen_degree = bch_gen_poly.degree
+# # print(f"Generator polyniomial degree is {gen_degree}")
+# B = K - gen_degree
+# k_outer = K - bch_gen_degree
+# G, H = acpc.con_systematic(B, gen_poly)
+# G_bch, H_bch = acpc.con_systematic(k_outer, bch_gen_poly)
+# aff_trans = galois.GF2.Zeros(G_bch.shape[0])
+# aff_trans[0] = 1
+# g_affine = aff_trans @ G_bch
 
 # will be looping from here to perform monte-carlo simulations
-msgB = np.array([np.random.randint(2) for i in range(B)])
-msg_encoded = acpc.msg_encoding(G, g_affine, msgB)
+# msgB = np.array([np.random.randint(2) for i in range(B)])
+msgB = np.random.randint(0, 2, acpc.B)
+msg_encoded = acpc.msg_encoding(msgB)
 
 sig_tx = tx.coeffCon(msg_encoded) 
 # signal is not normalized and the coefficients are of the order 
@@ -47,14 +45,15 @@ sig_tx = tx.coeffCon(msg_encoded)
 sig_power = np.mean( np.abs(sig_tx)**2 )
 sig_norm = sig_tx / np.sqrt(sig_power)
 
-sig_rx, ch_coeff = ch.transmit(sig_norm)
+rotation = np.random.uniform(0, 2*np.pi)
+sig_rx = ch.transmit(sig_norm, rotation)
 
 # Q = int( 2**( np.log( np.ceil(len(sig_rx)/K) ) / np.log(2) ) )
 Q = 4
 sig_ffo = rx.ffoEstCor(sig_rx,Q)
 codeword_rx = rx.fftDizet(sig_ffo, Q)
 
-msg_est, l_est = acpc.codeword_decoding(H, H_bch, codeword_rx, g_affine, t)
+msg_est, l_est = acpc.codeword_decoding(codeword_rx)
 
 ber = rx.ber(msg_est, msgB)
 print(f'BER: {ber}')

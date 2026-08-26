@@ -5,7 +5,7 @@ from .channel import Channel
 class MultiPathFading(Channel):
 
     # this code is written for zero rotation in MOCZ
-    def __init__(self, noise_var, chVar, taps, pathLoss=1):
+    def __init__(self, noise_var, chVar=1, taps=1, pathLoss=1):
         super().__init__(noise_var=noise_var, pathLoss=pathLoss)
         self.chVar = chVar
         self.taps = taps
