@@ -1,9 +1,10 @@
 from .BMOCZ import (
     ACPC,
-    BiMOCZ,
+    MOCZ,
     BMOCZReceiver,
     BMOCZTransmitter,
-    moczSIMULATION
+    moczSIMULATION,
+    PMOCZ
 )
 from .CHANNEL import (
     SlowFadingChannel,

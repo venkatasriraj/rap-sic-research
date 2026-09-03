@@ -5,7 +5,6 @@ after error correction and affine translation we will be considering the
 last shift as the decoded message and estimated rotation as default
 """
 import galois
-import random
 import itertools
 import numpy as np
 
@@ -44,12 +43,17 @@ class ACPC:
         return coset
 
     def gen_bch_poly(self):
-        x_n = self.x**self.n + self.one
+        primitive_element = self.GFm.primitive_element
+        poly = self.one
+        x_n = self.x**self.n + poly
 
         factors_m, _ = galois.factors(x_n)
 
         cyclotomic_coset = self.con_coset()
-
+        if self.t == 0:
+            temp = self.GFm.minimal_poly(primitive_element**0)
+            return temp, factors_m
+            # return factors_m[0], 
         con_power = np.arange(1, 2*self.t+1)
         g_coset = np.array([])
         for i in con_power:
@@ -57,8 +61,6 @@ class ACPC:
             g_coset = np.append(g_coset, leader).astype(int)
         g_bch_coset = np.unique(g_coset)
 
-        primitive_element = self.GFm.primitive_element
-        poly = self.one
         for i in g_bch_coset:
             poly *= self.GFm.minimal_poly(primitive_element**i)
         return poly, factors_m
@@ -107,22 +109,28 @@ class ACPC:
     def con_Tsyndrome(self):
         T_syn = {}
         code_size = self.H.shape[1]
-
-        e = galois.GF2.Zeros(code_size)
-        synd = tuple((e @ self.H_bch.T).tolist())
-        T_syn[synd] = e
-
-        for i in range(code_size):
-            e = galois.GF2.Zeros(code_size)
-            e[i] = 1
-            synd = tuple((e @ self.H_bch.T).tolist())
-            T_syn[synd] = e
-
-        for i, j in itertools.combinations(range(code_size), self.t):
-            e = galois.GF2.Zeros(code_size)
-            e[i], e[j] = 1, 1
-            synd = tuple((e @ self.H_bch.T).tolist())
-            T_syn[synd] = e
+        for T in range(self.t+1):
+            for pos in itertools.combinations(range(code_size), T):
+                e = galois.GF2.Zeros(code_size)
+                for p in pos:
+                    e[p] = 1
+                synd = tuple( (e @ self.H_bch.T).tolist() )
+                T_syn[synd] = e
+        # e = galois.GF2.Zeros(code_size)
+        # synd = tuple((e @ self.H_bch.T).tolist())
+        # T_syn[synd] = e
+        # if t>=1:
+        #     for i in range(code_size):
+        #         e = galois.GF2.Zeros(code_size)
+        #         e[i] = 1
+        #         synd = tuple((e @ self.H_bch.T).tolist())
+        #         T_syn[synd] = e
+        # if self.t >= 2:
+        #     for i, j in itertools.combinations(range(code_size), self.t):
+        #         e = galois.GF2.Zeros(code_size)
+        #         e[i], e[j] = 1, 1
+        #         synd = tuple((e @ self.H_bch.T).tolist())
+        #         T_syn[synd] = e
         return T_syn
 
     def msg_encoding(self, msg):

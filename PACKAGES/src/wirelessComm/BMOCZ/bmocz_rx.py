@@ -1,32 +1,11 @@
 import numpy as np
-import itertools
-import random
-import galois
+from .mocz import MOCZ
 
-from .bmocz import BiMOCZ
-
-class BMOCZReceiver(BiMOCZ):
+class BMOCZReceiver(MOCZ):
 
     def __init__(self, K):
         super().__init__(K)
         # self.singlePZ = singlePZ
-
-    def fftCon(self, y, Q):
-        N_r = len(y)        
-        N_fft = Q * self.K
-
-        scaling_vec = self.R ** np.arange(N_r)
-        y_ctr = np.conjugate(y[::-1])
-
-        y_scaled = y * scaling_vec
-        y_ctr_scaled = y_ctr * scaling_vec
-
-        y_pad = np.pad(y_scaled, (0, N_fft - N_r), mode='constant')
-        y_ctr_pad = np.pad(y_ctr_scaled, (0, N_fft - N_r), mode='constant')
-
-        Y_eval = np.abs( np.fft.ifft(y_pad) )
-        Y_ctr_eval = np.abs( np.fft.ifft(y_ctr_pad) )
-        return Y_eval, Y_ctr_eval
 
     def ffo_est(self, y, Q):
         Yo, Yi = self.fftCon(y, Q)
@@ -53,11 +32,6 @@ class BMOCZReceiver(BiMOCZ):
         Y_eval, Y_ctr_eval = self.fftCon(y, Q)
         message_received = ( 1 - np.sign( Y_eval[::Q] - Y_ctr_eval[::Q] ) ) / 2 
         return message_received.astype(int)
-    
-    @staticmethod
-    def ber(msg_hat, msg):
-        ber = np.mean(msg_hat != msg)
-        return ber
 
     def PZRotationCorrected(self, y, Q):
         fftSize = self.K * Q 
@@ -142,17 +116,6 @@ class BMOCZReceiver(BiMOCZ):
             min_q[k] = Y_pz[(k-sep)%fftSize] + Y_pz[k] + Y_pz[(k+sep)%fftSize]
         int_est = min(min_q, key=min_q.get)
         return fftSize//2 - int_est
-
-    @staticmethod
-    def mae(sig_rx, sig_recon):
-        return np.mean(np.abs(sig_rx - sig_recon))
-
-    @staticmethod
-    def per(msg_rx, msg_tx):
-        if np.all( msg_rx == msg_tx ):
-            return 1
-        else:
-            return 0
 
     #  ------ Method to etimate the rotation of zeros using single pilot placed in z-domain
     def estRotation(self, y, Q, singlePZ):

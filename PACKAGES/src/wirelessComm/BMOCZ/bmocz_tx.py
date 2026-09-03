@@ -1,55 +1,42 @@
 import numpy as np
-import random
-import galois
-from scipy.linalg import toeplitz
+from .mocz import MOCZ
 
-from .bmocz import BiMOCZ
-
-class BMOCZTransmitter(BiMOCZ):
+class BMOCZTransmitter(MOCZ):
 
     def __init__(self, K):
         super().__init__(K)
         self.zero_geometry = self.codebook_con()
-        # self.msg = msg if msg else galois.GF2.Random(K)
 
-    def toeplitz_iterator(self, zeros):
-        for k in range(len(zeros)):
-            if k == 0:
-                c = np.array([[1, -zeros[k]]]).T   # (z-alpha)
-            else:
-                column = np.zeros(k+2, dtype=complex)
-                column[0] = 1
-                column[1] = -zeros[k]
+    def codebook_con(self):
+    
+            Ri, Ro = self.R**(-1), self.R
+            theta_k = (2 * np.pi)/self.K
+    
+            zero_cb = [( Ri * np.exp(1j*theta_k*k), Ro * np.exp(1j*theta_k*k) ) for k in range(self.K)]
+            return zero_cb
 
-                row = np.zeros(k+1, dtype=complex)
-                row[0] = 1
-
-                T = toeplitz(column, row)
-
-                c = T @ c
-                x = c.flatten()
-        return x[::-1]  # changed here
-
-    def coeffCon(self, msg):
-        zeros = [self.zero_geometry[mk][msg[mk]] for mk in range(self.K)]
+    def zeroSelection(self, msg):
+        return [self.zero_geometry[mk][msg[mk]] for mk in range(self.K)]
+    
+    def coeffCon(self, msg, singlePZ = []):
+        zeros = self.zeroSelection(msg)
+        zeros += singlePZ
         # print(f'\nZeroes selected wrt to message to be transmitted: {np.round(zeros, 6)}\n')
-        x = self.toeplitz_iterator(zeros)        
-        # return x[::-1]          # x = [ x0, x1, x2, ....., xK]
-        return x                    # x = [ x0, x1, x2, ....., xK]
+        return self.toeplitz_iterator(zeros)  # x = [ x0, x1, x2, ....., xK]
 
     # ZMS: Zero Marker Signal
-    def coeffConZM(self, msg):
-        # Rzm = (( self.R + self.R**-1 )/2).astype(complex)
-        zeros = [self.zero_geometry[mk][msg[mk]] for mk in range(self.K)]
-        zeros += self.Rzm
-        # zeros += self.Rpz
-        x = self.toeplitz_iterator(zeros)
-        # return x[::-1]
-        return x
+    # def coeffConZM(self, msg):
+    #     # Rzm = (( self.R + self.R**-1 )/2).astype(complex)
+    #     zeros = [self.zero_geometry[mk][msg[mk]] for mk in range(self.K)]
+    #     zeros += self.Rzm
+    #     # zeros += self.Rpz
+    #     x = self.toeplitz_iterator(zeros)
+    #     # return x[::-1]
+    #     return x
 
-    def coeffConSinglePZ(self, msg, singlePZ):
-        zeros = [self.zero_geometry[mk][msg[mk]] for mk in range(self.K)]
-        zeros += singlePZ
-        x = self.toeplitz_iterator(zeros)
-        # return x[::-1]
-        return x
+    # def coeffConSinglePZ(self, msg, singlePZ):
+    #     zeros = [self.zero_geometry[mk][msg[mk]] for mk in range(self.K)]
+    #     zeros += singlePZ
+    #     x = self.toeplitz_iterator(zeros)
+    #     # return x[::-1]
+    #     return x
