@@ -11,31 +11,28 @@ For SNR =  we will be analyzing how
 import numpy as np
 import matplotlib.pyplot as plt
 from wirelessComm import (
-    BMOCZReceiver,
-    BMOCZTransmitter,
-    SlowFadingChannel,
-    ChannelEstimation
+    BMOCZ, PerformanceParameters,
+    SlowFadingChannel, ChannelEstimation
 )
 BER_15 = {}; PAPR_15 = {}; PER_15 = {}; chCoeff_15 ={}; mae_minc = {}   
 
 K = np.arange(6, 41, 1)
 Q = 4
-noIter = int(1e5)
-snr = 15
+noIter = int(1e1)
+snr = 10
 pathLoss = 1
 signal_power = 1
 noise_var = signal_power * 10**(-snr/10)
-
+perParam = PerformanceParameters()
 ch = SlowFadingChannel(noise_var, pathLoss)
 chEst = ChannelEstimation()
 for k in K:
-    tx = BMOCZTransmitter(k)
-    rx = BMOCZReceiver(k)
+    bmoczSystem = BMOCZ(k)
     ber, papr, chError, pcr = 0, 0, 0, 0
     for i in range(noIter):
         msg = np.random.randint(0, 2, k, dtype=np.uint8)
 
-        sig_tx = tx.coeffCon(msg)
+        sig_tx = bmoczSystem.coeffCon(msg)
         sig_power = np.mean(np.abs(sig_tx)**2)
         sig_tx /= np.sqrt(sig_power)
         
@@ -43,11 +40,11 @@ for k in K:
 
         # Q = int( 2**( np.log( np.ceil(len(sig_rx)/k) ) / np.log(2) ) )  # Q = 2
 
-        sig_ffo = rx.ffoEstCor(sig_rx, Q)
-        msg_rx = rx.fftDizet(sig_ffo, Q)
+        sig_ffo = bmoczSystem.ffoEstCor(sig_rx, Q)
+        msg_rx = bmoczSystem.fftDizet(sig_ffo, Q)
 
         # ----   Signal Reconstruction using the same BMOCZTransmitter Class  -----
-        sig_recon = tx.coeffCon(msg_rx)
+        sig_recon = bmoczSystem.coeffCon(msg_rx)
         sig_power = np.mean(np.abs(sig_recon)**2)
         sig_recon /= np.sqrt(sig_power)
 
@@ -72,9 +69,9 @@ for k in K:
         #     else:
         #         mae_minc[index][0] += -np.inf
         #         mae_minc[index][1] += 1
-        pcr += rx.per(msg_rx, msg)
-        ber += rx.ber(msg_rx, msg)
-        papr += tx.PAPR(sig_tx)
+        pcr += perParam.pcr(msg_rx, msg)
+        ber += perParam.ber(msg_rx, msg)
+        papr += bmoczSystem.PAPR(sig_tx)
     BER_15[k] = ber / noIter
     PER_15[k] =  1 - (pcr / noIter)
     PAPR_15[k] = papr / noIter
@@ -87,7 +84,7 @@ plt.grid(True)
 plt.xlabel("Msg-Length(K)")
 plt.ylabel("BER")
 plt.title(f"{noIter} packets per point for SNR = {snr}dB.")
-plt.savefig(f"results/BLAnalysis/BER_s{snr}.jpeg")
+plt.savefig(f"results/BMOCZ/BLAnalysis/BER_s{snr}.jpeg")
 
 plt.figure(2,dpi=800)
 plt.plot(PAPR_15.keys(), PAPR_15.values(), '-')
@@ -95,7 +92,7 @@ plt.grid(True)
 plt.ylabel("Peak to Average Power Ratio (PAPR)")
 plt.xlabel("Msg-Length(K)")
 plt.title(f"{noIter} packets per point for SNR = {snr}dB.")
-plt.savefig(f"results/BLAnalysis/PAPR_s{snr}.jpeg")
+plt.savefig(f"results/BMOCZ/BLAnalysis/PAPR_s{snr}.jpeg")
 
 plt.figure(3, dpi=800)
 plt.plot(chCoeff_15.keys(), chCoeff_15.values(), '-')
@@ -103,7 +100,7 @@ plt.grid(True)
 plt.xlabel("Msg-Length(K)")
 plt.ylabel("MAE of channel coefficicent(|h|)")
 plt.title(f"{noIter} packets per point for SNR = {snr}dB.")
-plt.savefig(f"results/BLAnalysis/MAE_h_s{snr}.jpeg")
+plt.savefig(f"results/BMOCZ/BLAnalysis/MAE_h_s{snr}.jpeg")
 
 plt.figure(4, dpi=800)
 plt.plot(PER_15.keys(), PER_15.values(), '-')
@@ -111,7 +108,7 @@ plt.grid(True)
 plt.xlabel("Msg-Length(K)")
 plt.ylabel("PER")
 plt.title(f"{noIter} packets per point for SNR = {snr}dB.")
-plt.savefig(f"results/BLAnalysis/PER_s{snr}.jpeg")
+plt.savefig(f"results/BMOCZ/BLAnalysis/PER_s{snr}.jpeg")
 
 # plt.show()
 # mae_minc = dict(sorted(mae_minc.items(), reverse=False))

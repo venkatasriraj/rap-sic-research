@@ -2,9 +2,8 @@
 Implementation of Interger and fractional phase offset estimation.
 """
 import numpy as np
-import galois
 from wirelessComm import (
-    BMOCZReceiver, BMOCZTransmitter, ACPC, 
+    BMOCZ, ACPC, PerformanceParameters, 
     SlowFadingChannel, MultiPathFading
 )
 
@@ -14,9 +13,8 @@ noise_var = signal_power * 10**(-SNR_db/10)
 m = 5
 K = 2**m-1
 t = 2 # number of error correcting bits
-
-tx = BMOCZTransmitter(K)
-rx = BMOCZReceiver(K)
+perParam = PerformanceParameters()
+bmoczSystem = BMOCZ(K)
 # ch = SlowFadingChannel(noise_var)
 ch = MultiPathFading(noise_var)
 # we will be implementing ACPC(31, 21,,5)
@@ -39,7 +37,7 @@ acpc = ACPC(m, t)
 msgB = np.random.randint(0, 2, acpc.B)
 msg_encoded = acpc.msg_encoding(msgB)
 
-sig_tx = tx.coeffCon(msg_encoded) 
+sig_tx = bmoczSystem.coeffCon(msg_encoded) 
 # signal is not normalized and the coefficients are of the order 
 # [x0, x1, x2, x3, ....., xn]
 sig_power = np.mean( np.abs(sig_tx)**2 )
@@ -50,10 +48,10 @@ sig_rx = ch.transmit(sig_norm, rotation)
 
 # Q = int( 2**( np.log( np.ceil(len(sig_rx)/K) ) / np.log(2) ) )
 Q = 4
-sig_ffo = rx.ffoEstCor(sig_rx,Q)
-codeword_rx = rx.fftDizet(sig_ffo, Q)
+sig_ffo = bmoczSystem.ffoEstCor(sig_rx,Q)
+codeword_rx = bmoczSystem.fftDizet(sig_ffo, Q)
 
 msg_est, l_est = acpc.codeword_decoding(codeword_rx)
 
-ber = rx.ber(msg_est, msgB)
+ber = perParam.ber(msg_est, msgB)
 print(f'BER: {ber}')

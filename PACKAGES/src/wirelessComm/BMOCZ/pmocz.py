@@ -47,3 +47,11 @@ class PMOCZ(MOCZ):
                 subSectorBits = np.concatenate(([0]*(self.bkLen - len(subSectorBits)), subSectorBits), axis=None)
             msgEst = np.concatenate((msgEst, circleFlag, subSectorBits), axis=None)
         return np.asarray(msgEst, dtype=np.int8)
+
+    # -- Decoder for Pilot-Zero based PMOCZ
+    def singlePZDecodedMsg(self, y, Q, singlePZ):
+        rotate_hat, subSector = self.estRotation(y, Q, singlePZ)
+        rotation_hat = rotate_hat - np.angle(singlePZ[0])
+        rotationMatrix = np.diag( np.exp(-1j*rotation_hat) ** np.flip(np.arange(len(y))) ) 
+        y_corrected = y  @ rotationMatrix
+        return self.fftDiZet(y_corrected, Q), rotation_hat

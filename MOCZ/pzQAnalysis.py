@@ -9,41 +9,38 @@ in estimation of rotation and MAE of it
 import numpy as np
 import matplotlib.pyplot as plt
 from wirelessComm import (
-    BMOCZReceiver,
-    BMOCZTransmitter,
-    MultiPathFading
+    BMOCZ, MultiPathFading, PerformanceParameters
 )
 
 Q = np.arange(4, 33, 4)
 K = np.arange(13, 21)
-noIter = int(1e3)
+noIter = int(1e2)
 snr = 20
 signal_power = 1
-
 noise_var = signal_power * 10**(-snr/10)
+perParam = PerformanceParameters()
 ch = MultiPathFading(noise_var, pathLoss=1)
 ber_K = {}; thr_K = {}; rotation_K = {}
 for k in K:
-    tx = BMOCZTransmitter(k)
-    rx = BMOCZReceiver(k)
-    singlePZ = [2*tx.R]
+    bmoczSystem = BMOCZ(k)
+    singlePZ = [2*bmoczSystem.R]
     ber = {}; throughput = {}; rotationMAE = {}
     for q in Q:
         BER, PCR, ROTATION = 0, 0, 0
         for i in range(noIter):
             msg = np.random.randint(0, 2, k)
 
-            sig_tx = tx.coeffConSinglePZ(msg, singlePZ)
+            sig_tx = bmoczSystem.coeffCon(msg, singlePZ)
             sig_power = np.mean(np.abs(sig_tx)**2)
             sig_tx /= np.sqrt(sig_power)
 
             rotation = np.random.uniform(0, 2*np.pi)
             sig_rx = ch.transmit(sig_tx, rotation)
 
-            msg_hat, rotation_hat = rx.singlePZDecodedMsg(sig_rx, q, singlePZ)
+            msg_hat, rotation_hat = bmoczSystem.singlePZDecodedMsg(sig_rx, q, singlePZ)
 
-            BER += rx.ber(msg_hat, msg)
-            PCR += rx.per(msg_hat, msg)
+            BER += perParam.ber(msg_hat, msg)
+            PCR += perParam.pcr(msg_hat, msg)
             ROTATION += np.abs(rotation - rotation_hat) / rotation
         ber[q] = BER / noIter
         throughput[q] = PCR / noIter
@@ -62,7 +59,7 @@ plt.ylabel("BER")
 plt.title(f"{noIter} packets per point")
 plt.legend(loc='upper left', framealpha=0.6, fontsize=7)
 plt.tight_layout()
-plt.savefig(f"results/singlePZ/Q/ber{K}.jpeg")
+plt.savefig(f"results/PilotZero/Qanalysis/ber{K}.jpeg")
 
 plt.figure(2, dpi=800)
 for k, v in thr_K.items():
@@ -73,7 +70,7 @@ plt.ylabel("Throughput")
 plt.title(f"{noIter} packets per point")
 plt.legend(loc='lower left', framealpha=0.5, fontsize=7)
 plt.tight_layout()
-plt.savefig(f"results/singlePZ/Q/thr{K}.jpeg")
+plt.savefig(f"results/PilotZero/Qanalysis/thr{K}.jpeg")
 
 plt.figure(3, dpi=800)
 for k, v in rotation_K.items():
@@ -84,4 +81,4 @@ plt.ylabel("MAE of rotation")
 plt.title(f"{noIter} packets per point")
 plt.legend(loc='upper left', framealpha=0.6, fontsize=7)
 plt.tight_layout()
-plt.savefig(f"results/singlePZ/Q/rotation{K}.jpeg")
+plt.savefig(f"results/PilotZero/Qanalysis/rotation{K}.jpeg")

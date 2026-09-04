@@ -10,17 +10,12 @@ System parameters:
 import numpy as np
 import matplotlib.pyplot as plt
 from wirelessComm import (
-    BMOCZReceiver,
-    BMOCZTransmitter,
-    SlowFadingChannel,
-    ChannelEstimation,
-    moczSIMULATION
+    BMOCZ, SlowFadingChannel, ChannelEstimation, moczSIMULATION
 )
-
 degree = 2 
 m = 20
 n = 20 # number of users
-noIter = 10000
+noIter = int(1e1)
 K = 32
 Q = 4
 peakLoad = int(n/m)
@@ -30,11 +25,8 @@ G = np.arange(0.1, peakLoad+0.1, 0.1)
 signal_power = 1
 uId = 1
 pathLoss = 1
-
-tx = BMOCZTransmitter(K)
-rx = BMOCZReceiver(K)
+bmoczSystem = BMOCZ(K)
 chEst = ChannelEstimation()
-
 thr_load = {}; per_load = {}; ber_load = {}; mae_hEst = {}
 for load in G:
     throughput = {}; per = {}; ber = {}; mae_herr = {}
@@ -43,7 +35,7 @@ for load in G:
         noise_var = signal_power * 10**(-snr/10)
         ch = SlowFadingChannel(noise_var, pathLoss)
         seedNo = abs(int(load*n*3 + snr) )
-        sim = moczSIMULATION(tx, rx, ch, chEst, m, n, degree, K, Q=Q, seed=seedNo)
+        sim = moczSIMULATION(bmoczSystem, ch, chEst, m, n, degree, K, Q=Q, seed=seedNo)
         for i in range(noIter):
             userSlotsGen = sim.userSlotGen()
             FRAME = {}
@@ -81,7 +73,7 @@ for load in G:
 
 plt.figure(figsize=(8,6), dpi=800)
 for k, v in thr_load.items():
-    plt.plot(v.keys(), v.values(), linestyle='-', linewidth=0.9, label=f"Load = {k}")
+    plt.plot(v.keys(), v.values(), linestyle='-', linewidth=0.9, label=f"Load = {np.round(k, 3)}")
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("SNR(dB)")
 plt.ylabel("Throughput (T)")
@@ -89,15 +81,15 @@ plt.ylim(0, 1.05)
 plt.title(f"{noIter} frames per point")
 plt.legend(loc='upper left', fontsize=7, framealpha=0.6)
 plt.tight_layout()
-plt.savefig("results/ConSim/mthrSNR.jpeg")
+plt.savefig("results/BMOCZ/ConSim/mthrSNR.jpeg")
 
 plt.figure(figsize=(8,6), dpi=800)
 for k, v in mae_hEst.items():
-    plt.plot(v.keys(), v.values(), linestyle='-', linewidth=0.9, label=f'Load = {k}')
+    plt.plot(v.keys(), v.values(), linestyle='-', linewidth=0.9, label=f'Load = {np.round(k, 3)}')
 plt.grid(True, alpha=0.6, linestyle='--')
 plt.xlabel("SNR(dB)")
 plt.ylabel(f"MAE of h_est for user-{uId}")
 plt.title(f"{noIter} frames per point")
 plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
 plt.tight_layout()
-plt.savefig("results/ConSim/mhSNR.jpeg")
+plt.savefig("results/BMOCZ/ConSim/mhSNR.jpeg")

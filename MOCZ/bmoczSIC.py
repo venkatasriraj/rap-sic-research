@@ -6,10 +6,8 @@ and used during reconstruction of packet. Distinct channels for users have been 
 import numpy as np
 import matplotlib.pyplot as plt
 from wirelessComm import (
-    BMOCZReceiver,
-    BMOCZTransmitter,
-    SlowFadingChannel,
-    ChannelEstimation
+    BMOCZ, PerformanceParameters, 
+    SlowFadingChannel, ChannelEstimation,
 )
 K = 32
 sig_power = 1
@@ -17,9 +15,8 @@ Q = 4
 SNR_dB = np.arange(-10, 21, 5)
 noIter = int(1e2)
 ch_var = 1
-
-tx = BMOCZTransmitter(K)
-rx = BMOCZReceiver(K)
+perParam = PerformanceParameters()
+bmoczSystem = BMOCZ(K)
 chEst = ChannelEstimation()
 
 per = {}; con_mae = {}; pktDetect = {}; coeff_mae = {}
@@ -31,11 +28,11 @@ for snr in SNR_dB:
         msgU1 = [np.random.randint(2) for i in range(K)]
         msgU2 = [np.random.randint(2) for i in range(K)]
 
-        sigU1 = tx.coeffCon(msgU1)
+        sigU1 = bmoczSystem.coeffCon(msgU1)
         sigU1_power = np.mean( np.abs(sigU1)**2 )
         sigU1_norm = sigU1 / np.sqrt(sigU1_power)
 
-        sigU2 = tx.coeffCon(msgU2)
+        sigU2 = bmoczSystem.coeffCon(msgU2)
         sigU2_power = np.mean( np.abs(sigU2)**2 )
         sigU2_norm = sigU2 / np.sqrt(sigU2_power)
 
@@ -49,13 +46,13 @@ for snr in SNR_dB:
         #  --- Receiver part will be implemeted from here 
         #    which include channel estimation and packet reconstruction
         #  ----  Slot-1
-        msgS1 = rx.fftDizet(sig_rxS1, Q)
-        if rx.ber(msgS1, msgU1) == 0:
+        msgS1 = bmoczSystem.fftDizet(sig_rxS1, Q)
+        if perParam.ber(msgS1, msgU1) == 0:
             pcr[0] += 1
         # -- here we will be reconstructing the packet with the message decode
         #  and estimating the channel
         # --- Slot-2
-        sig_reconS1 = tx.coeffCon(msgS1)
+        sig_reconS1 = bmoczSystem.coeffCon(msgS1)
         sig_reconS1_power = np.mean(np.abs(sig_reconS1)**2)
         sig_reconS1 /= np.sqrt(sig_reconS1_power)
         
@@ -65,12 +62,12 @@ for snr in SNR_dB:
         # print(f"h: {ch_coeffU1}, h_est: {chEstS1}, MAE: {np.abs(ch_coeffU1-chEstS1)}")
         # print(f"    min coeff: {np.min(np.abs(sig_reconS1))}, ")
         
-        con_error += rx.mae(sig_rxS1, sig_reconS1 * chEstS1) / np.mean( np.abs(sig_rxS1) )
+        con_error += perParam.mae(sig_rxS1, sig_reconS1 * chEstS1) / np.mean( np.abs(sig_rxS1) )
         # we are measuring the construced signal error even when decoded message is wrong
         sig_recovS2 = sig_rxS2 - chEstS1 * sig_reconS1
 
-        msgS2 = rx.fftDizet(sig_recovS2, Q)
-        if rx.ber(msgS2, msgU2) == 0:
+        msgS2 = bmoczSystem.fftDizet(sig_recovS2, Q)
+        if perParam.ber(msgS2, msgU2) == 0:
             pcr[1] += 1
     per[snr] = 1 - ( np.array(pcr) / noIter )
     pktDetect[snr] = np.array(pcr) / noIter
@@ -84,7 +81,7 @@ plt.xlabel("SNR(dB)")
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.ylabel(f"Throughput (T)")
 plt.title(f"{noIter} packets per point")
-plt.savefig("results/detectPkts.jpeg")
+plt.savefig("results/BMOCZ/SIC/detectPkts.jpeg")
 
 plt.figure(2, dpi=800)
 for i in range(2):
@@ -97,7 +94,7 @@ plt.grid(True, linestyle='--', alpha=0.6)
 plt.legend(loc="lower left", framealpha=0.6, fontsize=7)
 plt.title(f"{noIter} packets per point")
 plt.tight_layout()
-plt.savefig("results/SICper.jpeg")
+plt.savefig("results/BMOCZ/SIC/SICper.jpeg")
 
 plt.figure(3, dpi=800)
 plt.plot(con_mae.keys(), con_mae.values(), '-', linewidth=0.9)
@@ -105,7 +102,7 @@ plt.xlabel("SNR(dB)")
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.ylabel("MAE of packet rx and recon")
 plt.title(f"MAE of pkt recon vs SNR over {noIter} iterations")
-plt.savefig("results/coeffConErr.jpeg")
+plt.savefig("results/BMOCZ/SIC/coeffConErr.jpeg")
 
 plt.figure(4, dpi=800)
 plt.plot(coeff_mae.keys(), coeff_mae.values(), '-', linewidth=0.9)
@@ -113,4 +110,4 @@ plt.xlabel("SNR(dB)")
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.ylabel("MAE of h")
 plt.title(f"MAE of h vs SNR over {noIter} iterations")
-plt.savefig("results/coeffEstErr.jpeg")
+plt.savefig("results/BMOCZ/SIC/coeffEstErr.jpeg")

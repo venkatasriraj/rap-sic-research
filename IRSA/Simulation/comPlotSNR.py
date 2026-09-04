@@ -5,7 +5,7 @@ with baseline as system performance without SIC over varied SNR
 import numpy as np
 import matplotlib.pyplot as plt
 from wirelessComm import (
-    BMOCZTransmitter, BMOCZReceiver, moczSIMULATION,
+    BMOCZ, moczSIMULATION,
     SlowFadingChannel, ChannelEstimation,
     BPSKBase, dbpskSIMULATION
 )
@@ -14,7 +14,7 @@ from wirelessComm.simulator import simulator
 # Simulation Parameters
 m, n = 20, 20
 degree = 2
-noIter = int(1e3)
+noIter = int(1e1)
 LOAD = 0.7
 SNR_dB = np.arange(-10, 21, 5)
 signal_power = 1
@@ -31,9 +31,7 @@ Q = 4
 # DBPSK Parameters
 accessCode = [1, 0] * 4
 lenAC = 8
-
-moczTx = BMOCZTransmitter(packetSize)
-moczRx = BMOCZReceiver(packetSize)
+bmoczSystem = BMOCZ(packetSize)
 bpsk = BPSKBase()
 chEst = ChannelEstimation()
 
@@ -52,7 +50,7 @@ for mode in range(len(labels)):
             pilot = accessCode
             sim = dbpskSIMULATION(bpsk, ch, chEst, m, n, degree, packetSize, pilot, seedNo)
         else: # MOCZ
-            sim = moczSIMULATION(moczTx, moczRx, ch, chEst, m, n, degree, packetSize, Q, seedNo)
+            sim = moczSIMULATION(bmoczSystem, ch, chEst, m, n, degree, packetSize, Q, seedNo)
 
         if sicMode == "normal":
             PER, BER, THROUGHPUT, MAE, MAE_count = simulator(sim, LOAD, noIter, sicMode=sicMode, uId=uId)

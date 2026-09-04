@@ -12,17 +12,12 @@ in which users will be transmitting.
 import numpy as np
 import matplotlib.pyplot as plt
 from wirelessComm import (
-    BMOCZReceiver,
-    BMOCZTransmitter,
-    SlowFadingChannel,
-    ChannelEstimation,
-    moczSIMULATION
+    BMOCZ, SlowFadingChannel, ChannelEstimation, moczSIMULATION
 )
-
 degree = 2  # CRDSA 
 m = 20
 n = 20 # number of users
-noIter = int(1e5)  # gives the simulation over 1000 frames
+noIter = int(1e1)  # gives the simulation over 1000 frames
 peakLoad = int(n/m)
 # G = np.linspace(0.1, 1, 10)
 G = np.arange(0.1, peakLoad+0.1, 0.1)
@@ -30,14 +25,10 @@ SNR_dB = np.arange(-10, 21, 5)
 signal_power = 1
 uId = 1
 pathLoss = 1
-
 K = 32   # 4B
 Q = 4
-
-tx = BMOCZTransmitter(K)
-rx = BMOCZReceiver(K)
+bmoczSystem = BMOCZ(K)
 chEst = ChannelEstimation()
-
 thr_snr = {}; per_snr = {}; ber_snr = {}; mae_hEst = {}
 for snr in SNR_dB:
     noise_var = signal_power * 10**(-snr/10)
@@ -46,7 +37,7 @@ for snr in SNR_dB:
     for g in G:
         PER, BER, THROUGHPUT, MAE, MAE_count = 0, 0, 0, 0, 1e-10
         seedNo = abs(int(g*n*3 + snr) )
-        sim = moczSIMULATION(tx, rx, ch, chEst, m, n, degree, K, Q=Q, seed=seedNo)
+        sim = moczSIMULATION(bmoczSystem, ch, chEst, m, n, degree, K, Q=Q, seed=seedNo)
         for i in range(noIter):
             userSlotsGen = sim.userSlotGen()
             FRAME = {}
@@ -97,7 +88,7 @@ plt.ylabel(f"MAE of h_est for user-{uId}", fontsize=7) # , fontweight='bold'
 plt.title(f"{noIter} frames per point", fontsize=7, pad = 4)
 plt.legend(loc='upper left', fontsize=7, framealpha=0.6)
 plt.tight_layout()
-plt.savefig("results/ConSim/mhLoad.jpeg")
+plt.savefig("results/BMOCZ/ConSim/mhLoad.jpeg")
 
 plt.figure(figsize=(8,6), dpi=800)
 # markers = ['o', 's', '^', 'D', 'v', 'p', '*']
@@ -114,4 +105,4 @@ plt.ylim(0, 1.05)
 plt.title(f"{noIter} frames per point", fontsize=7, pad = 4)
 plt.legend(loc='upper right', fontsize=7, framealpha=0.6)
 plt.tight_layout()
-plt.savefig("results/ConSim/mthrLoad.jpeg")
+plt.savefig("results/BMOCZ/ConSim/mthrLoad.jpeg")

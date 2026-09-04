@@ -50,6 +50,19 @@ class MOCZ:
         Y_eval = np.abs( np.fft.ifft(y_pad) )
         Y_ctr_eval = np.abs( np.fft.ifft(y_ctr_pad) )
         return Y_eval, Y_ctr_eval
+    
+    #  ------ Method to etimate the rotation of zeros using single pilot placed in z-domain
+
+    def estRotation(self, y, Q, singlePZ):
+        lenSignal = len(y)
+        N_fft = self.K * self.M * Q
+        scaling_vec = np.abs(singlePZ[0]) ** np.arange(lenSignal)
+        y_scaled = y * scaling_vec
+        y_pad = np.pad(y_scaled, (0, N_fft - lenSignal), mode='constant')
+        Y_singlePZ = np.abs( np.fft.ifft(y_pad) )
+        subSector = np.argmin(Y_singlePZ)
+        rotate_hat = ( np.pi * 2 * subSector / (N_fft) )
+        return rotate_hat, subSector/Q
 
     @staticmethod
     def PAPR(signal):

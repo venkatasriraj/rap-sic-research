@@ -7,7 +7,7 @@ m: number of slots
 import numpy as np
 import matplotlib.pyplot as plt
 from wirelessComm import (
-    BMOCZTransmitter, BMOCZReceiver, moczSIMULATION,
+    BMOCZ, moczSIMULATION,
     SlowFadingChannel, ChannelEstimation,
     BPSKBase, dbpskSIMULATION
 )
@@ -16,7 +16,7 @@ from wirelessComm.simulator import simulator
 # Simulation Parameters
 m, n = 20, 40
 degree = 2
-noIter = int(1e3)
+noIter = int(1e1)
 # LOAD = np.linspace(0.1, 1, 10)
 peakLoad = int(n/m)
 LOAD = np.arange(0.1, peakLoad+0.1, 0.1)
@@ -41,8 +41,7 @@ lenAC = 8
 
 noise_var = signal_power * 10**(-SNR_dB/10)
 ch = SlowFadingChannel(noise_var, pathLoss)
-moczTx = BMOCZTransmitter(packetSize)
-moczRx = BMOCZReceiver(packetSize)
+bmoczSystem = BMOCZ(packetSize)
 bpsk = BPSKBase()
 chEst = ChannelEstimation()
 
@@ -59,7 +58,7 @@ for mode in range(len(labels)):
             pilot = accessCode
             sim = dbpskSIMULATION(bpsk, ch, chEst, m, n, degree, packetSize, pilot, seedNo)
         else: # MOCZ
-            sim = moczSIMULATION(moczTx, moczRx, ch, chEst, m, n, degree, packetSize, Q, seedNo)
+            sim = moczSIMULATION(bmoczSystem, ch, chEst, m, n, degree, packetSize, Q, seedNo)
 
         if sicMode == "normal":
             PER, BER, THROUGHPUT, MAE, MAE_count = simulator(sim, load, noIter, sicMode=sicMode, uId=uId)

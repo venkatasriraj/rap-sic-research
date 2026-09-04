@@ -9,42 +9,38 @@ We will be studying
 import numpy as np
 import matplotlib.pyplot as plt
 from wirelessComm import (
-    BMOCZTransmitter,
-    BMOCZReceiver,
-    MultiPathFading
+    BMOCZ, MultiPathFading, PerformanceParameters
 )
-
 K = np.arange(11, 31)
 Q = 32
-noIter = int(1e4)
+noIter = int(1e2)
 SNR_dB = np.arange(-10, 21, 5)
 signal_power = 1
-
+perParam = PerformanceParameters()
 ber_snr = {}; papr_snr = {}; thr_snr = {}; rotation_snr = {}
 for snr in SNR_dB:
     noise_var = signal_power * 10**(-snr/10)
     ch = MultiPathFading(noise_var, pathLoss=1)
     ber = {}; papr = {}; throughput = {}; rotationMAE = {}
     for k in K:
-        tx = BMOCZTransmitter(k)
-        rx = BMOCZReceiver(k)
-        singlePZ = [-1.25 * tx.R]
+        bmoczSystem = BMOCZ(k)
+        singlePZ = [-1.25 * bmoczSystem.R]
         BER, PCR, PAPR, ROTATION = 0, 0, 0, 0
         for i in range(noIter):
             msg = np.random.randint(0, 2, k)
 
-            sig_tx = tx.coeffConSinglePZ(msg, singlePZ)
+            sig_tx = bmoczSystem.coeffCon(msg, singlePZ)
             sig_power = np.mean( np.abs(sig_tx)**2 )
             sig_tx /= np.sqrt(sig_power) 
 
             rotation = np.random.uniform(0, np.pi*2)
             sig_rx = ch.transmit(sig_tx, rotation)
             
-            msg_hat, rotate_hat = rx.singlePZDecodedMsg(sig_rx, Q, singlePZ)
+            msg_hat, rotate_hat = bmoczSystem.singlePZDecodedMsg(sig_rx, Q, singlePZ)
             
-            BER += rx.ber(msg_hat, msg)
-            PCR += rx.per(msg_hat, msg)
-            PAPR += tx.PAPR(sig_tx)
+            BER += perParam.ber(msg_hat, msg)
+            PCR += perParam.pcr(msg_hat, msg)
+            PAPR += bmoczSystem.PAPR(sig_tx)
             # maeRotate = np.abs(rotation - rotation_hat) if rotation < np.pi else np.abs(rotation - rotation_hat - 2*np.pi) 
             # if rotation < np.angle(singlePZ[0]):
             #     maeRotate = np.abs(rotation + np.pi - rotate_hat)
@@ -74,7 +70,7 @@ plt.ylim(0,1.05)
 plt.title(f"{noIter} packets per point")
 plt.legend(loc='upper left', framealpha=0.6, fontsize=7) 
 plt.tight_layout()
-plt.savefig(f"results/singlePZ/berQ{Q}")   
+plt.savefig(f"results/PilotZero/RotationAnalysis/berQ{Q}")   
 
 plt.figure(2, dpi=800)
 for k, v in papr_snr.items():
@@ -85,7 +81,7 @@ plt.grid(True, alpha=0.6, linestyle='--')
 plt.title(f"{noIter} packets per point")
 plt.legend(loc='upper left', framealpha=0.6, fontsize=7)
 plt.tight_layout()
-plt.savefig(f"results/singlePZ/paprQ{Q}")
+plt.savefig(f"results/PilotZero/RotationAnalysis/paprQ{Q}")
 
 plt.figure(3, dpi=800)
 for k, v in thr_snr.items():
@@ -96,7 +92,7 @@ plt.ylabel("Throughput")
 plt.title(f"{noIter} packets per point")
 plt.legend(loc='upper right', fontsize=7, framealpha=0.5)
 plt.tight_layout()
-plt.savefig(f"results/singlePZ/thrQ{Q}")
+plt.savefig(f"results/PilotZero/RotationAnalysis/thrQ{Q}")
 
 plt.figure(4, dpi=800)
 for k, v in rotation_snr.items():
@@ -107,4 +103,4 @@ plt.grid(True, alpha=0.6, linestyle='--')
 plt.title(f"{noIter} packets per point")
 plt.legend(loc='upper right', fontsize=7, framealpha=0.6)
 plt.tight_layout()
-plt.savefig(f"results/singlePZ/rotationQ{Q}")
+plt.savefig(f"results/PilotZero/RotationAnalysis/rotationQ{Q}")

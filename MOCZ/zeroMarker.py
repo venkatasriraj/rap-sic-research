@@ -3,21 +3,16 @@ Implementation of Zero-Marker in BMOCZ to solve rotation of zeros due to CFO.
 """
 import numpy as np
 from wirelessComm import (
-    BMOCZTransmitter,
-    BMOCZReceiver,
-    MultiPathFading
+    BMOCZ, MultiPathFading, PerformanceParameters
 )
-
 K = 8
 Q = 16
 theta_K = np.pi * 2 / K
 rotationPossible = np.arange(0, theta_K, theta_K/Q)
 intRotationPossible = theta_K * np.arange(K)
-
-tx = BMOCZTransmitter(K)
-rx = BMOCZReceiver(K)
+bmoczSystem = BMOCZ(K)
 ch = MultiPathFading(noise_var=0.01, pathLoss=1)
-
+perParam = PerformanceParameters()
 # experiment for pilot zero-selection
 # l = tx.pilotZeroSelection()
 
@@ -90,19 +85,19 @@ msg = np.random.randint(0, 2, K)
 
 #  ---- Estimation of rotation using the single pilot zero placed  
 # ---- at angle 0 on circle of radius 2*R
-singlePZ = [2*tx.R]
+singlePZ = [2*bmoczSystem.R]
 # print(f"The radius of the outer circle is: {tx.R},\n Radius for pilo-zero will be {singlePZ}")
-sig_tx = tx.coeffConSinglePZ(msg, singlePZ)
+sig_tx = bmoczSystem.coeffCon(msg, singlePZ)
 sig_power = np.mean(np.abs(sig_tx)**2)
 sig_tx /= np.sqrt(sig_power)
 rotation = np.random.uniform(0, 2*np.pi)
 sig_rx = ch.transmit(sig_tx, rotation)
 
 # rotation_hat = rx.estRotation(sig_rx, Q, singlePZ)
-msg_hat, rotation_hat = rx.singlePZDecodedMsg(sig_rx, Q, singlePZ)
+msg_hat, rotation_hat = bmoczSystem.singlePZDecodedMsg(sig_rx, Q, singlePZ)
 print(f"Transmitted Message: {msg}, Received Message: {msg_hat}")
-print(f"BER: {rx.ber(msg_hat, msg)}")
+print(f"BER: {perParam.ber(msg_hat, msg)}")
 print(f"Rotation applied: {rotation},\n Estimated Rotation: {rotation_hat},\n" 
         f"MAE of estimated rotation: {np.abs(rotation - rotation_hat)} in rad")
-papr = tx.PAPR(sig_tx)
+papr = bmoczSystem.PAPR(sig_tx)
 print(f"PAPR of transmitted signal: {papr}")

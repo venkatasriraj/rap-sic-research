@@ -6,21 +6,17 @@ Zero rotation can only be observed in case of CFO.
 """
 import numpy as np
 from wirelessComm import (
-    BMOCZReceiver,
-    BMOCZTransmitter,
-    SlowFadingChannel,
-    ChannelEstimation
+    BMOCZ, PerformanceParameters, 
+    SlowFadingChannel, ChannelEstimation
 )
 
 SNR_db = 15
 K = 16
-tx = BMOCZTransmitter(K)
-rx = BMOCZReceiver(K)
-
+bmoczSystem = BMOCZ(K)
+perParam = PerformanceParameters()
 msg = [np.random.randint(2) for i in range(K)]
 
-sig_tx = tx.coeffCon(msg) 
-print(type(sig_tx))
+sig_tx = bmoczSystem.coeffCon(msg) 
 # signal is not normalized and the coefficients are of the order 
 # [x0, x1, x2, x3, ....., xn]
 print(f"Signal energy: {np.sum(np.abs(sig_tx)**2)}")
@@ -35,16 +31,16 @@ print(f"Power of Ch coeff: {np.abs(ch_coeff)}")
 
 Q = int( 2**( np.log( np.ceil(len(sig_rx)/K) ) / np.log(2) ) )
 
-sig_ffo = rx.ffoEstCor(sig_rx, Q)
-msg_rx = rx.fftDizet(sig_ffo, Q)
-ber = rx.ber(msg_rx, msg)
+sig_ffo = bmoczSystem.ffoEstCor(sig_rx, Q)
+msg_rx = bmoczSystem.fftDizet(sig_ffo, Q)
+ber = perParam.ber(msg_rx, msg)
 print(f'BER: {ber}') 
 ## we need to identify the papr after applying the FFT at Tx
-papr_tx = tx.PAPR(sig_tx)
+papr_tx = bmoczSystem.PAPR(sig_tx)
 print(f"The PAPR at Receiver is {np.abs(papr_tx)}")
 
 # ----   Signal Reconstruction using the same BMOCZTransmitter Class  -----
-sig_recon = tx.coeffCon(msg_rx)
+sig_recon = bmoczSystem.coeffCon(msg_rx)
 chEst = ChannelEstimation()
 ch_coeff_hat = chEst.leastSquares(sig_rx, sig_recon)
 print(f"The channel coefficient is {ch_coeff}\n")

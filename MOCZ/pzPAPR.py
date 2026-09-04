@@ -4,7 +4,7 @@ Monte-carlo Simulation to verify reduction in PAPR by a insertion of pilot-zero
 import numpy as np
 import itertools
 import matplotlib.pyplot as plt
-from wirelessComm import BMOCZTransmitter
+from wirelessComm import BMOCZ
 
 K = np.arange(1, 10)
 # Rzm = [-1, 1j, -1j]
@@ -13,12 +13,12 @@ PAPR = {}; PAPR_PZ = {}; PAPR_Reduction = {}
 
 for k in K:
     papr_nopz_max, papr_pz_max = 0, 0
-    tx = BMOCZTransmitter(k)
+    tx = BMOCZ(k)
     for bits in itertools.product([0,1], repeat=k):
         msg = np.array(bits)
 
         sig_nopz = tx.coeffCon(msg)
-        sig_pz = tx.coeffConSinglePZ(msg, Rzm)
+        sig_pz = tx.coeffCon(msg, Rzm)
 
         papr_nopz = tx.PAPR(sig_nopz)
         papr_pz = tx.PAPR(sig_pz)
@@ -32,9 +32,9 @@ for k in K:
 
 plt.figure(1, dpi=800)
 plt.plot(PAPR_Reduction.keys(), PAPR_Reduction.values(), linestyle='-', linewidth=0.9)
-plt.xlabel(f"Block-Length(K) {K}")
+plt.xlabel("Block-Length(K)")
 plt.ylabel(f"% reduction of PAPR by pilot-zero")
 plt.title(f"% reduction of PAPR by PZ vs K for PZ at {Rzm}")
 plt.grid(True, alpha=0.6, linestyle='--')
-plt.savefig(f"results/pzPAPR/{Rzm}.jpeg")
+plt.savefig(f"results/PilotZero/PAPR/{Rzm}.jpeg")
 # plt.show()

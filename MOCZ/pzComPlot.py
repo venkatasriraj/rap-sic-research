@@ -14,8 +14,7 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 from wirelessComm import(
-    BMOCZTransmitter, BMOCZReceiver, ACPC,
-    MultiPathFading, PerformanceParameters
+    BMOCZ, ACPC, MultiPathFading, PerformanceParameters
 )
 m = 5
 t = 2
@@ -28,14 +27,13 @@ baseline = math.lcm(subSym_ACPC, subSym_PZ)
 pktRate_ACPC = baseline * BW / subSym_ACPC
 pktRate_PZ = baseline * BW / subSym_PZ
 signal_power = 1
-noIter = int(1e4)
+noIter = int(1e2)
 SNR_dB = np.arange(-10, 31, 3)
 
-tx = BMOCZTransmitter(K)
-rx = BMOCZReceiver(K)
+bmoczSystem = BMOCZ(K)
 perParam = PerformanceParameters()
 acpc = ACPC(m, t)
-singlePZ = [-1.25 * tx.R]
+singlePZ = [-1.25 * bmoczSystem.R]
 berACPC = {}; paprACPC = {}; perACPC = {}; lACPC = {}; goodputACPC = {}
 berPZ = {}; paprPZ = {}; perPZ = {}; rotationPZ = {}; goodputPZ = {}
 for snr in SNR_dB:
@@ -49,25 +47,25 @@ for snr in SNR_dB:
 
         acpcMsg = np.random.randint(0, 2, acpc.B)
         acpcMsgEn = acpc.msg_encoding(acpcMsg)
-        acpcSigTx = tx.coeffCon(acpcMsgEn)
+        acpcSigTx = bmoczSystem.coeffCon(acpcMsgEn)
         acpcSigTx /= np.sqrt( np.mean(np.abs(acpcSigTx)**2) )
         acpcSigRx = ch.transmit(acpcSigTx, rotation)
-        acpcSigFRO = rx.ffoEstCor(acpcSigRx, Q)
-        estCodeword = rx.fftDizet(acpcSigFRO, Q)
+        acpcSigFRO = bmoczSystem.ffoEstCor(acpcSigRx, Q)
+        estCodeword = bmoczSystem.fftDizet(acpcSigFRO, Q)
         acpcEstMsg, acpcEst_l = acpc.codeword_decoding(estCodeword)
         BERacpc += perParam.ber(acpcEstMsg, acpcMsg)
         PCRacpc += perParam.pcr(acpcEstMsg, acpcMsg)
-        PAPRacpc += tx.PAPR(acpcSigTx)
+        PAPRacpc += bmoczSystem.PAPR(acpcSigTx)
         lacpc += abs(acpcEst_l - l)/(l+1)
 
         pzMsg = np.random.randint(0, 2, K)
-        pzSigTx = tx.coeffCon(pzMsg, singlePZ)
+        pzSigTx = bmoczSystem.coeffCon(pzMsg, singlePZ)
         pzSigTx /= np.sqrt( np.mean(np.abs(pzSigTx)**2) )
         pzSigRx = ch.transmit(pzSigTx, rotation)
-        msg_hat, rotate_hat = rx.singlePZDecodedMsg(pzSigRx, Q, singlePZ)
+        msg_hat, rotate_hat = bmoczSystem.singlePZDecodedMsg(pzSigRx, Q, singlePZ)
         BERpz += perParam.ber(msg_hat, pzMsg)
         PCRpz += perParam.pcr(msg_hat, pzMsg)
-        PAPRpz += tx.PAPR(pzSigTx)
+        PAPRpz += bmoczSystem.PAPR(pzSigTx)
         deviationR = np.abs(rotation - rotate_hat) 
         maeRotate = deviationR if deviationR <= np.pi else 2*np.pi - deviationR
         rotationpz += maeRotate / rotation
@@ -92,7 +90,7 @@ plt.ylim(0, 1.05)
 plt.title(f"{noIter} runs per point")
 plt.legend(loc='upper right', fontsize=7, framealpha=0.6)
 plt.tight_layout()
-plt.savefig(f"results/pzACPC/ber_{t}.jpeg")
+plt.savefig(f"results/PilotZero/ACPC/ber_{t}.jpeg")
 
 plt.figure(2, dpi=800)
 plt.plot(perACPC.keys(), perACPC.values(), '-', color='tab:purple', linewidth=0.9, label=f"ACPC ({K}, {K-(t+1)*5})")    
@@ -103,7 +101,7 @@ plt.ylim(0, 1.05)
 plt.title(f"{noIter} runs per point")
 plt.legend(loc='upper right', fontsize=7, framealpha=0.6)
 plt.tight_layout()
-plt.savefig(f"results/pzACPC/per_{t}.jpeg")
+plt.savefig(f"results/PilotZero/ACPC/per_{t}.jpeg")
 
 plt.figure(3, dpi=800)
 plt.plot(paprACPC.keys(), paprACPC.values(), '-', color='tab:purple', linewidth=0.9, label=f"ACPC ({K}, {K-(t+1)*5})")    
@@ -113,21 +111,21 @@ plt.ylabel("PAPR")
 plt.title(f"{noIter} runs per point")
 plt.legend(loc='upper right', fontsize=7, framealpha=0.6)
 plt.tight_layout()
-plt.savefig(f"results/pzACPC/papr_{t}.jpeg")
+plt.savefig(f"results/PilotZero/ACPC/papr_{t}.jpeg")
 
 plt.figure(4, dpi=800)
 plt.plot(lACPC.keys(), lACPC.values(), '-', color='tab:purple', linewidth=0.9) 
 plt.xlabel("SNR (dB)")
 plt.ylabel("Normalised MAE of Integer Ration Offset")
 plt.title(f"{noIter} runs per point")
-plt.savefig(f"results/pzACPC/lACPC_{t}.jpeg")
+plt.savefig(f"results/PilotZero/ACPC/lACPC_{t}.jpeg")
 
 plt.figure(5, dpi=800)
 plt.plot(rotationPZ.keys(), rotationPZ.values(), '--', color='tab:green', linewidth=0.9)
 plt.xlabel("SNR (dB)")
 plt.ylabel("MAE of estimated rotation")
 plt.title(f"{noIter} runs per point")
-plt.savefig(f"results/pzACPC/rotationPZ_{t}.jpeg")
+plt.savefig(f"results/PilotZero/ACPC/rotationPZ_{t}.jpeg")
 
 plt.figure(6, dpi=800)
 plt.plot(goodputACPC.keys(), goodputACPC.values(), '-', color='tab:purple', linewidth=0.9, label=f'ACPC({K}, {K-(t+1)*5})', marker='*')
@@ -141,4 +139,4 @@ plt.ylabel('Goodput')
 plt.title(f"{noIter} runs per point")
 plt.legend(loc='upper left', fontsize=7, framealpha=0.6)
 plt.tight_layout()
-plt.savefig(f"results/pzACPC/goodput_{t}.jpeg")
+plt.savefig(f"results/PilotZero/ACPC/goodput_{t}.jpeg")

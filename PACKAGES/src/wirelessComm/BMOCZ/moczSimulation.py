@@ -5,9 +5,8 @@ from wirelessComm.CHANNEL import SlowFadingChannel
 
 class moczSIMULATION:
 
-    def __init__(self, tx, rx, ch, chEst, slots=20, users=20, degree=2, packetSize=32, Q=7, seed=None):
-        self.tx = tx
-        self.rx = rx
+    def __init__(self, system, ch, chEst, slots=20, users=20, degree=2, packetSize=32, Q=7, seed=None):
+        self.system = system
         self.ch = ch
         self.chEst = chEst
         self.slots = slots
@@ -50,7 +49,7 @@ class moczSIMULATION:
                 slotUsers = FRAME[m]
                 for u in slotUsers:
                     msg = self.msgGen(u)
-                    sig_tx = self.tx.coeffCon(msg)
+                    sig_tx = self.system.coeffCon(msg)
                     sig_power = np.mean( np.abs(sig_tx)**2 )
                     sig_tx /= np.sqrt(sig_power)
                     signal += h[u-1] * sig_tx
@@ -74,10 +73,10 @@ class moczSIMULATION:
             else:
                 iterNo += 1
                 pktsInSlots[slot] -= 1
-                msg_rx = self.rx.fftDizet(frame[slot], self.Q)
+                msg_rx = self.system.fftDizet(frame[slot], self.Q)
                 # ---  MOCZ doesn't have any error detection mechanism in this simulation
                 # Coefficients reconstruction using the message decoded
-                sig_recon = self.tx.coeffCon(msg_rx)
+                sig_recon = self.system.coeffCon(msg_rx)
                 sig_power = np.mean( np.abs(sig_recon)**2 )
                 sig_recon /= np.sqrt(sig_power)
                 
@@ -106,7 +105,7 @@ class moczSIMULATION:
             slot = interferencedSlots[0]
             interferencedSlots.remove(slot)
             pktsInSlots[slot] -= 1
-            msg_rx = self.rx.fftDizet(frame[slot], self.Q)
+            msg_rx = self.system.fftDizet(frame[slot], self.Q)
             userId = bapm[slot][0]
             msg_hat[userId] = msg_rx
         return dict(sorted(msg_hat.items(), reverse=False))
@@ -130,9 +129,9 @@ class moczSIMULATION:
                 userId = bapm[slot][0]
                 uSlot = userSlots[userId]
                 pktsInSlots[slot] -= 1
-                msg_rx = self.rx.fftDizet(frame[slot], self.Q)
+                msg_rx = self.system.fftDizet(frame[slot], self.Q)
                 msg_hat[userId] = msg_rx
-                sig_recon = self.tx.coeffCon(msg_rx)
+                sig_recon = self.system.coeffCon(msg_rx)
                 sig_power = np.mean(np.abs(sig_recon)**2)
                 sig_recon /= np.sqrt(sig_power)
                 for s in uSlot:
