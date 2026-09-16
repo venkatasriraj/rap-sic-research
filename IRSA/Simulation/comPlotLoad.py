@@ -16,7 +16,7 @@ from wirelessComm.simulator import simulator
 # Simulation Parameters
 m, n = 20, 40
 degree = 2
-noIter = int(1e1)
+noIter = int(1e4)
 # LOAD = np.linspace(0.1, 1, 10)
 peakLoad = int(n/m)
 LOAD = np.arange(0.1, peakLoad+0.1, 0.1)

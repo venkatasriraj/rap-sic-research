@@ -13,9 +13,10 @@ from wirelessComm.BMOCZ import MOCZ
 
 class UidMOCZ(MOCZ):
 
-    def __init__(self, K, M):
+    def __init__(self, K, M, FLAG=1):
         super().__init__(K, M)
-        self.locations = int(K * M / 2 )
+        self.FLAG = FLAG
+        self.locations = int(K * M ) if self.FLAG == 1 else M  # int(K * M / 2)
         self.zero_geometry = self.codebook_con()
         self.pilotZero1 = [-1.25*self.R]
         self.pz2Rad = 1.75*self.R
@@ -26,7 +27,10 @@ class UidMOCZ(MOCZ):
         return [(Ri*np.exp(1j*theta*k), Ro*np.exp(1j*theta*k)) for k in range(self.K)]
 
     def uId_Sectors(self, userId):
+        # assert userId < self.locations * self.M
         uid1 = userId % self.locations
+        if self.FLAG == 0:
+            return uid1, 0, 0
         msgSector = userId // self.locations
         pz2_i = uid1 // self.M
         pz2_j = uid1 % self.M
@@ -39,7 +43,10 @@ class UidMOCZ(MOCZ):
 
     def coeffCon(self, msgTx, userId):
         msgSector, pz2_i, pz2_j = self.uId_Sectors(userId)
-        pilotZeros = np.concatenate((self.pilotZero1, [ self.pz2Rad * np.exp(1j*self.theta_K*(pz2_i*self.M + pz2_j))]), axis=None)
+        if self.FLAG == 1:
+            pilotZeros = np.concatenate((self.pilotZero1, [ self.pz2Rad * np.exp(1j*self.theta_K*(pz2_i*self.M + pz2_j))]), axis=None)
+        else:
+            pilotZeros = np.asarray(self.pilotZero1)
         zeroSelection = [ self.zero_geometry[mk][msgTx[mk]] * np.exp(1j*self.theta_K*msgSector) for mk in range(self.K)]
         zeroSelection = np.concatenate((zeroSelection, pilotZeros), axis=None)
         return self.toeplitz_iterator(zeroSelection)
@@ -64,8 +71,10 @@ class UidMOCZ(MOCZ):
         rotation_hat = rotate_hat - np.angle(self.pilotZero1[0])
         rotationMatrix = np.diag( np.exp(-1j*rotation_hat)**np.flip(np.arange(len(y))) )
         y_cfoCorrected = y @ rotationMatrix
-        # --- STAGE - 2
-        _, uid1_est = self.estRotation(y, Q, [self.pz2Rad])
         msgSector_est, msg_rx = self.ffo_est(y_cfoCorrected, Q)
+        if self.FLAG == 0:
+            return msg_rx, msgSector_est, rotation_hat
+        # --- STAGE - 2
+        _, uid1_est = self.estRotation(y_cfoCorrected, Q, [self.pz2Rad])
         userId_est = self.sectors_uId(msgSector_est, uid1_est)
-        return msg_rx, userId_est
+        return msg_rx, userId_est, rotation_hat

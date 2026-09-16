@@ -1,5 +1,5 @@
 from .BMOCZ import (
-    MOCZ, PMOCZ, UidMOCZ, BMOCZ,
+    MOCZ, PMOCZ, UidMOCZ, BMOCZ, SBMOCZ, JBMOCZ,
     moczSIMULATION, ACPC
 )
 from .CHANNEL import (

@@ -59,7 +59,7 @@ plt.ylabel("BER")
 plt.title(f"{noIter} packets per point")
 plt.legend(loc='upper left', framealpha=0.6, fontsize=7)
 plt.tight_layout()
-plt.savefig(f"results/PilotZero/Qanalysis/ber{K}.jpeg")
+plt.savefig(f"results/PilotZero/Qanalysis/berSNR{snr}.jpeg")
 
 plt.figure(2, dpi=800)
 for k, v in thr_K.items():
@@ -70,7 +70,7 @@ plt.ylabel("Throughput")
 plt.title(f"{noIter} packets per point")
 plt.legend(loc='lower left', framealpha=0.5, fontsize=7)
 plt.tight_layout()
-plt.savefig(f"results/PilotZero/Qanalysis/thr{K}.jpeg")
+plt.savefig(f"results/PilotZero/Qanalysis/thrSNR{snr}.jpeg")
 
 plt.figure(3, dpi=800)
 for k, v in rotation_K.items():
@@ -81,4 +81,4 @@ plt.ylabel("MAE of rotation")
 plt.title(f"{noIter} packets per point")
 plt.legend(loc='upper left', framealpha=0.6, fontsize=7)
 plt.tight_layout()
-plt.savefig(f"results/PilotZero/Qanalysis/rotation{K}.jpeg")
+plt.savefig(f"results/PilotZero/Qanalysis/rotationSNR{snr}.jpeg")

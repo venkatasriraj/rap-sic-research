@@ -46,22 +46,10 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [368, 12.0]
+    coordinate: [8, 128.0]
     rotation: 0
     state: enabled
-- name: samp_rate
-  id: variable
-  parameters:
-    comment: ''
-    value: '32000'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [184, 16.0]
-    rotation: 0
-    state: enabled
-- name: variable_0
+- name: bw
   id: variable
   parameters:
     comment: ''
@@ -70,8 +58,127 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [280, 16.0]
+    coordinate: [400, 88.0]
     rotation: 0
+    state: enabled
+- name: dist
+  id: variable
+  parameters:
+    comment: ''
+    value: '[(1.0, 2)]'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [264, 8.0]
+    rotation: 0
+    state: enabled
+- name: excess_bw
+  id: variable
+  parameters:
+    comment: ''
+    value: '0.35'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [464, 88.0]
+    rotation: 0
+    state: enabled
+- name: low_pass_filter_taps
+  id: variable_low_pass_filter_taps
+  parameters:
+    beta: '6.76'
+    comment: ''
+    cutoff_freq: 7.7e3
+    gain: '1.0'
+    samp_rate: samp_rate
+    value: ''
+    width: 10e3
+    win: window.WIN_HAMMING
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [168, 88.0]
+    rotation: 0
+    state: enabled
+- name: pktSize
+  id: variable
+  parameters:
+    comment: ''
+    value: '32'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [520, 8.0]
+    rotation: 0
+    state: enabled
+- name: samp_rate
+  id: variable
+  parameters:
+    comment: ''
+    value: '40000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [168, 8.0]
+    rotation: 0
+    state: enabled
+- name: slots
+  id: variable
+  parameters:
+    comment: ''
+    value: '3'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [360, 8.0]
+    rotation: 0
+    state: enabled
+- name: sps
+  id: variable
+  parameters:
+    comment: ''
+    value: '10'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [328, 88.0]
+    rotation: 0
+    state: enabled
+- name: totalPkts
+  id: variable
+  parameters:
+    comment: ''
+    value: '2'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [432, 8.0]
+    rotation: 0
+    state: enabled
+- name: blocks_message_strobe_0
+  id: blocks_message_strobe
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    msg: pmt.intern("TEST")
+    period: '1000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [88, 232.0]
+    rotation: 180
     state: enabled
 - name: blocks_throttle2_0
   id: blocks_throttle2
@@ -91,7 +198,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [728, 280.0]
+    coordinate: [1160, 344.0]
     rotation: 0
     state: enabled
 - name: digital_constellation_modulator_0
@@ -106,97 +213,397 @@ blocks:
     log: 'False'
     maxoutbuf: '0'
     minoutbuf: '0'
-    samples_per_symbol: '2'
+    samples_per_symbol: sps
     truncate: 'False'
     verbose: 'False'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [504, 264.0]
+    coordinate: [536, 328.0]
+    rotation: 0
+    state: enabled
+- name: digital_fll_band_edge_cc_0
+  id: digital_fll_band_edge_cc
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    filter_size: ''
+    improved_loop_filter: 'False'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    rolloff: '0.35'
+    samps_per_sym: sps
+    type: cc
+    w: ''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [488, 568.0]
     rotation: 0
     state: enabled
 - name: epy_block_0
   id: epy_block
   parameters:
-    _source_code: "import numpy as np\nfrom gnuradio import gr\nimport csv\nimport\
-      \ pmt\nimport random\n\nclass blk(gr.basic_block): \n\n    _AccessCode = [0xAA,\
-      \ 0xAA, 0xAA, 0xAA]\n    _filler = [0xAA, 0xAA, 0xAB, 0xAB]\n    _defaultLambda\
-      \ = [(1.0, 2)]\n    _packetSize = 24\n\n    def __init__(self, userId=1, slots=20,\
-      \ packets=5, lambda_dist=None, activeProb=0.6):  \n        gr.sync_block.__init__(\n\
-      \            self,\n            name='IRSA Frame Generator',   \n          \
-      \  in_sig=None,\n            out_sig=None\n        )\n        self.message_port_register_out(pmt.intern(\"\
-      out\"))\n        self.set_msg_handler(pmt.intern(\"out\"), self._handle_msg())\n\
-      \        self.userId = userId\n        self.packets = packets\n        self.slots\
-      \ = slots\n        self.frames = 0\n        self.sequenceNo = 0\n        self.activeProb\
-      \ = activeProb\n        # self.distribution = lambda_dist if self.validate_lambda(lambda_dist)\
-      \ else self._defaultLambda\n        self.distribution = self._defaultLambda\n\
-      \n    def _handle_msg(self):\n        print(\"Start of this Block\")\n\n   \
-      \ def frameGeneration(self):\n        self.frames += 1\n        if random.uniform(0,\
-      \ 1) < self.activeProb:\n            print(\"Frame Skipped\")\n        else:\n\
-      \            print(\"Packet will be transmitted\")\n            slotProb = random.uniform(0,\
-      \ 1.0)\n            degree = [p for p, d in self.distribution if p > slotProb][0]\n\
-      \            slotList = random.sample(range(1, self.slots+1), degree)\n    \
-      \        packet = self.packetGen(slotList)\n        return None\n\n    def packetGen(self,\
-      \ SLOTLIST):\n        \"\"\"\n        [Pilot Sequence[4B]| UserId[1B]| SequenceNo[1B]|\
-      \ FrameNo[1B]| SlotList[2 * 1B]| Payload[15B]| ]\n        \"\"\"\n        if\
-      \ self.sequenceNo >= self.packets:\n            return None\n        self.sequenceNo\
-      \ += 1\n        seqNo = self.sequenceNo & 0xFF\n        uId = self.userId &\
-      \ 0xFF\n        fId = self.frames & 0xFF\n        slotList = [s & 0xFF for s\
-      \ in SLOTLIST]\n        header = np.concatenate((self._AccessCode, uId, seqNo,\
-      \ fId, slotList), axis=None)\n        payloadSize = self._packetSize - len(header)\n\
-      \        payload = np.random.randint(0, 255, payloadSize)\n        packet =\
-      \ np.concatenate((header, payload))\n        return packet\n\n    def validate_lambda(self,\
-      \ dist):\n        if not dist:\n            raise ValueError(\"Distribution\
-      \ shouldn't be empty\")\n        prob = [p for p, d in dist]\n        if (prob[-1]\
-      \ - 1.0) > 1e-6:\n            raise ValueError(f\"Distribution should end with\
-      \ 1.0 but got {prob[-1]}\")\n        if prob != sorted(prob):\n            raise\
+    TotalPkts: totalPkts
+    _source_code: "import numpy as np\nfrom gnuradio import gr\nimport pmt\nimport\
+      \ random, binascii, csv\n\nclass blk(gr.basic_block): \n\n    _AccessCode =\
+      \ [0xAA, 0xAA, 0xAA, 0xAA]\n    _filler = [0xAA, 0xAA, 0xAB, 0xAB]\n    _defaultLambda\
+      \ = [(1.0, 2)]\n\n    def __init__(self, userId=1, slots=20, TotalPkts=5, lambda_dist=None,\
+      \ activeProb=0.6, pktSize=32):  \n        gr.basic_block.__init__(\n       \
+      \     self,\n            name='IRSA Frame Generator',   \n            in_sig=None,\n\
+      \            out_sig=None\n        )\n        self.userId = userId\n       \
+      \ self.TotalPkts = TotalPkts\n        self.slots = slots\n        self.activeProb\
+      \ = activeProb\n        self.distribution = self._defaultLambda\n        self.pktSize\
+      \ = pktSize\n        self.frameNo = 1\n        self.pktNo = 1\n        self.message_port_register_in(pmt.intern(\"\
+      Trigger\"))\n        self.message_port_register_out(pmt.intern(\"PDU\"))\n \
+      \       self.set_msg_handler(pmt.intern(\"Trigger\"), self._handle_msg)\n\n\
+      \    def _handle_msg(self, msg):\n        while self.pktNo <= self.TotalPkts:\n\
+      \            if random.uniform(0, 1) <= self.activeProb:\n                self.frameGeneration()\n\
+      \                print(f\"Pkt No {self.pktNo} is transmitted in frame {self.frameNo}\"\
+      )\n                self.pktNo += 1\n            else:\n                print(f\"\
+      Frame: {self.frameNo} is skipped\")\n            self.frameNo += 1\n\n    def\
+      \ genMetaData(self, metaInfo):\n        meta = pmt.make_dict()\n        for\
+      \ k, v in metaInfo.items():\n            meta = pmt.dict_add(meta, pmt.intern(f'{k}'),\
+      \ pmt.from_long(v))\n        return meta\n\n    def frameGeneration(self):\n\
+      \        # slotProb = random.uniform(0, 1.0)\n        slotProb = 1.0\n     \
+      \   degree = [d for p, d in self.distribution if p >= slotProb][0]\n       \
+      \ # degree = 2\n        # print(f\"degree: {degree}, {self.pktNo}\")\n     \
+      \   slotList = random.sample(range(1, self.slots+1), degree)\n        # -- Meta\
+      \ data generation and PDU conversion to transmit throught the chain\n      \
+      \  data = self.packetGen(slotList)\n        payload = pmt.init_u8vector(len(data),\
+      \ data.tolist())\n        metaInfo = dict()\n        for s in slotList:\n  \
+      \          metaInfo['slotNo'] = s\n            metaInfo['frameNo'] = self.frameNo\n\
+      \            meta = self.genMetaData(metaInfo)\n            packet = pmt.cons(meta,\
+      \ payload)\n            self.message_port_pub(pmt.intern(\"PDU\"), packet)\n\
+      \n    def packetGen(self, SLOTLIST):\n        \"\"\"\n        [Pilot Sequence[4B]|\
+      \ UserId[1B]| SequenceNo[1B]| FrameNo[1B]| SlotList[2 * 1B]| Payload[15B]| CRC\
+      \ (4B)| Filler (4B)]\n        \"\"\"\n        seqNo = [self.pktNo & 0xFF]\n\
+      \        uId = [self.userId & 0xFF]\n        fId = [self.frameNo & 0xFF]\n \
+      \       slotList = [s & 0xFF for s in SLOTLIST]\n        header = np.concatenate((uId,\
+      \ seqNo, fId, slotList), axis=None)\n        payloadSize = self.pktSize - len(header)\
+      \ - len(self._AccessCode) - 8\n        payload = np.random.randint(0, 255, payloadSize,\
+      \ dtype=np.uint8)\n        protected = np.concatenate((header, payload))\n \
+      \       # crc32_out = binascii.crc32(bytes(protected))\n        # crc32 = [(crc32_out>>8)&0xFF,\
+      \ crc32_out & 0xFF]\n        crc_val = binascii.crc32(bytes(protected)) & 0xFFFFFFFF\n\
+      \        crc_bytes = list(crc_val.to_bytes(4, byteorder='little'))\n       \
+      \ packet = np.concatenate((self._AccessCode, protected, crc_bytes, self._filler),\
+      \ axis=None)\n        return packet\n\n    def validate_lambda(self, dist):\n\
+      \        if not dist:\n            raise ValueError(\"Distribution shouldn't\
+      \ be empty\")\n        prob = [p for p, d in dist]\n        if (prob[-1] - 1.0)\
+      \ > 1e-6:\n            raise ValueError(f\"Distribution should end with 1.0\
+      \ but got {prob[-1]}\")\n        if prob != sorted(prob):\n            raise\
       \ ValueError(\"Distribution is not sorted\")"
+    activeProb: '1'
     affinity: ''
     alias: ''
     comment: ''
-    frames: '2'
+    lambda_dist: dist
     maxoutbuf: '0'
     minoutbuf: '0'
-    slots: '20'
+    pktSize: pktSize
+    slots: slots
     userId: '1'
   states:
     _io_cache: ('IRSA Frame Generator', 'blk', [('userId', '1'), ('slots', '20'),
-      ('frames', '2')], [], [('out', 'message', 1)], '', ['frames', 'slots', 'userId'])
+      ('TotalPkts', '5'), ('lambda_dist', 'None'), ('activeProb', '0.6'), ('pktSize',
+      '32')], [('Trigger', 'message', 1)], [('PDU', 'message', 1)], '', ['TotalPkts',
+      'activeProb', 'pktSize', 'slots', 'userId'])
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [88, 288.0]
+    coordinate: [88, 312.0]
     rotation: 0
     state: enabled
 - name: epy_block_1
   id: epy_block
   parameters:
-    _source_code: "import numpy as np\nfrom gnuradio import gr\n\n\nclass blk(gr.sync_block):\n\
-      \    def __init__(self, example_param=1.0):  \n        gr.sync_block.__init__(\n\
-      \            self,\n            name='Burst Inserter',   \n            in_sig=[np.complex64],\n\
-      \            out_sig=[np.complex64]\n        )\n        self.example_param =\
-      \ example_param\n\n    def work(self, input_items, output_items):\n        output_items[0][:]\
-      \ = input_items[0] * self.example_param\n        return len(output_items[0])\n"
+    _source_code: "import numpy as np\nfrom gnuradio import gr\nimport pmt\n\nclass\
+      \ blk(gr.basic_block):\n    def __init__(self, fs=40e3, sps=10, pktSize=32,\
+      \ slots=20, silenceFrames=10):  \n        gr.basic_block.__init__(\n       \
+      \     self,\n            name='Burst Inserter',   \n            in_sig=[np.complex64],\n\
+      \            out_sig=[np.complex64]\n        )\n        self.fs = int(fs)\n\
+      \        self.sps = sps\n        self.pktSize = pktSize\n        self.slots\
+      \ = slots\n        self.silenceFrames = silenceFrames\n        self.samplesPerSlot\
+      \ = (pktSize * 8 ) * sps\n        self.samplesPerFrame = self.samplesPerSlot\
+      \ * slots \n        self.pendingPkts = dict()\n        self.inProgress = None\n\
+      \        self.pktIdx = 0\n        self.inIdx = None\n\n    def general_work(self,\
+      \ input_items, output_items):\n        input = input_items[0]\n        output\
+      \ = output_items[0]\n        nInput = len(input)\n        nOutput = len(output)\n\
+      \        nread = self.nitems_read(0)\n        nwritten = self.nitems_written(0)\n\
+      \n        ## --- Detection of tags and storing the input samples to insert at\
+      \ appropriate sample index for frame synchronization\n        tags = self.get_tags_in_range(0,\
+      \ nread, nread+nInput)\n        for tag in tags:\n            offset = tag.offset\n\
+      \            relative_offset = offset - nread\n            frameNo = pmt.to_long(pmt.dict_ref(tag.value,\
+      \ pmt.intern(\"frameNo\"), pmt.PMT_NIL))\n            slotNo = pmt.to_long(pmt.dict_ref(tag.value,\
+      \ pmt.intern(\"slotNo\"), pmt.PMT_NIL))\n            index = (self.silenceFrames\
+      \ + frameNo - 1) * self.samplesPerFrame + (slotNo-1) * self.samplesPerSlot\n\
+      \            to_copy = min(len(input[relative_offset:]), self.samplesPerSlot)\n\
+      \            self.pendingPkts[index] = {\n                'data': input[relative_offset:\
+      \ relative_offset+to_copy],\n                'frameNo': frameNo,\n         \
+      \       'slotNo': slotNo\n            }\n            if to_copy != self.samplesPerSlot:\n\
+      \                self.inIdx = dict()\n                self.inIdx['dataIdx']\
+      \ = to_copy\n                self.inIdx['index'] = index\n            else:\n\
+      \                self.inIdx = None\n        if self.inIdx != None:\n       \
+      \     dataIdx = self.inIdx['dataIdx']\n            index = self.inIdx['index']\n\
+      \            if dataIdx <= self.samplesPerSlot:\n                to_copy = min(self.samplesPerSlot-dataIdx,\
+      \ nInput)\n                updateData = self.pendingPkts[index]['data']\n  \
+      \              self.pendingPkts[index]['data'] = np.concatenate((updateData,\
+      \ input[:to_copy]), axis=None)\n                dataIdx += to_copy\n       \
+      \     if dataIdx == self.samplesPerSlot:\n                self.inIdx = None\n\
+      \            else:\n                self.inIdx['dataIdx'] = dataIdx\n      \
+      \  tagIdx = sorted(self.pendingPkts.keys())\n        indicesSelected = [idx\
+      \ for idx in tagIdx if idx >= nwritten and idx < nwritten+nOutput]\n       \
+      \ print(f\"Indices Selected: {indicesSelected}, {nwritten}, {nwritten+nOutput},\
+      \ {tagIdx}\")\n        buffer = np.zeros(nOutput, dtype=np.complex64)\n    \
+      \    if self.inProgress is not None:\n            to_copy = min(len(self.inProgress[self.pktIdx:]),\
+      \ nOutput)\n            buffer[:to_copy] = self.inProgress[self.pktIdx:self.pktIdx+to_copy]\n\
+      \            self.pktIdx += to_copy\n        if len(indicesSelected) == 0:\n\
+      \            output[:] = buffer\n        else:\n            for idx in indicesSelected:\n\
+      \                relative_offset = idx - nwritten\n                self.inProgress\
+      \ = self.pendingPkts[idx]['data']\n                to_copy = min(self.samplesPerSlot,\
+      \ len(buffer[relative_offset:]))\n                buffer[relative_offset: relative_offset+to_copy]\
+      \ = self.inProgress[:to_copy]\n                self.pktIdx = to_copy\n     \
+      \           del self.pendingPkts[idx]\n            output[:] = buffer    \n\
+      \        if self.pktIdx == self.samplesPerSlot:\n            self.pktIdx = 0\n\
+      \            self.inProgress = None\n        return len(output_items[0])"
     affinity: ''
     alias: ''
     comment: ''
-    example_param: '1.0'
+    fs: samp_rate
     maxoutbuf: '0'
     minoutbuf: '0'
+    pktSize: pktSize
+    silenceFrames: '1'
+    slots: slots
+    sps: sps
   states:
-    _io_cache: ('Burst Inserter', 'blk', [('example_param', '1.0')], [('0', 'complex',
-      1)], [('0', 'complex', 1)], '', ['example_param'])
+    _io_cache: ('Burst Inserter', 'blk', [('fs', '40000.0'), ('sps', '10'), ('pktSize',
+      '32'), ('slots', '20'), ('silenceFrames', '10')], [('0', 'complex', 1)], [('0',
+      'complex', 1)], '', ['fs', 'pktSize', 'silenceFrames', 'slots', 'sps'])
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [904, 288.0]
+    coordinate: [760, 320.0]
+    rotation: 0
+    state: enabled
+- name: epy_block_2
+  id: epy_block
+  parameters:
+    _source_code: "import numpy as np\nfrom gnuradio import gr\nimport pmt\nfrom collections\
+      \ import deque\n\nclass blk(gr.sync_block):  \n\n    def __init__(self): \n\
+      \        gr.sync_block.__init__(\n            self,\n            name='EPB:\
+      \ PDU to Tagged Stream', \n            in_sig=None,\n            out_sig=[np.uint8]\n\
+      \        )\n        self.message_port_register_in(pmt.intern(\"PDU_in\"))\n\
+      \        self.set_msg_handler(pmt.intern(\"PDU_in\"), self._handle_msg)\n  \
+      \      self.pkts = deque()\n        self.inProgress = None\n        self.pktIdx\
+      \ = 0\n\n    def _handle_msg(self, msg):\n        meta = pmt.car(msg)\n    \
+      \    payload = pmt.cdr(msg)\n        data = np.array(pmt.u8vector_elements(payload),\
+      \ dtype=np.uint8)\n        frameNo = pmt.to_long(\n                    pmt.dict_ref(meta,\
+      \ pmt.intern(\"frameNo\"), pmt.PMT_NIL)\n        )\n        slotNo = pmt.to_long(\n\
+      \                    pmt.dict_ref(meta, pmt.intern(\"slotNo\"), pmt.PMT_NIL)\n\
+      \        )\n        self.pkts.append((data, frameNo, slotNo))\n\n    def work(self,\
+      \ input_items, output_items):\n        out = output_items[0]\n        produced\
+      \ = 0\n        nOutput = len(out)\n        while produced < nOutput:\n     \
+      \       #  --- New Packet\n            if self.inProgress is None:\n       \
+      \         if not self.pkts:\n                    break\n                self.inProgress\
+      \ = self.pkts.popleft()\n                self.pktIdx = 0\n                data,\
+      \ frameNo, slotNo = self.inProgress\n\n                tag_offset = self.nitems_written(0)\
+      \ + produced\n\n                value = pmt.make_dict()\n                value\
+      \ = pmt.dict_add(value, pmt.intern(\"frameNo\"), pmt.from_long(frameNo))\n \
+      \               value = pmt.dict_add(value, pmt.intern(\"slotNo\"), pmt.from_long(slotNo))\n\
+      \                value = pmt.dict_add(value, pmt.intern(\"pktLen\"), pmt.from_long(len(data)))\n\
+      \                self.add_item_tag(0, tag_offset, pmt.intern(\"pktInfo\"), value)\n\
+      \                # self.add_item_tag(0, tag_offset, pmt.intern(\"frameNo\"),\
+      \ pmt.from_long(frameNo))\n                # self.add_item_tag(0, tag_offset,\
+      \ pmt.intern(\"slotNo\"), pmt.from_long(slotNo))\n                # self.add_item_tag(0,\
+      \ tag_offset, pmt.intern(\"pktLen\"), pmt.from_long(len(data)))\n          \
+      \  ##  ---- Current Packet    \n            data, frameNo, slotNo = self.inProgress\n\
+      \            to_copy = min(len(data[self.pktIdx:]), nOutput-produced)\n\n  \
+      \          out[produced: produced+to_copy] = data[self.pktIdx: self.pktIdx+to_copy]\n\
+      \            self.pktIdx += to_copy\n            produced += to_copy\n\n   \
+      \         if self.pktIdx == len(data):\n                self.pktIdx = 0\n  \
+      \              self.inProgress = None\n        return produced"
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    _io_cache: '(''EPB: PDU to Tagged Stream'', ''blk'', [], [(''PDU_in'', ''message'',
+      1)], [(''0'', ''byte'', 1)], '''', [])'
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [312, 360.0]
+    rotation: 0
+    state: enabled
+- name: fft_filter_xxx_0
+  id: fft_filter_xxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    decim: '1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    nthreads: '1'
+    samp_delay: '0'
+    taps: low_pass_filter_taps
+    type: ccc
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [936, 336.0]
+    rotation: 0
+    state: enabled
+- name: filter_fft_rrc_filter_0
+  id: filter_fft_rrc_filter
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha: '0.35'
+    comment: ''
+    decim: '1'
+    gain: '1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    ntaps: 11*samp_rate
+    nthreads: '1'
+    samp_rate: samp_rate
+    sym_rate: '4000'
+    type: ccc
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [240, 556.0]
+    rotation: 0
+    state: enabled
+- name: qtgui_time_sink_x_0
+  id: qtgui_time_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'True'
+    axislabels: 'True'
+    color1: blue
+    color10: dark blue
+    color2: red
+    color3: green
+    color4: black
+    color5: cyan
+    color6: magenta
+    color7: yellow
+    color8: dark red
+    color9: dark green
+    comment: ''
+    ctrlpanel: 'False'
+    entags: 'True'
+    grid: 'True'
+    gui_hint: ''
+    label1: Signal 1
+    label10: Signal 10
+    label2: Signal 2
+    label3: Signal 3
+    label4: Signal 4
+    label5: Signal 5
+    label6: Signal 6
+    label7: Signal 7
+    label8: Signal 8
+    label9: Signal 9
+    legend: 'True'
+    marker1: '-1'
+    marker10: '-1'
+    marker2: '-1'
+    marker3: '-1'
+    marker4: '-1'
+    marker5: '-1'
+    marker6: '-1'
+    marker7: '-1'
+    marker8: '-1'
+    marker9: '-1'
+    name: '""'
+    nconnections: '1'
+    size: '1024'
+    srate: samp_rate
+    stemplot: 'False'
+    style1: '1'
+    style10: '1'
+    style2: '1'
+    style3: '1'
+    style4: '1'
+    style5: '1'
+    style6: '1'
+    style7: '1'
+    style8: '1'
+    style9: '1'
+    tr_chan: '0'
+    tr_delay: '0'
+    tr_level: '0.0'
+    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_slope: qtgui.TRIG_SLOPE_POS
+    tr_tag: '""'
+    type: complex
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    ylabel: Amplitude
+    ymax: '1'
+    ymin: '-1'
+    yunit: '""'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1160, 248.0]
+    rotation: 0
+    state: enabled
+- name: virtual_sink_0
+  id: virtual_sink
+  parameters:
+    alias: ''
+    comment: ''
+    stream_id: Tx_out
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1320, 352.0]
     rotation: 0
     state: enabled
 
 connections:
-- [blocks_throttle2_0, '0', epy_block_1, '0']
-- [digital_constellation_modulator_0, '0', blocks_throttle2_0, '0']
+- [blocks_message_strobe_0, strobe, epy_block_0, Trigger]
+- [blocks_throttle2_0, '0', virtual_sink_0, '0']
+- [digital_constellation_modulator_0, '0', epy_block_1, '0']
+- [epy_block_0, PDU, epy_block_2, PDU_in]
+- [epy_block_1, '0', fft_filter_xxx_0, '0']
+- [epy_block_2, '0', digital_constellation_modulator_0, '0']
+- [fft_filter_xxx_0, '0', blocks_throttle2_0, '0']
+- [fft_filter_xxx_0, '0', qtgui_time_sink_x_0, '0']
+- [filter_fft_rrc_filter_0, '0', digital_fll_band_edge_cc_0, '0']
 
 metadata:
   file_format: 1

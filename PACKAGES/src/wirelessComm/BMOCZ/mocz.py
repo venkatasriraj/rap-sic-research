@@ -62,7 +62,7 @@ class MOCZ:
         Y_singlePZ = np.abs( np.fft.ifft(y_pad) )
         subSector = np.argmin(Y_singlePZ)
         rotate_hat = ( np.pi * 2 * subSector / (N_fft) )
-        return rotate_hat, subSector/Q
+        return rotate_hat, subSector//Q
 
     @staticmethod
     def PAPR(signal):
@@ -87,3 +87,25 @@ class MOCZ:
             binData += [decData%2]
             decData //= 2
         return np.asarray(binData)[::-1]
+
+    @staticmethod
+    def DFT(x):
+        X_dft = np.fft.fft(x)
+        X_dftShifted = np.fft.fftshift(X_dft)
+        # X_mag = np.abs(X_dftShifted)**2
+        omega = np.fft.fftfreq(len(x), d=1)
+        omega_shifted = np.fft.fftshift(omega)
+        return X_dftShifted, omega_shifted
+
+    @staticmethod
+    def DTFT(x, resolution = 1024):
+        omega = np.linspace(-np.pi, np.pi, resolution)
+        X_dtft = np.zeros(len(omega), dtype=complex)
+        for n in range(len(x)):
+            X_dtft += x[n] * np.exp(-1j * omega * n)
+        return X_dtft, omega
+
+    @staticmethod
+    def AACF(x):
+        x_ctr = np.conjugate(x[::-1])
+        return np.convolve(x, x_ctr)

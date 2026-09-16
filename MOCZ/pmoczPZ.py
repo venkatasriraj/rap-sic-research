@@ -61,7 +61,7 @@ plt.title(f"PMOCZ Pilot-Zero {np.round(singlePZ, 4)} Analysis")
 plt.legend(loc='upper left', framealpha=0.6, fontsize=7)
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.tight_layout()
-plt.savefig(f"results/PMOCZ/PilotZero/papr{k}.jpeg")
+plt.savefig(f"results/PMOCZ/PilotZero/papr{K}.jpeg")
 
 plt.figure(2, dpi=800)
 for k, v in perM.items():
@@ -72,7 +72,7 @@ plt.title(f"PMOCZ Pilot-Zero {np.round(singlePZ, 4)} Analysis")
 plt.legend(loc='lower left', framealpha=0.6, fontsize=7)
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.tight_layout()
-plt.savefig(f"results/PMOCZ/PilotZero/per{k}.jpeg")
+plt.savefig(f"results/PMOCZ/PilotZero/per{K}.jpeg")
 
 plt.figure(3, dpi=800)
 for k, v in berM.items():
@@ -83,7 +83,7 @@ plt.title(f"PMOCZ Pilot-Zero {np.round(singlePZ, 4)} Analysis")
 plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.tight_layout()
-plt.savefig(f"results/PMOCZ/PilotZero/berr{k}.jpeg")
+plt.savefig(f"results/PMOCZ/PilotZero/berr{K}.jpeg")
 
 plt.figure(4, dpi=800)
 for k, v in maeRotationM.items():
@@ -94,7 +94,7 @@ plt.title(f"PMOCZ Pilot-Zero {np.round(singlePZ, 4)} Analysis")
 plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.tight_layout()
-plt.savefig(f"results/PMOCZ/PilotZero/maeRotation{k}.jpeg")
+plt.savefig(f"results/PMOCZ/PilotZero/maeRotation{K}.jpeg")
 
 plt.figure(5, dpi=800)
 for k, v in goodputM.items():
@@ -105,4 +105,4 @@ plt.title(f"PMOCZ Pilot-Zero {np.round(singlePZ, 4)} Analysis")
 plt.legend(loc='upper left', framealpha=0.6, fontsize=7)
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.tight_layout()
-plt.savefig(f"results/PMOCZ/PilotZero/goodput{k}.jpeg")
+plt.savefig(f"results/PMOCZ/PilotZero/goodput{K}.jpeg")
