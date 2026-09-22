@@ -10,13 +10,15 @@ zeta = 0.0545
 K = np.arange(8, 21)
 SNR_dB = np.arange(-10, 21, 3)
 perParam = PerformanceParameters()
-noIter = int(1e4)
+noIter = int(1e3)
+signalPower = 1
 ber_K, per_K, papr_K, rotationEst_K = {}, {}, {}, {}
 for k in K:
     sbmoczSystem = SBMOCZ(k, zeta)
     ber_snr, per_snr, papr_snr, rotationEst_snr = {}, {}, {}, {}
     for snr in SNR_dB:
-        ch = MultiPathFading(noise_var=0.01)
+        noiseVar = signalPower * 10**(-snr/10)
+        ch = MultiPathFading(noise_var=noiseVar)
         BER, PCR, PAPR, rotationEst = 0, 0, 0, 0
         for i in range(noIter):
             msgTx = np.random.randint(0, 2, k)
@@ -27,8 +29,8 @@ for k in K:
             rotation = np.random.uniform(0, 2*np.pi)
             sigRx = ch.transmit(sigTx, rotation)
 
-            sigRx_corrected, rotation_hat = sbmoczSystem.rotationEst(sigRx, Ns=256)
-            msgRx = sbmoczSystem.msgDecoder(sigRx_corrected)
+            sigRx_corrected, rotation_hat = sbmoczSystem.rotationEst(sigRx)
+            msgRx = sbmoczSystem.smooshedDecoder(sigRx_corrected)
             BER += perParam.ber(msgRx, msgTx)
             PCR += perParam.pcr(msgRx, msgTx)
             PAPR += sbmoczSystem.PAPR(sigTx)
@@ -37,6 +39,8 @@ for k in K:
         per_snr[snr] = 1 - (PCR/noIter)
         papr_snr[snr] = PAPR/noIter
         rotationEst_snr[snr] = rotationEst/noIter
+        # result = sbmoczSystem.simulator(noIter, perParam, ch)
+        # ber_snr[snr], per_snr[snr], papr_snr[snr], rotationEst_snr[snr] = result['ber'], 1 - result['pcr'], result['papr'], result['rotationEst']
     print(f"Block-Length(K): {k} Done")
     ber_K[k] = ber_snr
     per_K[k] = per_snr
@@ -53,7 +57,7 @@ plt.ylabel("BER")
 plt.title("SBMOCZ BER Analysis")
 plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
 plt.tight_layout()
-plt.savefig(f"results/BMOCZ/smooshed/berz{zeta}.jpeg")
+plt.savefig(f"results/SBMOCZ/berz{zeta}.jpeg")
 
 plt.figure(2, dpi=800)
 for k, v in per_K.items():
@@ -64,7 +68,7 @@ plt.ylabel("PER")
 plt.ylim(1e-6, 1)
 plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
 plt.tight_layout()
-plt.savefig(f"results/BMOCZ/smooshed/perz{zeta}.jpeg")
+plt.savefig(f"results/SBMOCZ/perz{zeta}.jpeg")
 
 plt.figure(3, dpi=800)
 for k, v in papr_K.items():
@@ -75,7 +79,7 @@ plt.ylabel("PAPR")
 plt.title("SBMOCZ PAPR Analysis")
 plt.legend(loc='upper left', framealpha=0.6, fontsize=7)
 plt.tight_layout()
-plt.savefig(f"results/BMOCZ/smooshed/paprz{zeta}.jpeg")
+plt.savefig(f"results/SBMOCZ/paprz{zeta}.jpeg")
 
 plt.figure(4, dpi=800)
 for k, v in rotationEst_K.items():
@@ -86,4 +90,4 @@ plt.ylabel("Normalised RotationEst")
 plt.title("SBMOCZ Normalised RotationEst Analysis")
 plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
 plt.tight_layout()
-plt.savefig(f"results/BMOCZ/smooshed/rotationEstz{zeta}.jpeg")
+plt.savefig(f"results/SBMOCZ/rotationEstz{zeta}.jpeg")

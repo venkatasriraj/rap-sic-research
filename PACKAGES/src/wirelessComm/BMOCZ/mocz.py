@@ -31,7 +31,7 @@ class MOCZ:
 
                 c = T @ c
         x = c.flatten()
-        # polynomial in the increasing power of x is transmitted
+        # polynomial in the increasing power of x (polynomial degree) is transmitted
         return x[::-1]
 
     def fftCon(self, y, Q):
@@ -50,7 +50,11 @@ class MOCZ:
         Y_eval = np.abs( np.fft.ifft(y_pad) )
         Y_ctr_eval = np.abs( np.fft.ifft(y_ctr_pad) )
         return Y_eval, Y_ctr_eval
-    
+
+    def fftDizet(self, y, Q=2):
+        Y_eval, Y_ctr_eval = self.fftCon(y, Q)
+        message_received = ( 1 - np.sign( Y_eval[::Q] - Y_ctr_eval[::Q] ) ) / 2 
+        return message_received.astype(int)
     #  ------ Method to etimate the rotation of zeros using single pilot placed in z-domain
 
     def estRotation(self, y, Q, singlePZ):
@@ -64,6 +68,28 @@ class MOCZ:
         rotate_hat = ( np.pi * 2 * subSector / (N_fft) )
         return rotate_hat, subSector//Q
 
+    # instead selecting the sub-sector which has minimum distance across all sub-sectors, 
+    # we select the sub-sector independently across all sectors and select the sub-sector
+    # which has maximum occurence
+    
+    # def majorityVoteDecoder(self, y, Q):
+    #     Y_eval, Y_ctr_eval = self.fftCon(y, Q)
+    #     min_q = np.zeros(Q*self.M, dtype=int)
+    #     for k in range(self.K):
+    #         min_dist, min_idx = np.inf, 0
+    #         for q in range(Q * self.M):
+    #             idx = (Q * self.M * k + q) % len(Y_eval)
+    #             temp = min(Y_eval[idx], Y_ctr_eval[idx])
+    #             if temp < min_dist:
+    #                 min_dist = temp
+    #                 min_idx = q
+    #         min_q[min_idx] += 1
+    #     q_est = np.argmax(min_q)
+    #     msgDecoded = ( 1 - np.sign(Y_eval[q_est::Q*self.M] - Y_ctr_eval[q_est::Q*self.M]) )/2
+    #     # if self.M == 1:
+    #     #     return q_est, np.asarray(msgDecoded, dtype=np.int8)
+    #     return q_est//Q, msgDecoded.astype(int) 
+
     @staticmethod
     def PAPR(signal):
         # signal_max = np.abs( np.sum(signal) )
@@ -76,6 +102,8 @@ class MOCZ:
     
     @staticmethod
     def bin2dec(binData):
+        if len(binData) == 0:
+            return 0
         power2 = 2**np.arange(len(binData))[::-1]
         return int(np.sum(binData * power2))
 
@@ -102,7 +130,7 @@ class MOCZ:
         omega = np.linspace(-np.pi, np.pi, resolution)
         X_dtft = np.zeros(len(omega), dtype=complex)
         for n in range(len(x)):
-            X_dtft += x[n] * np.exp(-1j * omega * n)
+            X_dtft += x[n] * np.exp(1j * omega * n)
         return X_dtft, omega
 
     @staticmethod

@@ -13,11 +13,11 @@ import matplotlib.pyplot as plt
 from wirelessComm import (
     BMOCZ, SlowFadingChannel, ChannelEstimation, PerformanceParameters
 )
-SNR_dB = np.arange(-10, 21, 2)
-noIter = int(1e2)
+SNR_dB = np.arange(-10, 46, 5)
+noIter = int(1e3)
 signal_power = 1
 pathLoss = 1
-K = 32
+K = 16
 Q = 4
 bmoczSystem = BMOCZ(K)
 chEst = ChannelEstimation()
@@ -73,10 +73,11 @@ for snr in SNR_dB:
     print(f"SNR: {snr} done")
 
 plt.figure(1, dpi=800)
-plt.plot(BER_32.keys(), BER_32.values(), '-')
+plt.semilogy(BER_32.keys(), BER_32.values(), '-')
 plt.grid(True)
 plt.xlabel("SNR(dB)")
 plt.ylabel("BER")
+plt.ylim(1e-4, 1)
 plt.title(f"{noIter} packets per point for Msg Len = {K}.")
 plt.savefig(f"results/BMOCZ/SNRAnalysis/BER_k{K}.jpeg")
 
@@ -89,10 +90,11 @@ plt.title(f"{noIter} packets per point for Msg Len = {K}.")
 plt.savefig(f"results/BMOCZ/SNRAnalysis/MAE_h_k{K}.jpeg")
 
 plt.figure(3, dpi=800)
-plt.plot(PER_32.keys(), PER_32.values(), '-')
+plt.semilogy(PER_32.keys(), PER_32.values(), '-')
 plt.grid(True)
 plt.xlabel("SNR(dB)")
 plt.ylabel("PER")
+plt.ylim(1e-4, 1)
 plt.title(f"{noIter} packets per point for Msg Len = {K}.")
 plt.savefig(f"results/BMOCZ/SNRAnalysis/PER_k{K}.jpeg")
 

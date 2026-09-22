@@ -44,11 +44,6 @@ class BMOCZ(MOCZ):
         y_ffo = y @ M_theta
         return y_ffo
 
-    def fftDizet(self, y, Q):
-        Y_eval, Y_ctr_eval = self.fftCon(y, Q)
-        message_received = ( 1 - np.sign( Y_eval[::Q] - Y_ctr_eval[::Q] ) ) / 2 
-        return message_received.astype(int)
-
     #--- Conclusion of MOCZ Decoder 
     # -- Beginning of MOCZ Pilot-Zero Decoder
 
@@ -76,9 +71,112 @@ class BMOCZ(MOCZ):
         rotation_hat = rotate_hat - np.angle(singlePZ[0]) # if rotate_hat >= 0 else (2*np.pi + rotate_hat)
         rotationMatrix = np.diag( np.exp(-1j*rotation_hat) ** np.flip(np.arange(len(y))) )
         y_corrected = y @ rotationMatrix
-        # y_fft = self.fftSig(y_corrected)
         Yo, Yi = self.PZfftCon(y_corrected)
         msgDecoded = ( 1 + np.sign(Yi - Yo) ) / 2
-        return msgDecoded, rotate_hat
+        return msgDecoded.astype(int), rotate_hat
+
+    # def pilotFROdecoder(self, y, Q):
+    #     Y_eval, Y_ctr_eval = self.fftCon(y, Q)
+    #     min_q = {}
+    #     for q in range(Q):
+    #         sumZero = 0
+    #         for k in range(self.K):
+    #             idx = (Q * k + q) % len(Y_eval)
+    #             sumZero += min(Y_eval[idx], Y_ctr_eval[idx])
+    #         min_q[q] = sumZero
+    #     q_est = min(min_q, key=min_q.get)
+    #     msgDecoded = ( 1 + np.sign(Y_ctr_eval[q_est::Q] - Y_eval[q_est::Q]) ) / 2
+    #     # msgDecoded = ( 1 - np.sign(Y_eval[::Q] - Y_ctr_eval[::Q]) )/2
+    #     return msgDecoded.astype(int)
+
+    # def majorityVoteDecoder(self, y, Q):
+    #     Y_eval, Y_ctr_eval = self.fftCon(y, Q)
+    #     min_q = np.zeros(Q, dtype=int)
+    #     for k in range(self.K):
+    #         min_dist, min_idx = np.inf, 0
+    #         for q in range(Q):
+    #             idx = (Q * k + q) % len(Y_eval)
+    #             temp = min(Y_eval[idx], Y_ctr_eval[idx])
+    #             if temp < min_dist:
+    #                 min_dist = temp
+    #                 min_idx = q
+    #         min_q[min_idx] += 1
+    #     q_est = np.argmax(min_q)
+    #     msgDecoded = ( 1 - np.sign(Y_eval[q_est::Q] - Y_ctr_eval[q_est::Q]) )/2
+    #     return msgDecoded
+
+    # def pilotDecoder_MV(self, y, Q, singlePZ):
+    #     rotate_hat, subSector = self.estRotation(y, Q, singlePZ)
+    #     rotation_hat = rotate_hat - np.angle(singlePZ[0])
+    #     rotationMatrix = np.diag( np.exp(1j * rotation_hat * ( np.arange(len(y)) ) ) )
+    #     y_corrected = y @ rotationMatrix
+    #     subSectorEst, msgRx = self.majorityVoteDecoder(y_corrected, Q)
+    #     return msgRx, rotate_hat
+
+    # def pilotDecoder_FRO(self, y, Q, singlePZ):
+    #     rotate_hat, subSector = self.estRotation(y, Q, singlePZ)
+    #     rotation_hat = rotate_hat - np.angle(singlePZ[0])
+    #     rotationMatrix = np.diag( np.exp(1j * rotation_hat * ( np.arange(len(y)) ) ) )
+    #     y_corrected = y @ rotationMatrix
+    #     msgRx = self.pilotFROdecoder(y_corrected, Q)
+    #     return msgRx, rotate_hat      
+
+    # def pilotDecoder_FracInt(self, y, Q, singlePZ):
+    #     y_ffoCorrected = self.ffoEstCor(y, Q)
+    #     return self.singlePZDecodedMsg(y_ffoCorrected, Q, singlePZ)  
 
     #  ----- Conculsion of MOCZ Pilot-Zero Decoder
+
+    def simulator(self, noIter, perParam, ch, PZrad=1.25, Q=64):
+        singlePZ = [-PZrad*self.R]
+        BER, PCR, PAPR, rotationEst = 0, 0, 0, 0
+        for _ in range(noIter):
+            msgTx = np.random.randint(0, 2, self.K)
+            sigTx = self.coeffCon(msgTx, singlePZ)
+            sigPower = np.mean(np.abs(sigTx)**2)
+            sigTx /= np.sqrt(sigPower)
+
+            rotation = np.random.uniform(0, 2*np.pi)
+            sigRx = ch.transmit(sigTx, rotation)
+
+            msgRx, rotation_hat = self.singlePZDecodedMsg(sigRx, Q, singlePZ)
+
+            BER += perParam.ber(msgRx, msgTx)
+            PCR += perParam.pcr(msgRx, msgTx)
+            PAPR += self.PAPR(sigTx)
+            rotationEst += np.abs(rotation_hat - rotation) / rotation
+        return dict({
+                'ber': BER/noIter,
+                'pcr': PCR/noIter,
+                'papr': PAPR/noIter,
+                'rotationEst': rotationEst/noIter
+        })
+
+    def simulatorACPC(self, noIter, perParam, ch, acpc, Q=64):
+        BER, PCR, PAPR, lEst = 0, 0, 0, 0
+        for _ in range(noIter):
+            msgTx = np.random.randint(0, 2, acpc.B)
+            msgEnc = acpc.msg_encoding(msgTx)
+
+            sigTx = self.coeffCon(msgEnc)
+            sigPower = np.mean(np.abs(sigTx)**2)
+            sigTx /= np.sqrt(sigPower)
+
+            rotation = np.random.uniform(0, 2*np.pi)
+            l = np.floor(rotation / (2*np.pi/self.K))
+
+            sigRx = ch.transmit(sigTx, rotation)
+            sigFROcorrected = self.ffoEstCor(sigRx, Q)
+            estCodeword = self.fftDizet(sigFROcorrected, Q)
+            msgRx, l_hat = acpc.codeword_decoding(estCodeword)
+
+            BER += perParam.ber(msgRx, msgTx)
+            PCR += perParam.pcr(msgRx, msgTx)
+            PAPR += self.PAPR(sigTx)
+            lEst += abs(l_hat - l) / (l+1)
+        return dict({
+                'ber': BER/noIter,
+                'pcr': PCR/noIter,
+                'papr': PAPR/noIter,
+                'lEst': lEst/noIter
+        })
