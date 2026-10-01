@@ -79,12 +79,12 @@ class IMMOCZ(MOCZ):
         # msgSector_est, msg_rx = self.ffoDecoder(y_cfoCorrected, Q)
         msgSector_est, msg_rx = self.msgDecoder(y_cfoCorrected)
         if self.M == 1:
-            return msg_rx, msgSector_est, rotation_hat
+            return np.asarray(msg_rx, dtype=np.uint8), msgSector_est, rotation_hat
         addBitsEst = self.dec2bin(msgSector_est)
         if len(addBitsEst) != self.addBitsLen:
             addBitsEst = np.concatenate(([0]*(self.addBitsLen-len(addBitsEst)), addBitsEst), axis=None)
         msg_rx = np.concatenate((addBitsEst, msg_rx), axis=None)
-        return msg_rx, msgSector_est, rotation_hat
+        return np.asarray(msg_rx, dtype=np.uint8), msgSector_est, rotation_hat
 
     def simulator(self, noIter, perParam, ch, Q=64):
         BER, PCR, PAPR, rotationEst, sectorEst, payloadEst = 0, 0, 0, 0, 0, 0

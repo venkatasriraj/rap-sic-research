@@ -113,7 +113,7 @@ class UidMOCZ(MOCZ):
         if len(uidBitsEst) != self.UIDbits:
             uidBitsEst = np.concatenate( ([0]*(self.UIDbits-len(uidBitsEst)), uidBitsEst), axis=None )
         msg_hat = np.concatenate((uidBitsEst, msg_rx), axis=None)
-        return msg_hat, userId_est, rotation_hat
+        return np.asarray(msg_hat, dtype=np.uint8), userId_est, rotation_hat
 
     def simulator(self, noIter, perParam, ch, Q=64):
         BER, PCR, PAPR, rotationEst, payloadEst, uIdEst = 0, 0, 0, 0, 0, 0

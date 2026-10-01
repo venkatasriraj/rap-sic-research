@@ -96,9 +96,10 @@ class MOCZ:
         signal_max = np.max( np.abs(signal) )**2
         signal_power = np.mean( np.abs(signal)**2 )
         papr = signal_max / signal_power
+        papr_dB = 10*np.log10(papr)
         # print(f"Signal Power: {signal_power}, PAPR: {papr}, Signal Energy: "
         #         f"{signal_power * len(signal)}, Max Abs Coeff: {np.max(np.abs(signal))}")
-        return papr
+        return papr_dB
     
     @staticmethod
     def bin2dec(binData):

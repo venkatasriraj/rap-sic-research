@@ -58,7 +58,7 @@ for k, v in rotationEstK.items():
 plt.xlabel("SNR(dB)")
 plt.ylabel("Normalised MAE of roation")
 plt.grid(True, alpha=0.6, linestyle='--')
-plt.title("BMOCZ-PZ BER Analysis")
+plt.title("BMOCZ-PZ Rotation Est Analysis")
 plt.legend(loc='lower left', framealpha=0.6, fontsize=7)
 plt.tight_layout()
 plt.savefig(f"results/PilotZero/SNRAnalysis/rotationEst.jpeg")

@@ -12,10 +12,12 @@ from .mocz import MOCZ
 
 class JBMOCZ(MOCZ):
 
-    def __init__(self, K, zeta=1, Ns=1024):
+    def __init__(self, K, zeta=1, Ns=1024, Rj=None):
         super().__init__(K, M=1)
         self.zeta = zeta
         self.Ns = Ns
+        if Rj != None:
+            self.R = Rj
         self.zero_geometry = self.codebook_con()
         self.template = self.templateCon()
 
@@ -44,16 +46,23 @@ class JBMOCZ(MOCZ):
         return y_corrected, abs(phi_hat)
 
     # JBMOCZ Simulator
-    def simulator(self, noIter, perParam, ch):
-        BER, PCR, PAPR, rotationEst = 0, 0, 0, 0
+    def simulator(self, noIter, perParam, ch, FLAG="AWGN"):
+        BER, PCR, PAPR, rotationEst, rotation = 0, 0, 0, 0, 1e-7
         for _ in range(noIter):
             msgTx = np.random.randint(0, 2, self.K)
             sigTx = self.coeffCon(msgTx)
             sigPower = np.mean(np.abs(sigTx)**2)
             sigTx /= np.sqrt(sigPower)
 
-            rotation = np.random.uniform(0, 2*np.pi)
-            sigRx = ch.transmit(sigTx, rotation)
+            if FLAG == "CFO":
+                rotation = np.random.uniform(0, 2*np.pi)
+                sigRx = ch.CFO(sigTx, rotation)
+            elif FLAG == "BF":
+                sigRx, _ = ch.blockFading(sigTx)
+            elif FLAG == "AWGN":
+                sigRx = ch.awgn(sigTx)
+            elif FLAG == "FS":
+                sigRx, _ = ch.frequencySelective(sigTx)
 
             sigRxCorrected, rotation_hat = self.rotationEst(sigRx)
             msgRx = self.fftDizet(sigRxCorrected)
@@ -61,7 +70,8 @@ class JBMOCZ(MOCZ):
             BER += perParam.ber(msgRx, msgTx)
             PCR += perParam.pcr(msgRx, msgTx)
             PAPR += self.PAPR(sigTx)
-            rotationEst += np.abs(rotation_hat - rotation) / rotation
+            mae = np.abs(rotation - rotation_hat) if np.abs(rotation - rotation_hat) < np.pi else 2*np.pi-np.abs(rotation - rotation_hat)
+            rotationEst += mae/rotation
         return dict({
                     'ber': BER/noIter,
                     'pcr': PCR / noIter,

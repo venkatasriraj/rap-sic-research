@@ -10,17 +10,17 @@ class MultiPathFading(Channel):
         self.chVar = chVar
         self.taps = taps
 
-    def transmit(self, signal, rotation):
+    def CFO(self, signal, rotation):
         # attenuation provided by the channel
         r = 1 # np.random.random()
         h = r * [ np.exp(1j * rotation * i) for i in range(len(signal)-1, -1, -1) ]
         return (signal + self.awgn_noise(len(signal))) * h
+        # return signal * h
 
     def multitapCh(self):
-        chTapVar = self.chVar / self.taps
-        return np.sqrt(1/chTapVar) * ( np.random.randn(self.taps) + 1j * np.random.randn(self.taps) )
+        return np.sqrt(self.chVar / 2 ) * ( np.random.randn(self.taps) + 1j * np.random.randn(self.taps) )
 
-    def multipathTransmit(self, signal):
+    def frequencySelective(self, signal):
         freqSelCh = self.multitapCh()
         rxSig = np.convolve(signal, freqSelCh)
         return rxSig + self.awgn_noise(len(rxSig)), freqSelCh

@@ -8,12 +8,12 @@ from .mocz import MOCZ
 
 class SBMOCZ(MOCZ):
 
-    def __init__(self, K, zeta=1, Ns=256):
+    def __init__(self, K, zeta=1, Ns=256, Rs=None):
         super().__init__(K, M=1)
         self.zeta = zeta
         self.Ns = Ns
         self.theta = ( (2*np.pi-zeta)*np.arange(K)/K  + (2*np.pi + zeta*(K-1))/(2*K) )
-        self.Rs = np.sqrt( 1 + np.sin( (2*np.pi-zeta) / (2 * K) ) )
+        self.Rs = np.sqrt( 1 + np.sin( (2*np.pi-zeta) / (2 * K) ) ) if Rs == None else Rs
 
     def coeffCon(self, msg):
         zeros = [self.Rs**(2*msg[k]-1)*np.exp(1j*self.theta[k]) for k in range(self.K)]
@@ -31,23 +31,31 @@ class SBMOCZ(MOCZ):
         msgRx = (1 - np.sign( Y_eval[1::2] - Y_ctr_eval[1::2])) / 2
         return msgRx
 
-    def simulator(self, noIter, perParam, ch):
-        BER, PCR, PAPR, rotationEst = 0, 0, 0, 0
+    def simulator(self, noIter, perParam, ch, FLAG="AWGN"):
+        BER, PCR, PAPR, rotationEst, rotation = 0, 0, 0, 0, 1e-7
         for _ in range(noIter):
             msgTx = np.random.randint(0, 2, self.K)
             sigTx = self.coeffCon(msgTx)
             sigPower = np.mean(np.abs(sigTx)**2)
             sigTx /= np.sqrt(sigPower)
 
-            rotation = np.random.uniform(0, 2*np.pi)
-            sigRx = ch.transmit(sigTx, rotation)
+            if FLAG == "CFO":
+                rotation = np.random.uniform(0, 2*np.pi)
+                sigRx = ch.CFO(sigTx, rotation)
+            elif FLAG == "BF":
+                sigRx, _ = ch.blockFading(sigTx)
+            elif FLAG == "AWGN":
+                sigRx = ch.awgn(sigTx)
+            elif FLAG == "FS":
+                sigRx, _ = ch.frequencySelective(sigTx)
 
             sigRx_corrected, rotation_hat = self.rotationEst(sigRx)
             msgRx = self.smooshedDecoder(sigRx_corrected)
             BER += perParam.ber(msgRx, msgTx)
             PCR += perParam.pcr(msgRx, msgTx)
             PAPR += self.PAPR(sigTx)
-            rotationEst += np.abs(rotation-rotation_hat)/rotation
+            mae = np.abs(rotation - rotation_hat) if np.abs(rotation - rotation_hat) < np.pi else 2*np.pi-np.abs(rotation - rotation_hat)
+            rotationEst += mae/rotation
         return dict({
                 'ber': BER/noIter,
                 'pcr': PCR/noIter,

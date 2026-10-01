@@ -1,11 +1,16 @@
 import numpy as np
 from .mocz import MOCZ
+from scipy.linalg import toeplitz
 
 class BMOCZ(MOCZ):
 
-    def __init__(self, K):
+    def __init__(self, K, Ns=512, PZrad=1.25, singlePZ = []):
         super().__init__(K)
         self.zero_geometry = self.codebook_con()
+        self.Ns = Ns
+        self.PZrad = PZrad
+        self.PZ = singlePZ
+        self.template = self.templateCon()
 
     def codebook_con(self):
         Ri, Ro = self.R**(-1), self.R
@@ -13,7 +18,7 @@ class BMOCZ(MOCZ):
         return zero_cb
 
     def zeroSelection(self, msg):
-        return [self.zero_geometry[mk][msg[mk]] for mk in range(self.K)]
+        return [self.zero_geometry[mk][msg[mk]]*np.exp(1j*np.pi*0/self.K) for mk in range(self.K)]
     
     def coeffCon(self, msg, singlePZ = []):
         zeros = self.zeroSelection(msg)
@@ -73,21 +78,22 @@ class BMOCZ(MOCZ):
         y_corrected = y @ rotationMatrix
         Yo, Yi = self.PZfftCon(y_corrected)
         msgDecoded = ( 1 + np.sign(Yi - Yo) ) / 2
+        # msgDecoded = self.fftDizet(y_corrected)
         return msgDecoded.astype(int), rotate_hat
 
-    # def pilotFROdecoder(self, y, Q):
-    #     Y_eval, Y_ctr_eval = self.fftCon(y, Q)
-    #     min_q = {}
-    #     for q in range(Q):
-    #         sumZero = 0
-    #         for k in range(self.K):
-    #             idx = (Q * k + q) % len(Y_eval)
-    #             sumZero += min(Y_eval[idx], Y_ctr_eval[idx])
-    #         min_q[q] = sumZero
-    #     q_est = min(min_q, key=min_q.get)
-    #     msgDecoded = ( 1 + np.sign(Y_ctr_eval[q_est::Q] - Y_eval[q_est::Q]) ) / 2
-    #     # msgDecoded = ( 1 - np.sign(Y_eval[::Q] - Y_ctr_eval[::Q]) )/2
-    #     return msgDecoded.astype(int)
+    def pilotFROdecoder(self, y, Q):
+        Y_eval, Y_ctr_eval = self.fftCon(y, Q)
+        min_q = {}
+        for q in range(Q):
+            sumZero = 0
+            for k in range(self.K):
+                idx = (Q * k + q) % len(Y_eval)
+                sumZero += min(Y_eval[idx], Y_ctr_eval[idx])
+            min_q[q] = sumZero
+        q_est = min(min_q, key=min_q.get)
+        msgDecoded = ( 1 + np.sign(Y_ctr_eval[q_est::Q] - Y_eval[q_est::Q]) ) / 2
+        # msgDecoded = ( 1 - np.sign(Y_eval[::Q] - Y_ctr_eval[::Q]) )/2
+        return msgDecoded.astype(int)
 
     # def majorityVoteDecoder(self, y, Q):
     #     Y_eval, Y_ctr_eval = self.fftCon(y, Q)
@@ -121,35 +127,58 @@ class BMOCZ(MOCZ):
     #     msgRx = self.pilotFROdecoder(y_corrected, Q)
     #     return msgRx, rotate_hat      
 
-    # def pilotDecoder_FracInt(self, y, Q, singlePZ):
-    #     y_ffoCorrected = self.ffoEstCor(y, Q)
-    #     return self.singlePZDecodedMsg(y_ffoCorrected, Q, singlePZ)  
+    def pilotDecoder_FracInt(self, y, singlePZ, Q=64):
+        # integer rotation est using the pilot-zero
+        rotate_hat, subSector = self.estRotation(y, Q, singlePZ) 
+        rotation_hat = rotate_hat - np.angle(singlePZ[0]) # if rotate_hat >= 0 else (2*np.pi + rotate_hat)
+        rotationMatrix = np.diag( np.exp(-1j*rotation_hat) ** np.flip(np.arange(len(y))) )
+        y_IROcorrected = y @ rotationMatrix
+        msgRx = self.pilotFROdecoder(y_IROcorrected, Q=2)
+        return msgRx, rotation_hat
+
+        # y_ffoCorrected = self.ffoEstCor(y, Q)
+        # return self.singlePZDecodedMsg(y_ffoCorrected, Q, singlePZ)  
 
     #  ----- Conculsion of MOCZ Pilot-Zero Decoder
 
-    def simulator(self, noIter, perParam, ch, PZrad=1.25, Q=64):
-        singlePZ = [-PZrad*self.R]
+    def simulator(self, noIter, perParam, ch, PZrad=0, Q=64, FLAG="BF"):
         BER, PCR, PAPR, rotationEst = 0, 0, 0, 0
+        rotation, rotation_hat = 1e-7, 1e-7
+        singlePZ = [-PZrad * self.R]
         for _ in range(noIter):
-            msgTx = np.random.randint(0, 2, self.K)
+            msgTx =  np.random.randint(0, 2, self.K)
             sigTx = self.coeffCon(msgTx, singlePZ)
             sigPower = np.mean(np.abs(sigTx)**2)
             sigTx /= np.sqrt(sigPower)
 
-            rotation = np.random.uniform(0, 2*np.pi)
-            sigRx = ch.transmit(sigTx, rotation)
+            if FLAG == "BF":
+                sigRx, _ = ch.blockFading(sigTx)
+            elif FLAG == "FS":
+                sigRx, _ = ch.frequencySelective(sigTx)
+            elif FLAG == "CFO":
+                rotation = np.random.uniform(0, 2*np.pi)
+                sigRx = ch.CFO(sigTx, rotation)
+            elif FLAG == "AWGN":
+                sigRx = ch.awgn(sigTx)
 
-            msgRx, rotation_hat = self.singlePZDecodedMsg(sigRx, Q, singlePZ)
+            if PZrad != 0:
+                # msgRx, rotation_hat = self.singlePZDecodedMsg(sigRx, Q, singlePZ)
+                sigRxCorrected, rotation_hat = self.rotationEstTemplate(sigRx)
+                msgRx = self.fftDizet(sigRxCorrected)
+            else:
+                sig_ffo = self.ffoEstCor(sigRx, Q)
+                msgRx = self.fftDizet(sig_ffo, Q)
 
+            mae = np.abs(rotation - rotation_hat) if np.abs(rotation - rotation_hat) < np.pi else 2*np.pi-np.abs(rotation - rotation_hat)
+            rotationEst += mae/rotation
             BER += perParam.ber(msgRx, msgTx)
             PCR += perParam.pcr(msgRx, msgTx)
             PAPR += self.PAPR(sigTx)
-            rotationEst += np.abs(rotation_hat - rotation) / rotation
         return dict({
-                'ber': BER/noIter,
-                'pcr': PCR/noIter,
-                'papr': PAPR/noIter,
-                'rotationEst': rotationEst/noIter
+            'ber': BER/noIter,
+            'pcr': PCR/noIter,
+            'papr': PAPR/noIter,
+            'rotationEst': rotationEst/noIter
         })
 
     def simulatorACPC(self, noIter, perParam, ch, acpc, Q=64):
@@ -165,7 +194,7 @@ class BMOCZ(MOCZ):
             rotation = np.random.uniform(0, 2*np.pi)
             l = np.floor(rotation / (2*np.pi/self.K))
 
-            sigRx = ch.transmit(sigTx, rotation)
+            sigRx = ch.CFO(sigTx, rotation)
             sigFROcorrected = self.ffoEstCor(sigRx, Q)
             estCodeword = self.fftDizet(sigFROcorrected, Q)
             msgRx, l_hat = acpc.codeword_decoding(estCodeword)
@@ -180,3 +209,19 @@ class BMOCZ(MOCZ):
                 'papr': PAPR/noIter,
                 'lEst': lEst/noIter
         })
+
+    def templateCon(self):
+        msg = np.ones(self.K, dtype=np.uint8)
+        singlePZ = [-self.PZrad*self.R]
+        coeff = self.coeffCon(msg, singlePZ)
+        return (abs(np.fft.fft(coeff, n=self.Ns))**1)
+
+    def rotationEstTemplate(self, y):
+        row = np.concatenate((self.template[0], self.template[:0:-1]), axis=None)
+        templateMatrix = toeplitz(self.template, row)
+        rxTemplate = (abs( np.fft.fft(y, n=self.Ns) )**1)
+        innerPdt = rxTemplate @ templateMatrix
+        indx = np.argmax(innerPdt)
+        phi_hat = (2 * np.pi * indx / self.Ns) 
+        y_corrected = y @ np.diag( np.exp(-1j * phi_hat * ( np.arange(len(y)) ) ) )
+        return y_corrected, abs(phi_hat)
