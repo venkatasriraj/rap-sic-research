@@ -11,9 +11,8 @@ zetaJ = 1.07
 K = 32
 M = 4
 PZrad = 1.25
-bmoczSys = BMOCZ(K, PZrad=PZrad)
-# singlePZ = [-2j*bmoczSys.R, 2j*bmoczSys.R]
-singlePZ = [-PZrad*bmoczSys.R]
+bmoczSys = BMOCZ(K, PZrad=0)
+bmoczSysPZ = BMOCZ(K, PZrad=PZrad)
 sbmoczSys = SBMOCZ(K, zetaS)
 jbmoczSys = JBMOCZ(K, zetaJ)
 immoczSys = IMMOCZ(K, M, PZradius=0)
@@ -25,7 +24,7 @@ bTx = bmoczSys.coeffCon(msgTx)
 sigPower = np.mean(np.abs(bTx)**2)
 bTx /= np.sqrt(sigPower)
 
-bTxPZ = bmoczSys.coeffCon(msgTx, singlePZ)
+bTxPZ = bmoczSysPZ.coeffCon(msgTx)
 sigPower = np.mean(np.abs(bTxPZ)**2)
 bTxPZ /= np.sqrt(sigPower)
 
@@ -51,7 +50,7 @@ pTx /= np.sqrt(sigPower)
 
 # PSD / Magnitude spectrum of Transmitted Signal
 bTx_dtft, omega_dtft = bmoczSys.DTFT(bTx)
-bTxPZ_dtft, omega_dtft = bmoczSys.DTFT(bTxPZ)
+bTxPZ_dtft, omega_dtft = bmoczSysPZ.DTFT(bTxPZ)
 sbTx_dtft, omega_dtft = sbmoczSys.DTFT(sbTx)
 jbTx_dtft, omega_dtft = jbmoczSys.DTFT(jbTx)
 imTx_dtft, omega_dtft = immoczSys.DTFT(imTx)
@@ -59,12 +58,11 @@ pTx_dtft, omega_dtft = pmoczSys.DTFT(pTx)
 
 # ACF of Transmitted Signal
 bTx_ACF = bmoczSys.AACF(bTx)
-bTxPZ_ACF = bmoczSys.AACF(bTxPZ)
+bTxPZ_ACF = bmoczSysPZ.AACF(bTxPZ)
 sbTx_ACF = sbmoczSys.AACF(sbTx)
 jbTx_ACF = jbmoczSys.AACF(jbTx)
 imTx_ACF = immoczSys.AACF(imTx)
 pTx_ACF = pmoczSys.AACF(pTx)
-
 # Now we apply rotation to the transmitted zeros and observe how the
 # peak in the PSD shifts
 
@@ -78,7 +76,7 @@ imRx = ch.CFO(imTx, rotation)
 pRx = ch.CFO(pTx, rotation)
 # PSD for the received signal to observe the rotation
 bRx_dtft, omega_dtft = bmoczSys.DTFT(bRx)
-bRxPZ_dtft, omega_dtft = bmoczSys.DTFT(bRxPZ)
+bRxPZ_dtft, omega_dtft = bmoczSysPZ.DTFT(bRxPZ)
 sbRx_dtft, omega_dtft = sbmoczSys.DTFT(sbRx)
 jbRx_dtft, omega_dtft = jbmoczSys.DTFT(jbRx)
 imRx_dtft, omega_dtft = immoczSys.DTFT(imRx)
@@ -86,11 +84,11 @@ pRx_dtft, omega_dtft = pmoczSys.DTFT(pRx)
 
 sbRx_corrected, rotationEst = sbmoczSys.rotationEst(sbRx)
 jbRx_corrected, rotationEst_jb = jbmoczSys.rotationEst(jbRx)
-bPZRx_corrected, rotationEst_PZ = bmoczSys.rotationEstTemplate(bRxPZ)
+bPZRx_corrected, rotationEst_PZ = bmoczSysPZ.rotationEstTemplate(bRxPZ)
 # PSD for the rotation corrected signal
 sbRxC_dtft, omega_dtft = sbmoczSys.DTFT(sbRx_corrected)
 jbRxC_dtft, omega_dtft = jbmoczSys.DTFT(jbRx_corrected)
-bPZRxC_dtft, omega_dtft = bmoczSys.DTFT(bPZRx_corrected)
+bPZRxC_dtft, omega_dtft = bmoczSysPZ.DTFT(bPZRx_corrected)
 print(f"SBMOCZ - Rotation Appled: {rotation}, Rotation Est: {rotationEst}, Error: {abs(rotationEst-rotation)}")
 print(f"JBMOCZ - Rotation Appled: {rotation}, Rotation Est: {rotationEst_jb}, Error: {abs(rotationEst_jb-rotation)}")
 print(f"BMOCZ-PZ - Rotation Appled: {rotation}, Rotation Est: {rotationEst_PZ}, Error: {abs(rotationEst_PZ-rotation)}")
@@ -104,7 +102,7 @@ plt.title("Magnitude Spectrum / Power Spectral Density(PSD) of BMCOZ")
 plt.grid(True, alpha=0.6, linestyle='--')
 plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
 plt.tight_layout()
-plt.savefig("results/BMOCZ/ACF/CFO/bPSD.jpeg")
+plt.savefig("results/ACF/CFO/bPSD.jpeg")
 
 plt.figure(2, dpi=800)
 plt.plot(omega_dtft, np.abs(sbTx_dtft)**2, '-', linewidth=0.9, label='Tx Signal')
@@ -116,19 +114,21 @@ plt.title("Magnitude Spectrum / Power Spectral Density(PSD) of SBMCOZ")
 plt.grid(True, alpha=0.6, linestyle='--')
 plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
 plt.tight_layout()
-plt.savefig("results/BMOCZ/ACF/CFO/sbPSD.jpeg")
+plt.savefig("results/ACF/CFO/sbPSD.jpeg")
 
 plt.figure(3, dpi=800)
-plt.plot(omega_dtft, np.abs(jbTx_dtft)**2, '-', linewidth=0.9, label='Tx Signal')
-plt.plot(omega_dtft, np.abs(jbRx_dtft)**2, '-', linewidth=0.9, label='Rx Signal')
-plt.plot(omega_dtft, np.abs(jbRxC_dtft)**2, '-', linewidth=0.9, label='Rx Corrected')
+plt.plot(omega_dtft, np.abs(jbTx_dtft)**2, '--', linewidth=0.9, label='Tx Signal')
+# plt.plot(omega_dtft, np.abs(jbRx_dtft)**2, '--', linewidth=0.9, label='Rx Signal')
+# plt.plot(omega_dtft, np.abs(jbRxC_dtft)**2, '--', linewidth=0.9, label='Rx Corrected')
+# plt.plot(omega_dtft, np.abs(jbmoczSys.template)**2, '-', linewidth=0.9, label='Template')
+# plt.plot(omega_dtft, np.abs(np.fft.fft(jbRx, n=1024))**2, '-', linewidth=0.9, label='Rx FFT')
 plt.xlabel("Angular Frequency (w)")
 plt.ylabel("Magnitude")
 plt.title("Magnitude Spectrum / Power Spectral Density(PSD)of JBMOCZ")
 plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
 plt.tight_layout()
 plt.grid(True, alpha=0.6, linestyle='--')
-plt.savefig("results/BMOCZ/ACF/CFO/jbPSD.jpeg")
+plt.savefig("results/ACF/CFO/jbPSD.jpeg")
 
 plt.figure(4, dpi=800)
 plt.plot(omega_dtft, np.abs(bTx_dtft)**2, '-', linewidth=0.9, label='BMOCZ')
@@ -143,7 +143,7 @@ plt.title("PSD Analysis for MOCZ schemes")
 plt.grid(True, alpha=0.6, linestyle='--')
 plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
 plt.tight_layout()
-plt.savefig("results/BMOCZ/ACF/CFO/PSD.jpeg")
+plt.savefig("results/ACF/CFO/PSD.jpeg")
 
 plt.figure(5, dpi=800)
 plt.plot(omega_dtft, (np.abs(bTxPZ_dtft)**1), '--', linewidth=0.9, label='Tx Signal')
@@ -155,7 +155,7 @@ plt.title(f"PSD of BMCOZ with Pilot-Zero CFO={np.round(rotation, 4)} Rad")
 plt.grid(True, alpha=0.6, linestyle='--')
 plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
 plt.tight_layout()
-plt.savefig("results/BMOCZ/ACF/CFO/bPZ_PSD.jpeg")
+plt.savefig("results/ACF/CFO/bPZ_PSD.jpeg")
 
 plt.figure(6, dpi=800)
 plt.plot(np.arange(-K, K+1), bTx_ACF, '-', linewidth=0.9, label='BMOCZ')
@@ -170,7 +170,7 @@ plt.title("ACF Analysis for MOCZ schemes")
 plt.grid(True, alpha=0.6, linestyle='--')
 plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
 plt.tight_layout()
-plt.savefig("results/BMOCZ/ACF/CFO/AACF.jpeg")
+plt.savefig("results/ACF/CFO/AACF.jpeg")
 
 template_dtft = np.fft.fftshift(jbmoczSys.template)
 plt.figure(7, dpi=800)
@@ -182,7 +182,7 @@ plt.title("JBMOCZ Template Vector (DTFT)")
 plt.grid(True, alpha=0.6, linestyle='--')
 plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
 plt.tight_layout()
-plt.savefig("results/BMOCZ/ACF/CFO/jTemplate.jpeg")
+plt.savefig("results/ACF/CFO/jTemplate.jpeg")
 
 # IM-MOCZ
 plt.figure(8, dpi=800)
@@ -194,7 +194,7 @@ plt.title(f"Power Spectral Density(PSD) of IM-MCOZ - msg{msgTxIM}")
 plt.grid(True, alpha=0.6, linestyle='--')
 plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
 plt.tight_layout()
-plt.savefig("results/BMOCZ/ACF/CFO/imPSD.jpeg")
+plt.savefig("results/ACF/CFO/imPSD.jpeg")
 
 # PMOCZ
 plt.figure(9, dpi=800)
@@ -206,7 +206,7 @@ plt.title(f"Power Spectral Density(PSD) of PMCOZ - msg{msgTxIM}")
 plt.grid(True, alpha=0.6, linestyle='--')
 plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
 plt.tight_layout()
-plt.savefig("results/BMOCZ/ACF/CFO/pPSD.jpeg")
+plt.savefig("results/ACF/CFO/pPSD.jpeg")
 
 # styles = {
 #     "dashed": (0, (5, 5)),

@@ -34,7 +34,7 @@ for scheme in schemes:
         noiseVar = signalPower * 10**(-snr/10)
         ch = SlowFadingChannel(noise_var=noiseVar)
         if scheme == 'BMOCZ':
-            result = bmoczSys.simulator(noIter, perParam, ch, PZrad=0, Q=Q, FLAG=FLAG)
+            result = bmoczSys.simulator(noIter, perParam, ch, Q=Q, FLAG=FLAG)
             goodput_snr[snr] = result['pcr'] * K * pktRate
         elif scheme == 'JBMOCZ':
             result = jbmoczSys.simulator(noIter, perParam, ch, FLAG=FLAG)
@@ -43,7 +43,7 @@ for scheme in schemes:
             result = sbmoczSys.simulator(noIter, perParam, ch, FLAG=FLAG)
             goodput_snr[snr] = result['pcr'] * K * pktRate
         elif scheme == 'BMOCZ-PZ':
-            result = bmoczSys.simulator(noIter, perParam, ch, PZrad, Q, FLAG=FLAG)
+            result = bmoczSys.simulator(noIter, perParam, ch, Q, FLAG=FLAG)
             goodput_snr[snr] = result['pcr'] * K * pktRate_PZ
         ber_snr[snr], per_snr[snr], papr_snr[snr] = result['ber'], 1 - result['pcr'], result['papr'] 
     print(f"{scheme} Done")

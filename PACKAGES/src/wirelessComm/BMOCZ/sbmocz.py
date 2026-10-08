@@ -13,11 +13,22 @@ class SBMOCZ(MOCZ):
         self.zeta = zeta
         self.Ns = Ns
         self.theta = ( (2*np.pi-zeta)*np.arange(K)/K  + (2*np.pi + zeta*(K-1))/(2*K) )
-        self.Rs = np.sqrt( 1 + np.sin( (2*np.pi-zeta) / (2 * K) ) ) if Rs == None else Rs
+        # self.theta = (2*np.pi-zeta)*np.arange(K)/K
+        self.R = np.sqrt( 1 + np.sin( (2*np.pi-zeta) / (2 * K) ) ) if Rs == None else Rs
+        self.zero_geometry = self.codebook_con()
+        self.zeroCollection = self.zeroSet()
 
-    def coeffCon(self, msg):
-        zeros = [self.Rs**(2*msg[k]-1)*np.exp(1j*self.theta[k]) for k in range(self.K)]
-        return self.toeplitz_iterator(zeros)
+    def codebook_con(self):
+        Ri, Ro = self.R**-1, self.R
+        zero_geometry = [(Ri*np.exp(1j*self.theta[k]), Ro*np.exp(1j*self.theta[k])) for k in range(self.K)]
+        return zero_geometry
+
+    # def zeroSelection(self, msg):   
+    #     return [self.zero_geometry[k][msg[k]] for k in range(self.K)]
+    #     # return [self.R**(2*msg[k]-1)*np.exp(1j*self.theta[k]) for k in range(self.K)]
+
+    # def coeffCon(self, msg):
+    #     return self.toeplitz_iterator(self.zeroSelection(msg))
 
     def rotationEst(self, y):
         phi_hat = (2*np.pi/self.Ns) * (np.argmax(np.abs( np.fft.fft(y, n=self.Ns) )))

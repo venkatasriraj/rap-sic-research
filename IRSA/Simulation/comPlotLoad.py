@@ -14,11 +14,11 @@ from wirelessComm import (
 from wirelessComm.simulator import simulator
 
 # Simulation Parameters
-m, n = 20, 40
+m, n = 50, 80
 degree = 2
 noIter = int(1e4)
 # LOAD = np.linspace(0.1, 1, 10)
-peakLoad = int(n/m)
+peakLoad = n/m
 LOAD = np.arange(0.1, peakLoad+0.1, 0.1)
 SNR_dB = 5
 signal_power = 1
@@ -29,19 +29,20 @@ packetSize = 32  # K = packetSize
 # colors = ["tab:blue", "tab:blue", "tab:blue", "tab:green", "tab:green", "tab:green", "tab:purple", "tab:purple", "tab:purple"]
 colors = ["tab:blue", "tab:green", "tab:purple"]
 # linestyles = ["--", "-.", "-", "--", "-.", "-","--", "-.", "-"]
-linestyles = ["--", "-.", "-"]
+# linestyles = ["--", "-.", "-"]
+linestyles = [(0, (5, 5)), (0, (3, 1, 1, 3)), (0, (2, 2))]
 # markers = ["o", "s", "^", "D", "*", "x"]
 markers = ["o", "s", "^"]
 labels = ["MOCZ", "MOCZ-noSIC", "MOCZ-CSI", "DBPSK-pilot", "DBPSK-pilot-noSIC", "DBPSK-pilot-CSI", "DBPSK-decDir", "DBPSK-decDir-noSIC", "DBPSK-decDir-CSI"]
 # BMOCZ Parameters
-Q = 4
+Q = 2
 # DBPSK Parameters
 accessCode = [1, 0] * 4
 lenAC = 8
 
 noise_var = signal_power * 10**(-SNR_dB/10)
 ch = SlowFadingChannel(noise_var, pathLoss)
-bmoczSystem = BMOCZ(packetSize)
+bmoczSystem = BMOCZ(packetSize, PZrad=0)
 bpsk = BPSKBase()
 chEst = ChannelEstimation()
 
@@ -78,7 +79,7 @@ for mode in range(len(labels)):
 plt.figure(figsize=(8,6), dpi=800)
 for i, (k, v) in enumerate(throughput_load.items()):
     plt.plot(v.keys(), v.values(), color=colors[i//3], linestyle=linestyles[i%3],
-                marker=markers[i%3], linewidth=1.2, markersize=5, label=labels[i])
+                marker=markers[i%3], linewidth=1.2, markersize=0, label=labels[i])
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("Channel Load")
 plt.ylabel("Throughput")
@@ -91,12 +92,12 @@ plt.savefig(f"results/comPlot/thrLoad{SNR_dB}.jpeg")
 plt.figure(figsize=(8,6), dpi=800)
 for i, (k,v) in enumerate(per_load.items()):
     plt.plot(v.keys(), v.values(), color=colors[i//3], linestyle=linestyles[i%3],
-                marker=markers[i%3], markersize=5, linewidth=1.2, label=labels[i])
+                marker=markers[i%3], markersize=0, linewidth=1.2, label=labels[i])
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.xlabel("Channel Load")
 plt.ylabel("PER")
 plt.ylim(0, 1.05)
-plt.title(f"{noIter} frames per point for SNR = {SNR_dB}dB")
+plt.title(f"{noIter} frames per point at SNR = {SNR_dB}dB")
 plt.legend(loc="upper left", framealpha=0.6, fontsize=7)
 plt.tight_layout()
 plt.savefig(f"results/comPlot/perLoad{SNR_dB}.jpeg")
@@ -104,12 +105,12 @@ plt.savefig(f"results/comPlot/perLoad{SNR_dB}.jpeg")
 plt.figure(figsize=(8,6), dpi=800)
 for i, (k, v) in enumerate(ber_load.items()):
     plt.plot(v.keys(), v.values(), color=colors[i//3], linestyle=linestyles[i%3],
-                marker=markers[i%3], markersize=5, linewidth=1.2, label=labels[i])
+                marker=markers[i%3], markersize=0, linewidth=1.2, label=labels[i])
 plt.grid(True, alpha=0.6, linestyle='--')
 plt.xlabel("Channel Load")
 plt.ylabel("BER")
 plt.ylim(0, 1.05)
-plt.title(f"{noIter} frames per point for SNR = {SNR_dB}dB")
+plt.title(f"{noIter} frames per point at SNR = {SNR_dB}dB")
 plt.legend(loc='upper left', framealpha=0.6, fontsize=7)
 plt.tight_layout()
 plt.savefig(f"results/comPlot/berLoad{SNR_dB}.jpeg")
@@ -117,12 +118,12 @@ plt.savefig(f"results/comPlot/berLoad{SNR_dB}.jpeg")
 plt.figure(figsize=(8,6), dpi=800)
 for i, (k,v) in enumerate(maeh_load.items()):
     plt.plot(v.keys(), v.values(), color=colors[i], linestyle=linestyles[i],
-                marker=markers[i], markersize=5, linewidth=1.2, label=labels[3*i])
+                marker=markers[i], markersize=0, linewidth=1.2, label=labels[3*i])
 plt.grid(True, alpha=0.6, linestyle='--')
 plt.xlabel("Channel Load")
 plt.ylim(0, 1.05)
 plt.ylabel(f"User-{uId} Normalized MAE of h")
-plt.title(f"{noIter} frames per point for SNR = {SNR_dB}dB")
+plt.title(f"{noIter} frames per point at SNR = {SNR_dB}dB")
 plt.legend(loc="upper right", framealpha=0.6, fontsize=7)
 plt.tight_layout()
 plt.savefig(f"results/comPlot/maehLoad{SNR_dB}.jpeg")

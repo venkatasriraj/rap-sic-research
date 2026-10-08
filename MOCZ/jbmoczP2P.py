@@ -3,22 +3,22 @@ Simulation analysis of JBMOCZ point-to-point communication link.
 
 """
 import numpy as np
-from wirelessComm import JBMOCZ, MultiPathFading, PerformanceParameters, BMOCZ
+from wirelessComm import JBMOCZ, SlowFadingChannel, PerformanceParameters, BMOCZ
 import matplotlib.pyplot as plt
 
-zeta = 1.07
-K = np.arange(8, 21)
-noIter = int(1e2)
+zeta, Rj = 1.15, 1.044
+K = [24, 28, 32]
+noIter = int(1e1)
 SNR_dB = np.arange(-10, 21, 3)
 signalPower = 1
 perParam = PerformanceParameters()
 ber_K, per_K, papr_K, rotationEst_K = {}, {}, {}, {}
 for k in K:
-    jbmcozSystem = JBMOCZ(k, zeta)
+    jbmcozSystem = JBMOCZ(k, zeta, Rj=Rj)
     ber_snr, per_snr, papr_snr, rotationEst_snr = {}, {}, {}, {}
     for snr in SNR_dB:
         noiseVar = signalPower * 10**(-snr/10)
-        ch = MultiPathFading(noise_var=noiseVar)
+        ch = SlowFadingChannel(noise_var=noiseVar)
         BER, PCR, PAPR, rotationEst = 0, 0, 0, 0
         for i in range(noIter):
             msgTx = np.random.randint(0, 2, k)
@@ -27,7 +27,7 @@ for k in K:
             sigTx /= np.sqrt(sigPower)
 
             rotation = np.random.uniform(0, 2*np.pi)
-            sigRx = ch.transmit(sigTx, rotation)
+            sigRx = ch.CFO(sigTx, rotation)
 
             sigRxCorrected, rotation_hat = jbmcozSystem.rotationEst(sigRx)
             msgRx = jbmcozSystem.fftDizet(sigRxCorrected)

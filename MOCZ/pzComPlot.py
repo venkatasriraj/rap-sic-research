@@ -82,7 +82,7 @@ for snr in SNR_dB:
     goodputPZ[snr] = (PCRpz / noIter) * K * pktRate_PZ
 
 plt.figure(1, dpi=800)
-plt.plot(berACPC.keys(), berACPC.values(), '-', color='tab:purple', linewidth=0.9, label=f"ACPC ({K}, {K-(t+1)*5})")    
+plt.plot(berACPC.keys(), berACPC.values(), '-', color='tab:purple', linewidth=0.9, label=f"ACPC ({K}, {K-(t+1)*m})")    
 plt.plot(berPZ.keys(), berPZ.values(), '--', color='tab:green', linewidth=0.9, label=f"Pilot-Zero {np.round(singlePZ, 4)}")
 plt.xlabel("SNR (dB)")
 plt.ylabel("BER")
@@ -93,7 +93,7 @@ plt.tight_layout()
 plt.savefig(f"results/PilotZero/ACPC/ber_{t}.jpeg")
 
 plt.figure(2, dpi=800)
-plt.plot(perACPC.keys(), perACPC.values(), '-', color='tab:purple', linewidth=0.9, label=f"ACPC ({K}, {K-(t+1)*5})")    
+plt.plot(perACPC.keys(), perACPC.values(), '-', color='tab:purple', linewidth=0.9, label=f"ACPC ({K}, {K-(t+1)*m})")    
 plt.plot(perPZ.keys(), perPZ.values(), '--', color='tab:green', linewidth=0.9, label=f"Pilot-Zero {np.round(singlePZ, 4)}")
 plt.xlabel("SNR (dB)")
 plt.ylabel("PER")
@@ -104,7 +104,7 @@ plt.tight_layout()
 plt.savefig(f"results/PilotZero/ACPC/per_{t}.jpeg")
 
 plt.figure(3, dpi=800)
-plt.plot(paprACPC.keys(), paprACPC.values(), '-', color='tab:purple', linewidth=0.9, label=f"ACPC ({K}, {K-(t+1)*5})")    
+plt.plot(paprACPC.keys(), paprACPC.values(), '-', color='tab:purple', linewidth=0.9, label=f"ACPC ({K}, {K-(t+1)*m})")    
 plt.plot(paprPZ.keys(), paprPZ.values(), '--', color='tab:green', linewidth=0.9, label=f"Pilot-Zero {np.round(singlePZ, 4)}")
 plt.xlabel("SNR (dB)")
 plt.ylabel("PAPR")
@@ -128,7 +128,7 @@ plt.title(f"{noIter} runs per point")
 plt.savefig(f"results/PilotZero/ACPC/rotationPZ_{t}.jpeg")
 
 plt.figure(6, dpi=800)
-plt.plot(goodputACPC.keys(), goodputACPC.values(), '-', color='tab:purple', linewidth=0.9, label=f'ACPC({K}, {K-(t+1)*5})', marker='*')
+plt.plot(goodputACPC.keys(), goodputACPC.values(), '-', color='tab:purple', linewidth=0.9, label=f'ACPC({K}, {K-(t+1)*m})', marker='*')
 for k, v in goodputACPC.items():
     plt.annotate(f'{np.round(v, 4)}', (k,v), textcoords="offset points", xytext=(0, 8), ha='center')
 plt.plot(goodputPZ.keys(), goodputPZ.values(), '--', color='tab:green', linewidth=0.9, label=f'Pilot-Zero {np.round(singlePZ, 4)}', marker='d')

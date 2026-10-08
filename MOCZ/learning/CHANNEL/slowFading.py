@@ -1,6 +1,6 @@
 import numpy as np
 
-from CHANNEL import Channel
+from MOCZ.learning.CHANNEL import Channel
 
 class SlowFadingChannel(Channel):
 

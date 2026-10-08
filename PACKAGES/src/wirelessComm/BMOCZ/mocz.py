@@ -132,9 +132,30 @@ class MOCZ:
         X_dtft = np.zeros(len(omega), dtype=complex)
         for n in range(len(x)):
             X_dtft += x[n] * np.exp(1j * omega * n)
+            # since we will be evaluating the polynomial on unit circle
+            # which has positive powers of Z 
         return X_dtft, omega
 
     @staticmethod
     def AACF(x):
         x_ctr = np.conjugate(x[::-1])
         return np.convolve(x, x_ctr)
+
+    def zeroSet(self):
+        zero_0 = [self.zero_geometry[k][0] for k in range(self.K)]
+        zero_1 = [self.zero_geometry[k][1] for k in range(self.K)]
+        return np.append(zero_0, zero_1)
+
+    def zeroSelection(self, msg):   
+        return np.asarray([self.zero_geometry[k][msg[k]] for k in range(self.K)])
+
+    def coeffConToep(self, msg):
+        return self.toeplitz_iterator(self.zeroSelection(msg))
+
+    def coeffCon(self, msg):
+        zeros = self.zeroSelection(msg)
+        k = len(zeros)
+        N = k * 2
+        z = np.exp(2j * np.pi * np.arange(N) / N)
+        X_Z = np.prod( z[:, None] - zeros[None, :], axis=1 )
+        return np.fft.fft(X_Z)[:k+1]/N  # increasing powers, monic

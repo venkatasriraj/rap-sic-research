@@ -3,7 +3,7 @@ import random
 import galois
 from scipy.linalg import toeplitz
 
-from BMOCZ import BiMOCZ
+from MOCZ.learning.BMOCZ import BiMOCZ
 
 class BMOCZTransmitter(BiMOCZ):
 

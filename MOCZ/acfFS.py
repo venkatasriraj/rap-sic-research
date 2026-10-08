@@ -75,7 +75,7 @@ plt.title(f"Magnitude Spectrum / Power Spectral Density(PSD) of BMCOZ msg:{bmocz
 plt.grid(True, alpha=0.6, linestyle='--')
 plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
 plt.tight_layout()
-plt.savefig("results/BMOCZ/ACF/FS/bPSD.jpeg")
+plt.savefig("results/ACF/FS/bPSD.jpeg")
 
 plt.figure(2, dpi=800)
 plt.plot(omega_dtft, np.abs(sbTx_dtft)**2, '-', linewidth=0.9, label='Tx Signal')
@@ -87,7 +87,7 @@ plt.title(f"Power Spectral Density(PSD) of SBMCOZ msg:{bmoczSys.bin2dec(msgTx)}"
 plt.grid(True, alpha=0.6, linestyle='--')
 plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
 plt.tight_layout()
-plt.savefig("results/BMOCZ/ACF/FS/sbPSD.jpeg")
+plt.savefig("results/ACF/FS/sbPSD.jpeg")
 
 plt.figure(3, dpi=800)
 plt.plot(omega_dtft, np.abs(jbTx_dtft)**2, '-', linewidth=0.9, label='Tx Signal')
@@ -99,7 +99,7 @@ plt.title(f"Power Spectral Density(PSD) of JBMOCZ msg:{bmoczSys.bin2dec(msgTx)}"
 plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
 plt.tight_layout()
 plt.grid(True, alpha=0.6, linestyle='--')
-plt.savefig("results/BMOCZ/ACF/FS/jbPSD.jpeg")
+plt.savefig("results/ACF/FS/jbPSD.jpeg")
 
 plt.figure(5, dpi=800)
 plt.plot(omega_dtft, 10*np.log10(np.abs(bTxPZ_dtft)**2), '--', linewidth=0.9, label='Tx Signal')
@@ -111,7 +111,7 @@ plt.title(f"PSD of BMCOZ with Pilot-Zero msg:{bmoczSys.bin2dec(msgTx)}")
 plt.grid(True, alpha=0.6, linestyle='--')
 plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
 plt.tight_layout()
-plt.savefig("results/BMOCZ/ACF/FS/bPZ_PSD.jpeg")
+plt.savefig("results/ACF/FS/bPZ_PSD.jpeg")
 
 # # IM-MOCZ
 # plt.figure(8, dpi=800)
@@ -123,7 +123,7 @@ plt.savefig("results/BMOCZ/ACF/FS/bPZ_PSD.jpeg")
 # plt.grid(True, alpha=0.6, linestyle='--')
 # plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
 # plt.tight_layout()
-# plt.savefig("results/BMOCZ/ACF/FS/imPSD.jpeg")
+# plt.savefig("results/ACF/FS/imPSD.jpeg")
 
 # # PMOCZ
 # plt.figure(9, dpi=800)
@@ -135,4 +135,4 @@ plt.savefig("results/BMOCZ/ACF/FS/bPZ_PSD.jpeg")
 # plt.grid(True, alpha=0.6, linestyle='--')
 # plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
 # plt.tight_layout()
-# plt.savefig("results/BMOCZ/ACF/FS/pPSD.jpeg")
+# plt.savefig("results/ACF/FS/pPSD.jpeg")

@@ -1,6 +1,6 @@
 from .BMOCZ import (
-    MOCZ, PMOCZ, UidMOCZ, BMOCZ, SBMOCZ, JBMOCZ,
-    moczSIMULATION, ACPC, IMMOCZ
+    MOCZ, PMOCZ, BMOCZ, SBMOCZ, JBMOCZ,
+    moczSIMULATION, ACPC, IMMOCZ, JUTTEDfs
 )
 from .CHANNEL import (
     SlowFadingChannel, MultiPathFading, 

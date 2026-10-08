@@ -20,25 +20,34 @@ class JBMOCZ(MOCZ):
             self.R = Rj
         self.zero_geometry = self.codebook_con()
         self.template = self.templateCon()
+        self.zeroCollection = self.zeroSet()
 
     def codebook_con(self):
         Ri, Ro = self.R**-1, self.R
         zero_geometry = [(Ri*self.zeta**-1, Ro*self.zeta) if k == 0 else (Ri*np.exp(1j*self.theta_K*k), Ro*np.exp(1j*self.theta_K*k)) for k in range(self.K)]
         return zero_geometry
 
-    def coeffCon(self, msg):
-        zeros = [self.zero_geometry[k][msg[k]] for k in range(self.K)]
-        return self.toeplitz_iterator(zeros)
+    # def zeroSelection(self, msg):
+    #     return [self.zero_geometry[k][msg[k]] for k in range(self.K)]
+
+    # def coeffCon(self, msg):
+    #     return self.toeplitz_iterator(self.zeroSelection(msg))
 
     def templateCon(self):
         msg = np.ones(self.K, dtype=np.uint8)
         coeff = self.coeffCon(msg)
-        return abs(np.fft.fft(coeff, n=self.Ns))
+        # template, _ = self.DTFT(coeff, resolution=self.Ns)
+        # return np.abs(template)/np.max(np.abs(template))
+        template = abs(np.fft.fft(coeff, n=self.Ns))
+        return template/np.max(template)
 
     def rotationEst(self, y):
         row = np.concatenate((self.template[0], self.template[:0:-1]), axis=None)
         templateMatrix = toeplitz(self.template, row)
         rxTemplate = abs( np.fft.fft(y, n=self.Ns) )
+        rxTemplate /= np.max(rxTemplate)
+        # rxTemplate, _ = self.DTFT(y, resolution=self.Ns)
+        # rxTemplate = np.abs(rxTemplate)/np.max(np.abs(rxTemplate))
         innerPdt = rxTemplate @ templateMatrix
         indx = np.argmax(innerPdt)
         phi_hat = (2 * np.pi * indx / self.Ns) 
@@ -47,7 +56,8 @@ class JBMOCZ(MOCZ):
 
     # JBMOCZ Simulator
     def simulator(self, noIter, perParam, ch, FLAG="AWGN"):
-        BER, PCR, PAPR, rotationEst, rotation = 0, 0, 0, 0, 1e-7
+        BER, PCR, PAPR, rotationEst = 0, 0, 0, 0
+        rotation, rotation_hat = 1e-7, 1e-7
         for _ in range(noIter):
             msgTx = np.random.randint(0, 2, self.K)
             sigTx = self.coeffCon(msgTx)
