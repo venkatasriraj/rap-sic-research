@@ -1,0 +1,119 @@
+options:
+  parameters:
+    alias: ''
+    author: venkat
+    catch_exceptions: 'True'
+    comment: ''
+    copyright: ''
+    description: ''
+    gen_linking: dynamic
+    generate_options: qt_gui
+    generator_class_name: PythonQtGuiGenerator
+    generator_module: gnuradio.grc.workflows.python_qt_gui
+    hier_block_src_path: '.:'
+    id: MOCZ_rx
+    max_nouts: '0'
+    output_language: python
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    thread_safe_setters: ''
+    title: Not titled yet
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 8]
+    rotation: 0
+    state: enabled
+
+blocks:
+- name: K
+  id: variable
+  parameters:
+    comment: ''
+    value: '4'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [336, 16.0]
+    rotation: 0
+    state: enabled
+- name: Q
+  id: variable
+  parameters:
+    comment: ''
+    value: '4'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [408, 16.0]
+    rotation: 0
+    state: enabled
+- name: samp_rate
+  id: variable
+  parameters:
+    comment: ''
+    value: '32000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [200, 16.0]
+    rotation: 0
+    state: enabled
+- name: epy_block_0
+  id: epy_block
+  parameters:
+    K: K
+    Q: Q
+    _source_code: "import numpy as np\nfrom gnuradio import gr\n\n\nclass blk(gr.basic_block):\
+      \  \n\n    def __init__(self, K=4, Q=4):  \n        gr.basic_block.__init__(\n\
+      \            self,\n            name='DiZeT decoder',  \n            in_sig=[np.complex64],\n\
+      \            out_sig=None\n        )\n        self.K = K\n        self.Q = Q\n\
+      \n    def fftCon(self, y, Q):\n        N_r = len(y)        \n        N_fft =\
+      \ Q * self.K * self.M\n\n        scaling_vec = self.R ** np.arange(N_r)\n  \
+      \      y_ctr = np.conjugate(y[::-1])\n\n        y_scaled = y * scaling_vec\n\
+      \        y_ctr_scaled = y_ctr * scaling_vec\n\n        Y_eval = np.abs( np.fft.ifft(y_scaled,\
+      \ n=N_r) )\n        Y_ctr_eval = np.abs( np.fft.ifft(y_ctr_scaled, n=N_r) )\n\
+      \        return Y_eval, Y_ctr_eval\n\n    def fftDizet(self, y, Q=2):\n    \
+      \    Y_eval, Y_ctr_eval = self.fftCon(y, Q)\n        message_received = ( 1\
+      \ - np.sign( Y_eval[::Q] - Y_ctr_eval[::Q] ) ) / 2 \n        return message_received.astype(int)\n\
+      \n    def general_work(self, input_items, output_items):\n\n        \"\"\"\n\
+      \        Do we need to return the length of output_items when no ouput\n   \
+      \     \"\"\"\n        return len(output_items[0])"
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    _io_cache: ('DiZeT decoder', 'blk', [('K', '4'), ('Q', '4')], [('0', 'complex',
+      1)], [], '', ['K', 'Q'])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1072, 352.0]
+    rotation: 0
+    state: enabled
+- name: import_0
+  id: import
+  parameters:
+    alias: ''
+    comment: ''
+    imports: import numpy as np
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [200, 96.0]
+    rotation: 0
+    state: enabled
+connections: []
+
+metadata:
+  file_format: 1
+  grc_version: 3.10.12.0

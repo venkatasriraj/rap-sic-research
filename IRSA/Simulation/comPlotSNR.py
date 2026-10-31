@@ -12,11 +12,11 @@ from wirelessComm import (
 from wirelessComm.simulator import simulator
 
 # Simulation Parameters
-m, n = 50, 80
+m, n = 100, 100
 degree = 2
-noIter = int(1e4)
+noIter = int(1e5)
 LOAD = 0.65
-SNR_dB = np.arange(-10, 31, 5)
+SNR_dB = np.arange(-5, 41, 5)
 signal_power = 1
 pathLoss = 1
 uId = 1

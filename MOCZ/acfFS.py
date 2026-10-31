@@ -8,12 +8,12 @@ from wirelessComm import BMOCZ, SBMOCZ, JBMOCZ, SlowFadingChannel, IMMOCZ, PMOCZ
 
 zetaJ, zetaS, PZrad = 1.15, 0.0545, 1.578
 Rj, Rs = 1.044, 1.0475
-K, M, taps = 32, 4, 3
+K, M, Lh, chVar = 32, 4, 3, 0.86
 bmoczSys = BMOCZ(K, PZrad=PZrad)
 singlePZ = [-PZrad*bmoczSys.R]
 sbmoczSys = SBMOCZ(K, zetaS, Rs=Rs)
-jbmoczSys = JBMOCZ(K, zetaJ, Rj=Rj)
-ch = SlowFadingChannel(noise_var=0.01, taps=taps)
+jbmoczSys = JBMOCZ(K, zetaJ, Rj=Rj, mPeak=[0])
+ch = SlowFadingChannel(noise_var=0.01, taps=Lh, chVar=chVar)
 
 msgTx = np.random.randint(0, 2, K)
 bTx = bmoczSys.coeffCon(msgTx)

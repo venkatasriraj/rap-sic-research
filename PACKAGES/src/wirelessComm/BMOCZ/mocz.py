@@ -126,12 +126,16 @@ class MOCZ:
         omega_shifted = np.fft.fftshift(omega)
         return X_dftShifted, omega_shifted
 
-    @staticmethod
-    def DTFT(x, resolution = 1024):
-        omega = np.linspace(-np.pi, np.pi, resolution)
+    # @staticmethod
+    def DTFT(self, x, resolution = 1024, Mode='uc', omegaMode='pi'):
+        rad = 1 if Mode == 'uc' else self.R if Mode == 'oc' else self.R**-1
+        if omegaMode == 'pi':
+            omega = np.linspace(-np.pi, np.pi, resolution)
+        else:
+            omega = np.linspace(0, np.pi*2, resolution)
         X_dtft = np.zeros(len(omega), dtype=complex)
         for n in range(len(x)):
-            X_dtft += x[n] * np.exp(1j * omega * n)
+            X_dtft += x[n] * rad**n * np.exp(1j * omega * n)
             # since we will be evaluating the polynomial on unit circle
             # which has positive powers of Z 
         return X_dtft, omega

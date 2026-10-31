@@ -7,3 +7,4 @@ from .jbmocz import JBMOCZ
 from .sbmocz import SBMOCZ
 from .immocz import IMMOCZ
 from .juttedFS import JUTTEDfs
+from .bch import BCH

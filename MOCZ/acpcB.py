@@ -5,12 +5,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from wirelessComm import BMOCZ, PerformanceParameters, SlowFadingChannel, ACPC
 
-m, t, Q, noIter = 7, 2, 128, int(1e4)
+m, t, Q, noIter = 5, 2, 32, int(1e3)
 chVar = 0.95
 K = 2**m-1
-Lh = [1, 10, 23, 31, 63, 127]
-FLAG = 'FS'
-SNR_dB = np.arange(-5, 41, 3)
+# Lh = [1, 10, 23, 31, 63, 127]
+Lh = [1, 5]
+FLAG = 'FS_CFO'
+SNR_dB = np.arange(0, 42, 5)
 bmoczSystem = BMOCZ(K, PZrad=0)
 perParam = PerformanceParameters()
 acpc = ACPC(m, t)
@@ -36,7 +37,7 @@ plt.figure(1, dpi=800)
 for k, v in berLh.items():
     plt.semilogy(v.keys(), v.values(), '-', linewidth=0.9, label=f'Lh-{k}')
 plt.ylim(1e-5, 1)
-plt.xlabel("SNR(dB)")
+plt.xlabel(f"SNR(dB): {noIter} Runs per point")
 plt.ylabel("BER")
 plt.grid(True, alpha=0.6, linestyle='--')
 plt.title(f"BMOCZ-ACPC({K}, {K-(t+1)*m}) {FLAG} BER Analysis chVar-{chVar}")
@@ -48,7 +49,7 @@ plt.figure(2, dpi=800)
 for k, v in perLh.items():
     plt.semilogy(v.keys(), v.values(), '-', linewidth=0.9, label=f'BL-{k}')
 plt.ylim(1e-5, 1)
-plt.xlabel("SNR(dB)")
+plt.xlabel(f"SNR(dB): {noIter} Runs per point")
 plt.ylabel("PER")
 plt.grid(True, alpha=0.6, linestyle='--')
 plt.title(f"BMOCZ-ACPC({K}, {K-(t+1)*m}) {FLAG} PER Analysis chVar-{chVar}")
@@ -59,7 +60,7 @@ plt.savefig(f"results/BMOCZ/ACPC/{FLAG}per{chVar}_{K}.jpeg")
 # plt.figure(3, dpi=800)
 # for k, v in paprLh.items():
 #     plt.plot(v.keys(), v.values(), '-', linewidth=0.9, label=f'BL-{k}')
-# plt.xlabel("SNR(dB)")
+# plt.xlabel(f"SNR(dB): {noIter} Runs per point")
 # plt.ylabel("PAPR (dB)")
 # plt.grid(True, alpha=0.6, linestyle='--')
 # plt.title(f"BMOCZ-ACPC({K}, {K-(t+1)*m}) {FLAG} PAPR Analysis chVar-{chVar}")

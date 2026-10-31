@@ -12,19 +12,30 @@ from .mocz import MOCZ
 
 class JBMOCZ(MOCZ):
 
-    def __init__(self, K, zeta=1, Ns=1024, Rj=None):
+    def __init__(self, K, zeta=1, Ns=1024, Rj=None, mPeak=[0]):
         super().__init__(K, M=1)
         self.zeta = zeta
         self.Ns = Ns
+        self.mPeak = mPeak
         if Rj != None:
             self.R = Rj
-        self.zero_geometry = self.codebook_con()
+        self.zero_geometry = self.codebook_con() if len(mPeak) == 1 else self.codebookModified()
         self.template = self.templateCon()
         self.zeroCollection = self.zeroSet()
 
     def codebook_con(self):
         Ri, Ro = self.R**-1, self.R
         zero_geometry = [(Ri*self.zeta**-1, Ro*self.zeta) if k == 0 else (Ri*np.exp(1j*self.theta_K*k), Ro*np.exp(1j*self.theta_K*k)) for k in range(self.K)]
+        return zero_geometry
+
+    def codebookModified(self):
+        Ri, Ro = self.R**-1, self.R
+        zero_geometry = []
+        for k in range(self.K):
+            if k in self.mPeak:
+                zero_geometry.append( ( Ri*self.zeta**-1 * np.exp(1j*self.theta_K*k), Ro*self.zeta*np.exp(1j*self.theta_K*k) ) )
+            else:
+                zero_geometry.append( (Ri*np.exp(1j*self.theta_K*k), Ro*np.exp(1j*self.theta_K*k)) )
         return zero_geometry
 
     # def zeroSelection(self, msg):
@@ -36,26 +47,27 @@ class JBMOCZ(MOCZ):
     def templateCon(self):
         msg = np.ones(self.K, dtype=np.uint8)
         coeff = self.coeffCon(msg)
-        # template, _ = self.DTFT(coeff, resolution=self.Ns)
-        # return np.abs(template)/np.max(np.abs(template))
-        template = abs(np.fft.fft(coeff, n=self.Ns))
-        return template/np.max(template)
+        template, _ = self.DTFT(coeff, resolution=self.Ns, omegaMode='zero')
+        return np.abs(template) # /np.max(np.abs(template))
+        # ---- preiviously used 
+        # template = abs(np.fft.fft(coeff, n=self.Ns))
+        # return template/np.max(template)
 
     def rotationEst(self, y):
         row = np.concatenate((self.template[0], self.template[:0:-1]), axis=None)
         templateMatrix = toeplitz(self.template, row)
-        rxTemplate = abs( np.fft.fft(y, n=self.Ns) )
-        rxTemplate /= np.max(rxTemplate)
-        # rxTemplate, _ = self.DTFT(y, resolution=self.Ns)
-        # rxTemplate = np.abs(rxTemplate)/np.max(np.abs(rxTemplate))
+        # rxTemplate = abs( np.fft.fft(y, n=self.Ns) )
+        # rxTemplate /= np.max(rxTemplate)
+        rxTemplate, _ = self.DTFT(y, resolution=self.Ns, omegaMode='zero')
+        rxTemplate = np.abs(rxTemplate) # /np.max(np.abs(rxTemplate))
         innerPdt = rxTemplate @ templateMatrix
         indx = np.argmax(innerPdt)
         phi_hat = (2 * np.pi * indx / self.Ns) 
-        y_corrected = y @ np.diag( np.exp(-1j * phi_hat * ( np.arange(len(y)) ) ) )
-        return y_corrected, abs(phi_hat)
+        y_corrected = y @ np.diag( np.exp(1j * phi_hat * ( np.arange(len(y)) ) ) )
+        return y_corrected, phi_hat # abs(phi_hat)
 
     # JBMOCZ Simulator
-    def simulator(self, noIter, perParam, ch, FLAG="AWGN"):
+    def simulator(self, noIter, perParam, ch, FLAG="AWGN", noiseFlag=True):
         BER, PCR, PAPR, rotationEst = 0, 0, 0, 0
         rotation, rotation_hat = 1e-7, 1e-7
         for _ in range(noIter):
@@ -64,26 +76,30 @@ class JBMOCZ(MOCZ):
             sigPower = np.mean(np.abs(sigTx)**2)
             sigTx /= np.sqrt(sigPower)
 
-            if FLAG == "CFO":
-                rotation = np.random.uniform(0, 2*np.pi)
-                sigRx = ch.CFO(sigTx, rotation)
-            elif FLAG == "BF":
-                sigRx, _ = ch.blockFading(sigTx)
+            rotation = np.random.uniform(0, 2*np.pi)
+            if FLAG == "FS":
+                sigRx, _ = ch.frequencySelective(sigTx, noiseFlag)
+            elif FLAG == "CFO":
+                sigRx = ch.CFO(sigTx, rotation, noiseFlag)
             elif FLAG == "AWGN":
                 sigRx = ch.awgn(sigTx)
-            elif FLAG == "FS":
-                sigRx, _ = ch.frequencySelective(sigTx)
+            elif FLAG == "FS_CFO":
+                sigRx, _ = ch.frequencySelective(sigTx, noiseFlag, rotation)
 
-            sigRxCorrected, rotation_hat = self.rotationEst(sigRx)
-            msgRx = self.fftDizet(sigRxCorrected)
+            Q = int( np.ceil(len(sigRx)/self.K) )
+            if FLAG == 'FS_CFO' or FLAG == 'CFO':
+                sigRxCorrected, rotation_hat = self.rotationEst(sigRx)
+                sigRx = sigRxCorrected
+            msgRx = self.fftDizet(sigRx, Q)
 
             BER += perParam.ber(msgRx, msgTx)
             PCR += perParam.pcr(msgRx, msgTx)
             PAPR += self.PAPR(sigTx)
-            mae = np.abs(rotation - rotation_hat) if np.abs(rotation - rotation_hat) < np.pi else 2*np.pi-np.abs(rotation - rotation_hat)
+            mae = np.min([abs(rotation - rotation_hat), abs(rotation - (2*np.pi-rotation_hat))])
+            # mae = np.abs(rotation - rotation_hat) if np.abs(rotation - rotation_hat) < np.pi else 2*np.pi-np.abs(rotation - rotation_hat)
             rotationEst += mae/rotation
         return dict({
-                    'ber': BER/noIter,
+                    'ber': BER/(noIter * self.K),
                     'pcr': PCR / noIter,
                     'papr': PAPR / noIter,
                     'rotationEst': rotationEst / noIter

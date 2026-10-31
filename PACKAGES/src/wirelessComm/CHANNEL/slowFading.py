@@ -21,7 +21,8 @@ class SlowFadingChannel(Channel):
 
     def CFO(self, signal, rotation, noiseFlag=True):
         # attenuation provided by the channel
-        h = [ np.exp(1j * rotation * i) for i in range(len(signal)-1, -1, -1) ]
+        h = [ np.exp(1j * rotation * i) for i in range(len(signal)) ]
+        # h = [ np.exp(1j * rotation * i) for i in range(len(signal)-1, -1, -1) ]
         if noiseFlag:
             return (signal + self.awgn_noise(len(signal))) * h
         return signal * h
@@ -44,6 +45,7 @@ class SlowFadingChannel(Channel):
             h_i = np.sqrt((self.chVar**i)/2) * ( np.random.randn() + 1j*np.random.randn() )
             h = np.append(h, h_i)
             power += self.chVar**i
+            # print(self.chVar**i, np.sqrt(power))
         return h / np.sqrt(power)
 
     def frequencySelective(self, signal, noiseFlag=True, rotation=0):
@@ -55,19 +57,19 @@ class SlowFadingChannel(Channel):
             return rxSig + self.awgn_noise(len(rxSig)), freqSelCh
         return rxSig, freqSelCh
 
-    def PDP_LTI(self, delay, power, signal, noiseFlag=True):
-        delayMax = max(delay)
+    def PDP_LTI(self, signal, noiseFlag=True):
+        delayMax = max(self.delay) + 1
         h = np.zeros(delayMax, dtype=complex)
-        for d, p in zip(delay, power):
-            h[d-1] += np.sqrt(p/2) * ( np.random.randn() + 1j*np.random.randn() )
-        h /= np.sqrt(np.sum(power))
+        for d, p in zip(self.delay, self.power):
+            h[d] += np.sqrt(p/2) * ( np.random.randn() + 1j*np.random.randn() )
+        h /= np.sqrt(np.sum(self.power))
         rxSig = np.convolve(signal, h)
         if noiseFlag:
             return rxSig + self.awgn_noise(len(rxSig))
         return rxSig
 
     def PDP_LTV(self, delay, power, signal, Tc, noiseFlag=True):
-        delayMax = max(delay)
+        delayMax = max(delay) + 1
         rxLen = len(signal)+delayMax
         rxSig = np.zeros(rxLen)
         Tc_k = -1
@@ -76,7 +78,7 @@ class SlowFadingChannel(Channel):
                 Tc_k == delaytime // Tc
                 h = np.zeros(delayMax, dtype=complex)
                 for d, p in zip(delay, power):
-                    h[d-1] += np.sqrt(p/2) * (np.random.randn() + 1j*np.random.randn())
+                    h[d] += np.sqrt(p/2) * (np.random.randn() + 1j*np.random.randn())
                 h /= np.sqrt(np.sum(power))
             rxSig[delaytime:rxLen] = np.convolve(signal, h)
         if noiseFlag:

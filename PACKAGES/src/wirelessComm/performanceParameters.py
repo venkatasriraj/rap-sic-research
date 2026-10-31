@@ -16,4 +16,5 @@ class PerformanceParameters:
 
     @staticmethod
     def ber(msg_rx, msg_tx):
-        return np.mean( msg_rx != msg_tx )
+        # return np.mean( msg_rx != msg_tx )
+        return np.sum(msg_rx != msg_tx)

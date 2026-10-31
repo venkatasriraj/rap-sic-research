@@ -45,7 +45,8 @@ class BMOCZ(MOCZ):
     
     def ffoEstCor(self, y, Q):
         theta_hat, q_est = self.ffo_est(y, Q)
-        M_theta = np.diag( np.exp(-1j*theta_hat) ** np.flip( np.arange(len(y)) ) )
+        # M_theta = np.diag( np.exp(-1j*theta_hat) ** np.flip( np.arange(len(y)) ) )
+        M_theta = np.diag( np.exp(1j*theta_hat) ** np.arange(len(y)) )
         return y @ M_theta, theta_hat
 
     #--- Conclusion of MOCZ Decoder 
@@ -149,9 +150,7 @@ class BMOCZ(MOCZ):
             sigTx /= np.sqrt(sigPower)
 
             rotation = np.random.uniform(0, 2*np.pi)
-            if FLAG == "BF":
-                sigRx, _ = ch.blockFading(sigTx, noiseFlag)
-            elif FLAG == "FS":
+            if FLAG == "FS":
                 sigRx, _ = ch.frequencySelective(sigTx, noiseFlag)
             elif FLAG == "CFO":
                 sigRx = ch.CFO(sigTx, rotation, noiseFlag)
@@ -159,15 +158,16 @@ class BMOCZ(MOCZ):
                 sigRx = ch.awgn(sigTx)
             elif FLAG == "FS_CFO":
                 sigRx, _ = ch.frequencySelective(sigTx, noiseFlag, rotation)
-            elif FLAG == "BF_CFO":
-                sigRx, _ = ch.blockFading(sigRx, noiseFlag, rotation)
 
-            if len(self.PZ) == 1 and ( FLAG == 'CFO' or FLAG == 'BF_CFO' or FLAG == 'FS_CFO'):
-                # msgRx, rotation_hat = self.singlePZDecodedMsg(sigRx, Q)
-                sigRxCorrected, rotation_hat = self.rotationEstTemplate(sigRx)
-                msgRx = self.fftDizet(sigRxCorrected, Q)
-            else:
-                msgRx = self.fftDizet(sigRx, Q)
+            if ( FLAG == 'CFO' or FLAG == 'FS_CFO'):
+                if len(self.PZ) == 1:
+                    # msgRx, rotation_hat = self.singlePZDecodedMsg(sigRx, Q)
+                    sigRxCorrected, rotation_hat = self.rotationEstTemplate(sigRx)
+                else:
+                    # in this case only fractional rotation offset FRO is corrected
+                    sigRxCorrected, rotation_hat = self.ffoEstCor(sigRx, Q)
+                sigRx = sigRxCorrected
+            msgRx = self.fftDizet(sigRx, Q)
 
             mae = np.abs(rotation - rotation_hat) if np.abs(rotation - rotation_hat) < np.pi else 2*np.pi-np.abs(rotation - rotation_hat)
             rotationEst += mae/rotation
@@ -175,14 +175,14 @@ class BMOCZ(MOCZ):
             PCR += perParam.pcr(msgRx, msgTx)
             PAPR += self.PAPR(sigTx)
         return dict({
-            'ber': BER/noIter,
+            'ber': BER/(noIter*self.K),
             'pcr': PCR/noIter,
             'papr': PAPR/noIter,
             'rotationEst': rotationEst/noIter
         })
 
     def simulatorACPC(self, noIter, perParam, ch, acpc, Q=64, FLAG='FS', noiseFlag=True):
-        BER, PCR, PAPR, rotationEst = 0, 0, 0, 0
+        BER, PCR, PAPR, rotationEst, theta_hat = 0, 0, 0, 0, 0
         for _ in range(noIter):
             msgTx = np.random.randint(0, 2, acpc.B)
             msgEnc = acpc.msg_encoding(msgTx)
@@ -192,9 +192,7 @@ class BMOCZ(MOCZ):
             sigTx /= np.sqrt(sigPower)
 
             rotation = np.random.uniform(0, 2*np.pi)
-            if FLAG == "BF":
-                sigRx, _ = ch.blockFading(sigTx, noiseFlag)
-            elif FLAG == "FS":
+            if FLAG == "FS":
                 sigRx, _ = ch.frequencySelective(sigTx, noiseFlag)
             elif FLAG == "CFO":
                 sigRx = ch.CFO(sigTx, rotation, noiseFlag)
@@ -202,19 +200,21 @@ class BMOCZ(MOCZ):
                 sigRx = ch.awgn(sigTx)
             elif FLAG == "FS_CFO":
                 sigRx, _ = ch.frequencySelective(sigTx, noiseFlag, rotation)
-            elif FLAG == "BF_CFO":
-                sigRx, _ = ch.blockFading(sigTx, noiseFlag, rotation)
-            
-            sigFROcorrected, theta_hat = self.ffoEstCor(sigRx, Q)
-            estCodeword = self.fftDizet(sigFROcorrected, Q)
+
+            if ( FLAG == 'CFO' or FLAG == 'FS_CFO'):
+                sigFROcorrected, theta_hat = self.ffoEstCor(sigRx, Q)
+                sigRx = sigFROcorrected
+            estCodeword = self.fftDizet(sigRx, Q)
             msgRx, l_hat = acpc.codeword_decoding(estCodeword)
             rotation_hat = l_hat * self.theta_K + theta_hat
             BER += perParam.ber(msgRx, msgTx)
             PCR += perParam.pcr(msgRx, msgTx)
             PAPR += self.PAPR(sigTx)
-            rotationEst += np.abs(rotation - rotation_hat) if np.abs(rotation - rotation_hat) < np.pi else 2*np.pi-np.abs(rotation - rotation_hat)
+            mae = np.min([abs(rotation - rotation_hat), abs(rotation - (2*np.pi - rotation_hat))])
+            # mae = np.abs(rotation - rotation_hat) if np.abs(rotation - rotation_hat) < np.pi else 2*np.pi-np.abs(rotation - rotation_hat)
+            rotationEst += mae/rotation
         return dict({
-                'ber': BER/noIter,
+                'ber': BER/(noIter * acpc.B),
                 'pcr': PCR/noIter,
                 'papr': PAPR/noIter,
                 'rotationEst': rotationEst/noIter

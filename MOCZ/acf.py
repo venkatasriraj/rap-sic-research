@@ -7,14 +7,14 @@ import matplotlib.pyplot as plt
 from wirelessComm import BMOCZ, SBMOCZ, JBMOCZ, SlowFadingChannel, IMMOCZ, PMOCZ
 
 zetaS = 0.0545
-zetaJ = 1.07
-K = 32
+zetaJ = 1.15
+K = 31
 M = 4
 PZrad = 1.25
 bmoczSys = BMOCZ(K, PZrad=0)
 bmoczSysPZ = BMOCZ(K, PZrad=PZrad)
 sbmoczSys = SBMOCZ(K, zetaS)
-jbmoczSys = JBMOCZ(K, zetaJ)
+jbmoczSys = JBMOCZ(K, zetaJ, Rj=1.044)
 immoczSys = IMMOCZ(K, M, PZradius=0)
 pmoczSys = PMOCZ(K, M)
 ch = SlowFadingChannel(noise_var=0.01) # operating in 20dB SNR region
@@ -93,6 +93,18 @@ print(f"SBMOCZ - Rotation Appled: {rotation}, Rotation Est: {rotationEst}, Error
 print(f"JBMOCZ - Rotation Appled: {rotation}, Rotation Est: {rotationEst_jb}, Error: {abs(rotationEst_jb-rotation)}")
 print(f"BMOCZ-PZ - Rotation Appled: {rotation}, Rotation Est: {rotationEst_PZ}, Error: {abs(rotationEst_PZ-rotation)}")
 
+plt.rcParams.update({
+    "font.family": "serif",
+    # "font.size": 26,
+    "axes.labelsize": 23,
+    "xtick.labelsize": 20,
+    "ytick.labelsize": 20,
+    # "legend.fontsize": 25,
+    # "axes.titlesize": 20,
+    "pdf.fonttype": 42,
+    "ps.fonttype": 42,
+})
+
 plt.figure(1, dpi=800)
 plt.plot(omega_dtft, np.abs(bTx_dtft)**2, '-', linewidth=0.9, label='Tx Signal')
 plt.plot(omega_dtft, np.abs(bRx_dtft)**2, '--', linewidth=0.9, label='Rx Signal')
@@ -117,33 +129,42 @@ plt.tight_layout()
 plt.savefig("results/ACF/CFO/sbPSD.jpeg")
 
 plt.figure(3, dpi=800)
-plt.plot(omega_dtft, np.abs(jbTx_dtft)**2, '--', linewidth=0.9, label='Tx Signal')
+plt.plot(omega_dtft, np.abs(jbTx_dtft)**1, '--', linewidth=1.2, label='Tx Signal')
 # plt.plot(omega_dtft, np.abs(jbRx_dtft)**2, '--', linewidth=0.9, label='Rx Signal')
 # plt.plot(omega_dtft, np.abs(jbRxC_dtft)**2, '--', linewidth=0.9, label='Rx Corrected')
 # plt.plot(omega_dtft, np.abs(jbmoczSys.template)**2, '-', linewidth=0.9, label='Template')
 # plt.plot(omega_dtft, np.abs(np.fft.fft(jbRx, n=1024))**2, '-', linewidth=0.9, label='Rx FFT')
-plt.xlabel("Angular Frequency (w)")
-plt.ylabel("Magnitude")
+plt.xticks(
+    [-np.pi, -np.pi/2, 0, np.pi/2, np.pi],
+    [r'$-\pi$', r'$-\pi/2$', r'$0$', r'$\pi/2$', r'$\pi$']
+)
+plt.xlabel(r'$\omega$')
+plt.ylabel(r'$T(\omega)$')
 plt.title("Magnitude Spectrum / Power Spectral Density(PSD)of JBMOCZ")
-plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
+plt.legend(loc='upper right', framealpha=0.5, fontsize=18)
 plt.tight_layout()
 plt.grid(True, alpha=0.6, linestyle='--')
-plt.savefig("results/ACF/CFO/jbPSD.jpeg")
+plt.savefig("results/ACF/CFO/jbPSD.pdf", bbox_inches="tight")
 
 plt.figure(4, dpi=800)
-plt.plot(omega_dtft, np.abs(bTx_dtft)**2, '-', linewidth=0.9, label='BMOCZ')
-plt.plot(omega_dtft, np.abs(sbTx_dtft)**2, '--', linewidth=0.9, label='SBMOCZ')
-plt.plot(omega_dtft, np.abs(bTxPZ_dtft)**2, '-.', linewidth=0.9, label="BMCOZ-PZ")
-plt.plot(omega_dtft, np.abs(jbTx_dtft)**2, ':', linewidth=0.9, label='JBMOCZ')
+plt.plot(omega_dtft, np.abs(bTx_dtft)**1, '--', linewidth=1.2, label='BMOCZ', color='orange')
+# plt.plot(omega_dtft, np.abs(sbTx_dtft)**2, '--', linewidth=0.9, label='SBMOCZ')
+# plt.plot(omega_dtft, np.abs(bTxPZ_dtft)**2, '-.', linewidth=0.9, label="BMCOZ-PZ")
+plt.plot(omega_dtft, np.abs(jbTx_dtft)**1, '-.', linewidth=1.2, label='JBMOCZ', color="tab:blue")
 # plt.plot(omega_dtft, np.abs(pTx_dtft)**2, linestyle=(0, (5, 3, 1, 3)), linewidth=0.9, label="IM-MCOZ")
 # plt.plot(omega_dtft, np.abs(imTx_dtft)**2, linestyle=(0, (5, 1, 1, 1)), linewidth=0.9, label="PMCOZ")
-plt.xlabel("Angular Frequency (w)")
-plt.ylabel("Magnitude")
-plt.title("PSD Analysis for MOCZ schemes")
+plt.xlim(-np.pi, np.pi)
+plt.xticks(
+    [-np.pi, -np.pi/2, 0, np.pi/2, np.pi],
+    [r'$-\pi$', r'$-\pi/2$', r'$0$', r'$\pi/2$', r'$\pi$']
+)
+plt.xlabel(r'$\omega$')
+plt.ylabel(r'$T(\omega)$')
+# plt.title("PSD Analysis for MOCZ schemes")
 plt.grid(True, alpha=0.6, linestyle='--')
-plt.legend(loc='upper right', framealpha=0.6, fontsize=7)
+plt.legend(loc='upper right', framealpha=0.5, fontsize=18)
 plt.tight_layout()
-plt.savefig("results/ACF/CFO/PSD.jpeg")
+plt.savefig("results/ACF/CFO/PSD.pdf", bbox_inches="tight")
 
 plt.figure(5, dpi=800)
 plt.plot(omega_dtft, (np.abs(bTxPZ_dtft)**1), '--', linewidth=0.9, label='Tx Signal')
@@ -159,8 +180,8 @@ plt.savefig("results/ACF/CFO/bPZ_PSD.jpeg")
 
 plt.figure(6, dpi=800)
 plt.plot(np.arange(-K, K+1), bTx_ACF, '-', linewidth=0.9, label='BMOCZ')
-plt.plot(np.arange(-K, K+1), sbTx_ACF, '--', linewidth=0.9, label='SBMOCZ')
-plt.plot(np.arange(-(K+1), K+2), bTxPZ_ACF, '-.', linewidth=0.9, label="BMCOZ-PZ")
+# plt.plot(np.arange(-K, K+1), sbTx_ACF, '--', linewidth=0.9, label='SBMOCZ')
+# plt.plot(np.arange(-(K+1), K+2), bTxPZ_ACF, '-.', linewidth=0.9, label="BMCOZ-PZ")
 plt.plot(np.arange(-K, K+1), jbTx_ACF, ':', linewidth=0.9, label='JBMOCZ')
 # plt.plot(np.arange(-(K+1), K+2), imTx_ACF, linestyle=(0, (5, 3, 1, 3)), linewidth=0.9, label="IM-MCOZ")
 # plt.plot(np.arange(-(K+0), K+1), pTx_ACF, linestyle=(0, (5, 1, 1, 1)), linewidth=0.9, label="PMCOZ")

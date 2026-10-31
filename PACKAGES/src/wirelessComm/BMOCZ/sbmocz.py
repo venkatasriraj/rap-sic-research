@@ -2,6 +2,8 @@
 Implementation of Smooshed-BMOCZ (SBMOCZ) scheme for CFO estimation
 zeta = 0: Huffman BMOCZ
 zeta > 0: Smooshed-BMOCZ
+
+Smooshed decoder was written for Q=2 and it can work for Lh=2*K - (K+1)
 """
 import numpy as np
 from .mocz import MOCZ 
@@ -34,34 +36,40 @@ class SBMOCZ(MOCZ):
         phi_hat = (2*np.pi/self.Ns) * (np.argmax(np.abs( np.fft.fft(y, n=self.Ns) )))
         # Here we are not flipping the powers of e**(-jphi) when compared to 
         # Huffman BMCOZ
-        y_corrected = y @ np.diag( np.exp(-1j*phi_hat)**(np.arange(len(y))) )
+        y_corrected = y @ np.diag( np.exp(1j*phi_hat)**(np.arange(len(y))) )
         return y_corrected, phi_hat
 
-    def smooshedDecoder(self, y, Q=2):
-        Y_eval, Y_ctr_eval = self.fftCon(y, Q)
-        msgRx = (1 - np.sign( Y_eval[1::2] - Y_ctr_eval[1::2])) / 2
+    def smooshedDecoder(self, y, Q=1):
+        Y_eval, Y_ctr_eval = self.fftCon(y, 2*Q)
+        # msgRx = (1 - np.sign( Y_eval[1::2] - Y_ctr_eval[1::2])) / 2
+        ind = np.arange(1, self.K*2, 2) * Q
+        msgRx = (1 - np.sign( Y_eval[ind] - Y_ctr_eval[ind])) / 2
         return msgRx
 
-    def simulator(self, noIter, perParam, ch, FLAG="AWGN"):
-        BER, PCR, PAPR, rotationEst, rotation = 0, 0, 0, 0, 1e-7
+    def simulator(self, noIter, perParam, ch, FLAG="AWGN", noiseFlag=True):
+        BER, PCR, PAPR, rotationEst, rotation_hat = 0, 0, 0, 0, 1e-7
         for _ in range(noIter):
             msgTx = np.random.randint(0, 2, self.K)
             sigTx = self.coeffCon(msgTx)
             sigPower = np.mean(np.abs(sigTx)**2)
             sigTx /= np.sqrt(sigPower)
 
-            if FLAG == "CFO":
-                rotation = np.random.uniform(0, 2*np.pi)
-                sigRx = ch.CFO(sigTx, rotation)
-            elif FLAG == "BF":
-                sigRx, _ = ch.blockFading(sigTx)
+            rotation = np.random.uniform(0, 2*np.pi)
+            if FLAG == "FS":
+                sigRx, _ = ch.frequencySelective(sigTx, noiseFlag)
+            elif FLAG == "CFO":
+                sigRx = ch.CFO(sigTx, rotation, noiseFlag)
             elif FLAG == "AWGN":
                 sigRx = ch.awgn(sigTx)
-            elif FLAG == "FS":
-                sigRx, _ = ch.frequencySelective(sigTx)
+            elif FLAG == "FS_CFO":
+                sigRx, _ = ch.frequencySelective(sigTx, noiseFlag, rotation)
 
-            sigRx_corrected, rotation_hat = self.rotationEst(sigRx)
-            msgRx = self.smooshedDecoder(sigRx_corrected)
+            Q = int( np.ceil(len(sigRx)/self.K) )
+            if FLAG == 'FS_CFO' or FLAG == 'CFO' or FLAG == 'BF_CFO':
+                sigRxCorrected, rotation_hat = self.rotationEst(sigRx)
+                sigRx = sigRxCorrected
+            msgRx = self.smooshedDecoder(sigRx, Q=2)
+            
             BER += perParam.ber(msgRx, msgTx)
             PCR += perParam.pcr(msgRx, msgTx)
             PAPR += self.PAPR(sigTx)

@@ -156,11 +156,13 @@ class ACPC:
         for i in range(self.n):
             c_hat = np.roll(codeword_hat, -i) - self.g_affine
             if np.all(c_hat @ self.H.T == 0):
-                l_est = self.n - i
+                # l_est = self.n - i
+                l_est = i
                 msg_hat = c_hat[-B:]
                 break
             else:
-                l_est = self.n - i
+                # l_est = self.n - i
+                l_est = i
                 msg_hat = c_hat[-B:]
         return msg_hat, l_est
 

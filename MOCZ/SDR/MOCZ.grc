@@ -1,29 +1,25 @@
 options:
   parameters:
+    alias: ''
     author: venkata sriraj
     catch_exceptions: 'True'
-    category: '[GRC Hier Blocks]'
-    cmake_opt: ''
     comment: ''
     copyright: ''
     description: ''
-    gen_cmake: 'On'
     gen_linking: dynamic
     generate_options: qt_gui
+    generator_class_name: PythonQtGuiGenerator
+    generator_module: gnuradio.grc.workflows.python_qt_gui
     hier_block_src_path: '.:'
     id: MOCZ
     max_nouts: '0'
     output_language: python
-    placement: (0,0)
     qt_qss_theme: ''
     realtime_scheduling: ''
     run: 'True'
     run_command: '{python} -u {filename}'
-    run_options: prompt
-    sizing_mode: fixed
     thread_safe_setters: ''
     title: Not titled yet
-    window_size: (1000,1000)
   states:
     bus_sink: false
     bus_source: false
@@ -33,6 +29,30 @@ options:
     state: enabled
 
 blocks:
+- name: G_Dec
+  id: variable
+  parameters:
+    comment: ''
+    value: '2'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [696, 88.0]
+    rotation: 0
+    state: enabled
+- name: G_Inter
+  id: variable
+  parameters:
+    comment: ''
+    value: '5'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [624, 88.0]
+    rotation: 0
+    state: enabled
 - name: K
   id: variable
   parameters:
@@ -57,6 +77,30 @@ blocks:
     coordinate: [376, 16.0]
     rotation: 0
     state: enabled
+- name: R
+  id: variable
+  parameters:
+    comment: ''
+    value: None
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [448, 16.0]
+    rotation: 0
+    state: enabled
+- name: Rs
+  id: variable
+  parameters:
+    comment: ''
+    value: 5e3
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [528, 16.0]
+    rotation: 0
+    state: enabled
 - name: SNR
   id: variable
   parameters:
@@ -67,6 +111,18 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [304, 88.0]
+    rotation: 0
+    state: enabled
+- name: excessBW
+  id: variable
+  parameters:
+    comment: ''
+    value: '0.35'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [456, 88.0]
     rotation: 0
     state: enabled
 - name: noiseVar
@@ -85,12 +141,57 @@ blocks:
   id: variable
   parameters:
     comment: ''
+    value: Rs * sps
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [192, 16.0]
+    rotation: 0
+    state: enabled
+- name: samp_rate1
+  id: variable
+  parameters:
+    comment: ''
     value: '32000'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [200, 16.0]
+    coordinate: [8, 128.0]
+    rotation: 0
+    state: enabled
+- name: sps
+  id: variable
+  parameters:
+    comment: ''
+    value: '10'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [544, 88.0]
+    rotation: 0
+    state: enabled
+- name: blocks_throttle2_0
+  id: blocks_throttle2
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    ignoretag: 'True'
+    limit: auto
+    maximum: '0.1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samples_per_second: samp_rate
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [528, 384.0]
     rotation: 0
     state: enabled
 - name: channels_channel_model_0
@@ -111,36 +212,48 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [408, 192.0]
+    coordinate: [40, 184.0]
     rotation: 0
-    state: enabled
+    state: disabled
 - name: epy_block_0
   id: epy_block
   parameters:
     K: K
     Q: Q
-    _source_code: "import numpy as np\nfrom gnuradio import gr\n\nclass blk(gr.sync_block):\
+    R: R
+    _source_code: "import numpy as np\nfrom gnuradio import gr\n\nclass blk(gr.basic_block):\
       \  # other base classes are basic_block, decim_block, interp_block\n\n    def\
-      \ __init__(self, K=4, Q=4):  # only default arguments here\n        gr.sync_block.__init__(\n\
-      \            self,\n            name='MCOZ Symbol Generator', \n           \
-      \ in_sig=[np.complex64],\n            out_sig=[np.complex64]\n        )\n  \
-      \      # if an attribute with the same name as a parameter is found,\n     \
-      \   # a callback is registered (properties work, too).\n        self.K = K\n\
-      \        self.Q = Q\n\n    def work(self, input_items, output_items):\n    \
-      \    \"\"\"example: multiply with constant\"\"\"\n        output_items[0][:]\
-      \ = input_items[0] * self.K\n        return len(output_items[0])\n"
+      \ __init__(self, K=4, Q=4, R=None):  # only default arguments here\n       \
+      \ gr.basic_block.__init__(\n            self,\n            name='MCOZ Symbol\
+      \ Generator', \n            in_sig=None,\n            out_sig=[np.complex64]\n\
+      \        )\n        # if an attribute with the same name as a parameter is found,\n\
+      \        # a callback is registered (properties work, too).\n        self.K\
+      \ = K\n        self.Q = Q\n        self.R = np.sqrt(1 + np.sin(np.pi/K)) if\
+      \ R is None else R\n        self.zero_geometry = self.codebook_con()\n\n   \
+      \ def codebook_con(self):\n        Ri, Ro = self.R**(-1), self.R\n        theta\
+      \ = 2 * np.pi / self.K\n        return [( Ri * np.exp(1j*theta*k), Ro * np.exp(1j*theta*k)\
+      \ ) for k in range(self.K)]\n\n    def coeffCon(self, msg):\n        zeros =\
+      \ np.array([self.zero_geometry[mk][msg[mk]]*np.exp(1j*np.pi*0/self.K) for mk\
+      \ in range(self.K)])\n        N = self.K * 2\n        z = np.exp(2j * np.pi\
+      \ * np.arange(N) / N)\n        X_Z = np.prod( z[:, None] - zeros[None, :], axis=1\
+      \ )\n        return np.fft.fft(X_Z)[:self.K+1]/N  # increasing powers, monic\n\
+      \n    def general_work(self, input_items, output_items):\n        msgTx = np.random.randint(0,\
+      \ 2, self.K)\n        sigTx = self.coeffCon(msgTx)\n        sigPower = np.mean(np.abs(sigTx)**2)\n\
+      \        sigTx /= np.sqrt(sigPower)\n        \n        output_items[0][:len(sigTx)]\
+      \ = sigTx[:]\n        output_items[0][len(sigTx):] = np.zeros(len(output_items[0])-len(sigTx),\
+      \ dtype=complex)\n        return len(output_items[0])"
     affinity: ''
     alias: ''
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
   states:
-    _io_cache: ('MCOZ Symbol Generator', 'blk', [('K', '4'), ('Q', '4')], [('0', 'complex',
-      1)], [('0', 'complex', 1)], '', ['K', 'Q'])
+    _io_cache: ('MCOZ Symbol Generator', 'blk', [('K', '4'), ('Q', '4'), ('R', 'None')],
+      [], [('0', 'complex', 1)], '', ['K', 'Q', 'R'])
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [40, 224.0]
+    coordinate: [72, 376.0]
     rotation: 0
     state: enabled
 - name: epy_block_1
@@ -171,7 +284,32 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [680, 232.0]
+    coordinate: [240, 224.0]
+    rotation: 0
+    state: disabled
+- name: epy_block_2
+  id: epy_block
+  parameters:
+    _source_code: "import numpy as np\nfrom gnuradio import gr\n\nclass blk(gr.sync_block):\
+      \  \n\n    def __init__(self, example_param=1.0):  \n        gr.sync_block.__init__(\n\
+      \            self,\n            name='Huffman Energy Detector', \n         \
+      \   in_sig=[np.complex64],\n            out_sig=[np.complex64]\n        )\n\
+      \        self.example_param = example_param\n\n    def work(self, input_items,\
+      \ output_items):\n        output_items[0][:] = input_items[0] * self.example_param\n\
+      \        return len(output_items[0])\n"
+    affinity: ''
+    alias: ''
+    comment: ''
+    example_param: '1.0'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    _io_cache: ('Huffman Energy Detector', 'blk', [('example_param', '1.0')], [('0',
+      'complex', 1)], [('0', 'complex', 1)], '', ['example_param'])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [960, 312.0]
     rotation: 0
     state: enabled
 - name: import_0
@@ -184,10 +322,159 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [448, 16.0]
+    coordinate: [200, 88.0]
     rotation: 0
     state: enabled
-connections: []
+- name: qtgui_time_sink_x_0
+  id: qtgui_time_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'True'
+    axislabels: 'True'
+    color1: blue
+    color10: dark blue
+    color2: red
+    color3: green
+    color4: black
+    color5: cyan
+    color6: magenta
+    color7: yellow
+    color8: dark red
+    color9: dark green
+    comment: ''
+    ctrlpanel: 'False'
+    entags: 'True'
+    grid: 'True'
+    gui_hint: ''
+    label1: Signal 1
+    label10: Signal 10
+    label2: Signal 2
+    label3: Signal 3
+    label4: Signal 4
+    label5: Signal 5
+    label6: Signal 6
+    label7: Signal 7
+    label8: Signal 8
+    label9: Signal 9
+    legend: 'True'
+    marker1: '-1'
+    marker10: '-1'
+    marker2: '-1'
+    marker3: '-1'
+    marker4: '-1'
+    marker5: '-1'
+    marker6: '-1'
+    marker7: '-1'
+    marker8: '-1'
+    marker9: '-1'
+    name: '""'
+    nconnections: '2'
+    size: '1024'
+    srate: samp_rate
+    stemplot: 'False'
+    style1: '1'
+    style10: '1'
+    style2: '1'
+    style3: '1'
+    style4: '1'
+    style5: '1'
+    style6: '1'
+    style7: '1'
+    style8: '1'
+    style9: '1'
+    tr_chan: '0'
+    tr_delay: '0'
+    tr_level: '0.0'
+    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_slope: qtgui.TRIG_SLOPE_POS
+    tr_tag: '""'
+    type: complex
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    ylabel: Amplitude
+    ymax: '1'
+    ymin: '-1'
+    yunit: '""'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [944, 224.0]
+    rotation: 0
+    state: enabled
+- name: root_raised_cosine_filter_0
+  id: root_raised_cosine_filter
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha: excessBW
+    comment: ''
+    decim: '1'
+    gain: G_Inter
+    interp: sps
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    ntaps: 11*sps + 1
+    samp_rate: samp_rate
+    sym_rate: Rs
+    type: interp_fir_filter_ccf
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [288, 352.0]
+    rotation: 0
+    state: enabled
+- name: root_raised_cosine_filter_0_0
+  id: root_raised_cosine_filter
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha: excessBW
+    comment: ''
+    decim: sps
+    gain: G_Dec
+    interp: sps
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    ntaps: 11*sps + 1
+    samp_rate: samp_rate
+    sym_rate: Rs
+    type: fir_filter_ccf
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [712, 352.0]
+    rotation: 0
+    state: enabled
+
+connections:
+- [blocks_throttle2_0, '0', qtgui_time_sink_x_0, '0']
+- [blocks_throttle2_0, '0', root_raised_cosine_filter_0_0, '0']
+- [epy_block_0, '0', root_raised_cosine_filter_0, '0']
+- [root_raised_cosine_filter_0, '0', blocks_throttle2_0, '0']
+- [root_raised_cosine_filter_0_0, '0', qtgui_time_sink_x_0, '1']
 
 metadata:
   file_format: 1

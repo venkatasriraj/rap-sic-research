@@ -60,3 +60,36 @@ class LoRa:
             symbol_hat = np.argmax( np.abs(fftTone) )
             msg_decoded = np.append(msg_decoded, self.dec2bin(symbol_hat))
         return msg_decoded.astype(np.uint16)
+
+    @staticmethod
+    def PAPR(signal):
+        signal_max = np.max( np.abs(signal) )**2
+        papr = signal_max / np.mean( np.abs(signal)**2 )
+        return 10*np.log10(papr)
+
+    def simulator(self, noIter, perParam, ch, FLAG="AWGN", noiseFlag=True):
+        BER, PCR, rotationEst = 0, 0, 0
+        rotation, rotation_hat = 1e-7, 1e-7
+        for _ in range(noIter):
+            msgTx = np.random.randint(0, 2, self.SF)
+            sigTx = self.modulation(msgTx)
+
+            rotation = np.random.uniform(0, 2*np.pi)
+            if FLAG == "FS":
+                sigRx, _ = ch.frequencySelective(sigTx, noiseFlag)
+            elif FLAG == "CFO":
+                sigRx = ch.CFO(sigTx, rotation, noiseFlag)
+            elif FLAG == "AWGN":
+                sigRx = ch.awgn(sigTx)
+            elif FLAG == "FS_CFO":
+                sigRx, _ = ch.frequencySelective(sigTx, noiseFlag, rotation)
+            
+            msgRx = self.demodulation(sigRx)[:self.SF]
+
+            BER += perParam.ber(msgRx, msgTx)
+            PCR += perParam.pcr(msgRx, msgTx)
+        return dict({
+                    'ber': BER/noIter,
+                    'pcr': PCR / noIter,
+                    'rotationEst': rotationEst / noIter
+        })

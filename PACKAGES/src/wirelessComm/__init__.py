@@ -1,6 +1,6 @@
 from .BMOCZ import (
     MOCZ, PMOCZ, BMOCZ, SBMOCZ, JBMOCZ,
-    moczSIMULATION, ACPC, IMMOCZ, JUTTEDfs
+    moczSIMULATION, ACPC, IMMOCZ, JUTTEDfs, BCH
 )
 from .CHANNEL import (
     SlowFadingChannel, MultiPathFading, 
@@ -12,6 +12,9 @@ from .BPSK import (
 )
 from .LORA import LoRa
 from .performanceParameters import PerformanceParameters
+from .OFDM import (
+    NoncoherentOFDMIM, OFDM, PSK
+)
 
 # now we can import from MyLib
 # from MyLib import BMOCZ
