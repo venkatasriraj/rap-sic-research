@@ -1,4 +1,4 @@
-from .bpskModulation import BPSKBase
+from .differntialPSK import DPSK
 from .irsaRx import IRSAReceiver
 from .irsaTx import IRSATransmitter
 from .packet import PacketStructure

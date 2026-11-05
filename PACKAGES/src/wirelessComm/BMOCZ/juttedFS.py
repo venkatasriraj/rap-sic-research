@@ -13,8 +13,8 @@ from .mocz import MOCZ
 
 class JUTTEDfs(MOCZ):
 
-    def __init__(self, K, zeta, M=1, Rj=None, multiplePeak=False):
-        super().__init__(K, M)
+    def __init__(self, K, zeta, M=1, Rj=None, multiplePeak=False, Q=32):
+        super().__init__(K, M, Q)
         self.zeta = zeta
         if Rj != None:
             self.R = Rj
@@ -90,37 +90,29 @@ class JUTTEDfs(MOCZ):
         if not self.multiplePeak:
             u_est = np.argmax(arr)
         else:
-            st = dict()
             idx = np.argsort(arr)[::-1][:3] # consider 2 sectors which have maximum distance
             idx = np.sort(idx)
-            distance = idx[:, None] - idx
-            # print(idx)
+            distance = (idx[:, None] - idx)%self.K
             Flag = False
             for i in range(3):
                 if Flag:
                     break
-                for j in range(i, 3):
+                for j in range(3):
                     if i != j:
-                        if distance[j, i] == 7:
-                            st[2] = idx[[i, j]]
-                            u_est = idx[i]
+                        if distance[i, j] == 7:
+                            u_est = idx[j if i > j else j]
                             Flag = True
                             break
-                        elif distance[j, i] == 10:
-                            st[3] = idx[[i, j]]
-                            u_est = (idx[i] - 7) # % self.K
+                        elif distance[i, j] == 10:
+                            u_est = (idx[j if i > j else j] - 7) % self.K
                             Flag = True
                             break
-                        elif distance[j, i] == 17:
-                            st[5] = idx[[i, j]]
-                            u_est = idx[i]
+                        elif distance[i, j] == 17:
+                            u_est = idx[j if i > j else j]
                             Flag = True
                             break
                         else:
                             u_est = 0
-            # print(u_est)
-            # if len(st.keys()) == 0:
-            #     u_est = 0
         phi_est = (u_est + theta_est) * self.theta_K
         # M_theta = np.diag( np.exp( -1j*phi_est * np.arange(len(y))[::-1] ) )
         M_theta = np.diag( np.exp( 1j*phi_est * np.arange(len(y)) ) )
@@ -148,84 +140,132 @@ class JUTTEDfs(MOCZ):
         M_theta = np.diag( np.exp( -1j*phi_hat * np.arange(len(y_ffo))[::-1] ) )
         return y_ffo @ M_theta, phi_hat
 
-    def simulator(self, noIter, perParam, ch, Q=64, FLAG="FS", noiseFlag=True):
-        BER, PCR, PAPR, rotationEst, rotation_hat = 0, 0, 0, 0, 1e-7
+    def simulator(self, noIter, perParam, ch, Energy='None', Q=64, FLAG="FS", noiseFlag=True, errorAnalysis=False):
+        if not errorAnalysis:
+            BER, PCR, PAPR, rotationEst, rotation_hat = 0, 0, 0, 0, 1e-7
+        else:
+            BER, PCR = 0, 0
+            errorDist, errorPosition = np.zeros(self.K+2, dtype=int), np.zeros(self.K+1, dtype=int)
+        E = self.K+1 if Energy == 'None' else Energy
         for _ in range(noIter):
             msgTx =  np.random.randint(0, 2, self.K)
             sigTx = self.coeffCon(msgTx)
-            sigPower = np.mean(np.abs(sigTx)**2)
-            sigTx /= np.sqrt(sigPower)
-
-            rotation = np.random.uniform(0, 2*np.pi)
-            if FLAG == "BF":
-                sigRx, _ = ch.blockFading(sigTx, noiseFlag)
-            elif FLAG == "FS":
-                sigRx, _ = ch.frequencySelective(sigTx, noiseFlag)
-            elif FLAG == "CFO":
-                sigRx = ch.CFO(sigTx, rotation, noiseFlag)
-            elif FLAG == "AWGN":
-                sigRx = ch.awgn(sigTx)
-            elif FLAG == "FS_CFO":
-                sigRx, _ = ch.frequencySelective(sigTx, noiseFlag, rotation)
-            elif FLAG == "BF_CFO":
-                sigRx, _ = ch.blockFading(sigTx, noiseFlag, rotation)
-            
-            if FLAG == 'FS_CFO' or FLAG == 'CFO' or FLAG == 'BF_CFO':
-                # sigRx_ffo, theta_hat = self.ffoCorrection(sigRx, Q)
-                # sigRxCorrected, phi_hat = self.iroCorrection(sigRx_ffo, Q)
-                # rotation_hat = theta_hat + phi_hat
-                # sigRx = sigRxCorrected
-                sigRx, rotation_hat = self.CFOcorrection(sigRx, Q)
-            msgRx = self.fftDizet(sigRx, Q)
-
-            mae = np.min([np.abs(rotation-rotation_hat), np.abs(rotation - (2*np.pi-rotation_hat))])
-            # mae = np.abs((2*np.pi-rotation_hat) % (2*np.pi) - rotation) # if np.abs(rotation - rotation_hat) > np.pi else 2*np.pi-np.abs(rotation - rotation_hat)
-            # mae = np.abs(rotation - rotation_hat) if np.abs(rotation - rotation_hat) < np.pi else 2*np.pi-np.abs(rotation - rotation_hat)
-            # print(f"rotation: {rotation}, EST: {rotation_hat}, MAE: {mae}")
-            rotationEst += mae/rotation
-            BER += perParam.ber(msgRx, msgTx)
-            PCR += perParam.pcr(msgRx, msgTx)
-            PAPR += self.PAPR(sigTx)
-        return dict({
-            'ber': BER/(noIter*self.K),
-            'pcr': PCR/noIter,
-            'papr': PAPR/noIter,
-            'rotationEst': rotationEst/noIter
-        }) 
-
-    def simulatorBCH(self, noIter, perParam, ch, bch, Q=64, FLAG='FS', noiseFlag=True):
-        BER, PCR, PAPR, rotationEst, rotation_hat = 0, 0, 0, 0, 1e-7
-        for _ in range(noIter):
-            msgTx =  np.random.randint(0, 2, bch.B)
-            msgEnc = bch.msgEncoding(msgTx)
-
-            sigTx = self.coeffCon(msgEnc)
-            sigPower = np.mean(np.abs(sigTx)**2)
-            sigTx /= np.sqrt(sigPower)
+            l2_norm = np.linalg.norm(sigTx, ord=2) # energy = l2_norm**2
+            E = self.K+1 if Energy == 'None' else Energy
+            sigTx = (sigTx / l2_norm) * np.sqrt(E) 
 
             rotation = np.random.uniform(0, 2*np.pi)
             if FLAG == "FS":
                 sigRx, _ = ch.frequencySelective(sigTx, noiseFlag)
             elif FLAG == "CFO":
                 sigRx = ch.CFO(sigTx, rotation, noiseFlag)
+                # rotation corrected
+                sigRx, rotation_hat = self.CFOcorrection(sigRx, Q)
             elif FLAG == "AWGN":
                 sigRx = ch.awgn(sigTx)
             elif FLAG == "FS_CFO":
                 sigRx, _ = ch.frequencySelective(sigTx, noiseFlag, rotation)
-
-            if FLAG == 'FS_CFO' or FLAG == 'CFO':
+                # rotation corrected
                 sigRx, rotation_hat = self.CFOcorrection(sigRx, Q)
+            # if FLAG == 'FS_CFO' or FLAG == 'CFO' or FLAG == 'BF_CFO':
+            #     # sigRx_ffo, theta_hat = self.ffoCorrection(sigRx, Q)
+            #     # sigRxCorrected, phi_hat = self.iroCorrection(sigRx_ffo, Q)
+            #     sigRx, rotation_hat = self.CFOcorrection(sigRx, Q)
+            msgRx = self.fftDizet(sigRx, Q)
+            BER += perParam.ber(msgRx, msgTx)
+            PCR += perParam.pcr(msgRx, msgTx)
+            if not errorAnalysis:
+                mae = np.min([np.abs(rotation-rotation_hat), np.abs(rotation - (2*np.pi-rotation_hat))])
+                # mae = np.abs(rotation - rotation_hat) if np.abs(rotation - rotation_hat) < np.pi else 2*np.pi-np.abs(rotation - rotation_hat)
+                rotationEst += mae/rotation
+                PAPR += perParam.PAPR(sigTx)
+            else:
+                errorDist[perParam.bitError(msgRx, msgTx)] += 1
+                errorPosition[perParam.errorPos(msgRx, msgTx)] += 1
+        if not errorAnalysis:
+            return dict({
+                # 'ber': BER/(noIter*self.K),
+                'ber': BER/noIter,
+                'pcr': PCR/noIter,
+                'papr': PAPR/noIter,
+                'rotationEst': rotationEst/noIter
+            }) 
+        else:
+            return dict({
+                'ber': BER/noIter,
+                'pcr': PCR/noIter,
+                'errorDist': errorDist,
+                'errorPosition': errorPosition
+            })
+
+    def simulatorBCH(self, noIter, perParam, ch, bch, Energy='None', Q=64, FLAG='FS', noiseFlag=True, errorAnalysis=False):
+        if not errorAnalysis:
+            BER, PCR, PAPR, rotationEst, rotation_hat = 0, 0, 0, 0, 1e-7
+        else:
+            BER, PCR = 0, 0
+            errorDist, errorPosition = np.zeros(self.K+2, dtype=int), np.zeros(self.K+1, dtype=int)
+        E = self.K+1 if Energy == 'None' else Energy
+        for _ in range(noIter):
+            msgTx =  np.random.randint(0, 2, bch.B)
+            msgEnc = bch.msgEncoding(msgTx)
+
+            sigTx = self.coeffCon(msgEnc)
+            l2_norm = np.linalg.norm(sigTx, ord=2) # energy = l2_norm**2
+            E = self.K+1 if Energy == 'None' else Energy
+            sigTx = (sigTx / l2_norm) * np.sqrt(E) 
+
+            rotation = np.random.uniform(0, 2*np.pi)
+            if FLAG == "FS":
+                sigRx, _ = ch.frequencySelective(sigTx, noiseFlag)
+            elif FLAG == "CFO":
+                sigRx = ch.CFO(sigTx, rotation, noiseFlag)
+                # rotation corrected
+                sigRx, rotation_hat = self.CFOcorrection(sigRx, Q)
+            elif FLAG == "AWGN":
+                sigRx = ch.awgn(sigTx)
+            elif FLAG == "FS_CFO":
+                sigRx, _ = ch.frequencySelective(sigTx, noiseFlag, rotation)
+                # rotation corrected
+                sigRx, rotation_hat = self.CFOcorrection(sigRx, Q)
+            # if FLAG == 'FS_CFO' or FLAG == 'CFO':
+            #     sigRx, rotation_hat = self.CFOcorrection(sigRx, Q)
             estCodeword = self.fftDizet(sigRx, Q)
 
             msgRx = bch.msgDecoding(estCodeword)
-            mae = np.min([np.abs(rotation-rotation_hat), np.abs(rotation - (2*np.pi-rotation_hat))])
-            rotationEst += mae/rotation
             BER += perParam.ber(msgRx, msgTx)
             PCR += perParam.pcr(msgRx, msgTx)
-            PAPR += self.PAPR(sigTx)
-        return dict({
-            'ber': BER/(noIter*bch.B),
-            'pcr': PCR/noIter,
-            'papr': PAPR/noIter,
-            'rotationEst': rotationEst/noIter
-        })
+            if not errorAnalysis:
+                mae = np.min([np.abs(rotation-rotation_hat), np.abs(rotation - (2*np.pi-rotation_hat))])
+                rotationEst += mae/rotation
+                PAPR += perParam.PAPR(sigTx)
+            else:
+                errorDist[perParam.bitError(msgRx, msgTx)] += 1
+                errorPosition[perParam.errorPos(msgRx, msgTx)] += 1
+        if not errorAnalysis:
+            return dict({
+                # 'ber': BER/(noIter*bch.B),
+                'ber': BER/noIter,
+                'pcr': PCR/noIter,
+                'papr': PAPR/noIter,
+                'rotationEst': rotationEst/noIter
+            })
+        else:
+            return dict({
+                'ber': BER/noIter,
+                'pcr': PCR/noIter,
+                'errorDist': errorDist,
+                'errorPosition': errorPosition
+            })
+
+    def transmitterRAP(self, msgTx, ENERGY):
+        sigTx = self.coeffCon(msgTx)         
+        l2_norm = np.linalg.norm(sigTx, ord=2) 
+        sigTx = (sigTx / l2_norm) * np.sqrt(ENERGY)
+        return sigTx
+
+    def receiverRAP(self, sigRx, CFO=False):
+        rotation_hat = 0
+        if CFO:
+            sigRx, rotation_hat = self.CFOcorrection(sigRx, self.Q)
+        msgRx = self.fftDizet(sigRx, self.Q) 
+        return msgRx, rotation_hat    

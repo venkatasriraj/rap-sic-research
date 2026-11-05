@@ -9,10 +9,11 @@ from scipy.linalg import toeplitz
 
 class MOCZ:
 
-    def __init__(self, K, M = 1):
+    def __init__(self, K, M = 1, Q = 32):
         self.K = K
         self.R = np.sqrt(1 + np.sin(np.pi/K))
         self.M = M
+        self.Q = Q
         self.theta_K = (np.pi * 2) / (K * M)
         
     def toeplitz_iterator(self, zeros):
@@ -34,8 +35,9 @@ class MOCZ:
         # polynomial in the increasing power of x (polynomial degree) is transmitted
         return x[::-1]
 
-    def fftCon(self, y, Q):
+    def fftCon(self, y, Q):# q='None'
         N_r = len(y)        
+        # overSamFac = self.Q if q == 'None' else q
         N_fft = Q * self.K * self.M
 
         scaling_vec = self.R ** np.arange(N_r)
@@ -90,16 +92,6 @@ class MOCZ:
     #     #     return q_est, np.asarray(msgDecoded, dtype=np.int8)
     #     return q_est//Q, msgDecoded.astype(int) 
 
-    @staticmethod
-    def PAPR(signal):
-        # signal_max = np.abs( np.sum(signal) )
-        signal_max = np.max( np.abs(signal) )**2
-        signal_power = np.mean( np.abs(signal)**2 )
-        papr = signal_max / signal_power
-        papr_dB = 10*np.log10(papr)
-        # print(f"Signal Power: {signal_power}, PAPR: {papr}, Signal Energy: "
-        #         f"{signal_power * len(signal)}, Max Abs Coeff: {np.max(np.abs(signal))}")
-        return papr_dB
     
     @staticmethod
     def bin2dec(binData):

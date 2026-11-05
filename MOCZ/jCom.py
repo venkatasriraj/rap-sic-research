@@ -20,6 +20,7 @@ Peak = [0, 7, 17, 23]
 # schemes = ['jIRO']
 schemes = ['BMOCZ-ACPC', 'JBMOCZ', 'M-JBMOCZ', 'DiZeT-CFO']
 K = 2**m-1
+ENERGY = K + Lh
 BW = math.lcm(K+1, K+2)
 pktRate_PZ = BW / (K+2)
 pktRate = BW / (K+1)
@@ -40,19 +41,19 @@ for scheme in schemes:
         noiseVar = 10**(-snr/10)
         ch = SlowFadingChannel(noise_var=noiseVar, taps=Lh, chVar=chVar)
         if scheme == 'BMOCZ-ACPC':
-            results = bmoczSys.simulatorACPC(noIter, perParam, ch, acpc, Q, FLAG=FLAG)
+            results = bmoczSys.simulatorACPC(noIter, perParam, ch, acpc, Energy=ENERGY, Q=Q, FLAG=FLAG)
             # goodputSNR[snr] = results['pcr'] * (K - 5*(t+1)) / K # * pktRate
             goodputSNR[snr] = results['pcr'] * (K - 5*(t+1)) / (K + Lh)
         elif scheme == 'M-JBMOCZ':
-            results = jbmcozSystem.simulator(noIter, perParam, ch, FLAG=FLAG)
+            results = jbmcozSystem.simulator(noIter, perParam, ch, Energy=ENERGY, FLAG=FLAG)
             # goodputSNR[snr] = results['pcr'] * K / K # * pktRate
             goodputSNR[snr] = results['pcr'] * K / (K + Lh)
         elif scheme == 'DiZeT-CFO':
-            results = jSystem.simulator(noIter, perParam, ch, Q=Q, FLAG=FLAG)
+            results = jSystem.simulator(noIter, perParam, ch, Energy=ENERGY, Q=Q, FLAG=FLAG)
             # goodputSNR[snr] = results['pcr'] * K / K # * pktRate
             goodputSNR[snr] = results['pcr'] * K / (K + Lh)
         elif scheme == 'JBMOCZ':
-            results = juttedRef.simulator(noIter, perParam, ch, FLAG=FLAG)
+            results = juttedRef.simulator(noIter, perParam, ch, Energy=ENERGY, FLAG=FLAG)
             # goodputSNR[snr] = results['pcr'] * K / K # * pktRate
             goodputSNR[snr] = results['pcr'] * K / (K + Lh)
         berSNR[snr] = results['ber']

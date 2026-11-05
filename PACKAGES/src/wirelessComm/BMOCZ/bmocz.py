@@ -4,8 +4,8 @@ from scipy.linalg import toeplitz
 
 class BMOCZ(MOCZ):
 
-    def __init__(self, K, Ns=512, PZrad=1.578):
-        super().__init__(K)
+    def __init__(self, K, Ns=512, PZrad=1.578, Q=16):
+        super().__init__(K, Q=Q)
         self.zero_geometry = self.codebook_con()
         self.Ns = Ns
         self.PZ = [-PZrad * self.R] if PZrad != 0 else []
@@ -22,12 +22,7 @@ class BMOCZ(MOCZ):
         zeros += self.PZ
         return np.asarray(zeros)
     
-    # def coeffCon(self, msg):
-    #     # print(f'\nZeroes selected wrt to message to be transmitted: {np.round(zeros, 6)}\n')
-    #     return self.toeplitz_iterator(self.zeroSelection(msg))  # x = [ x0, x1, x2, ....., xK]
-
     ## ---- Receiver methods starting from here
-
     def ffo_est(self, y, Q):
         Yo, Yi = self.fftCon(y, Q)
         min_q = {}
@@ -38,9 +33,7 @@ class BMOCZ(MOCZ):
                 sumZeros += min( Yi[idx], Yo[idx] ) 
             min_q[q] = sumZeros
         q_est = min(min_q, key=min_q.get)
-        # print(f'Estimatied sub-sector: {q_est}')
         theta_est = ( q_est / Q ) * self.theta_K
-        # print(f'Estimated fractional frequency offset: {theta_est}') 
         return theta_est, q_est
     
     def ffoEstCor(self, y, Q):
@@ -141,13 +134,20 @@ class BMOCZ(MOCZ):
 
     #  ----- Conculsion of MOCZ Pilot-Zero Decoder
 
-    def simulator(self, noIter, perParam, ch, Q=64, FLAG="BF", noiseFlag=True):
-        BER, PCR, PAPR, rotationEst, rotation_hat = 0, 0, 0, 0, 1e-7
+    def simulator(self, noIter, perParam, ch, Energy='None', Q=64, FLAG="FS", noiseFlag=True, errorAnalysis=False):
+        if not errorAnalysis:
+            BER, PCR, PAPR, rotationEst, rotation_hat = 0, 0, 0, 0, 1e-7
+        else:
+            BER, PCR = 0, 0
+            errorDist, errorPosition = np.zeros(self.K+2, dtype=int), np.zeros(self.K+1, dtype=int)
+        E = self.K+1 if Energy == 'None' else Energy
         for _ in range(noIter):
             msgTx =  np.random.randint(0, 2, self.K)
             sigTx = self.coeffCon(msgTx)
-            sigPower = np.mean(np.abs(sigTx)**2)
-            sigTx /= np.sqrt(sigPower)
+            # sigPower = np.mean(np.abs(sigTx)**2)
+            # sigTx /= np.sqrt(sigPower)
+            l2_norm = np.linalg.norm(sigTx, ord=2) # energy = l2_norm**2
+            sigTx = (sigTx / l2_norm) * np.sqrt(E)             
 
             rotation = np.random.uniform(0, 2*np.pi)
             if FLAG == "FS":
@@ -162,34 +162,53 @@ class BMOCZ(MOCZ):
             if ( FLAG == 'CFO' or FLAG == 'FS_CFO'):
                 if len(self.PZ) == 1:
                     # msgRx, rotation_hat = self.singlePZDecodedMsg(sigRx, Q)
-                    sigRxCorrected, rotation_hat = self.rotationEstTemplate(sigRx)
+                    sigRx, rotation_hat = self.rotationEstTemplate(sigRx)
                 else:
                     # in this case only fractional rotation offset FRO is corrected
-                    sigRxCorrected, rotation_hat = self.ffoEstCor(sigRx, Q)
-                sigRx = sigRxCorrected
+                    sigRx, rotation_hat = self.ffoEstCor(sigRx, Q)
             msgRx = self.fftDizet(sigRx, Q)
-
-            mae = np.abs(rotation - rotation_hat) if np.abs(rotation - rotation_hat) < np.pi else 2*np.pi-np.abs(rotation - rotation_hat)
-            rotationEst += mae/rotation
             BER += perParam.ber(msgRx, msgTx)
             PCR += perParam.pcr(msgRx, msgTx)
-            PAPR += self.PAPR(sigTx)
-        return dict({
-            'ber': BER/(noIter*self.K),
-            'pcr': PCR/noIter,
-            'papr': PAPR/noIter,
-            'rotationEst': rotationEst/noIter
-        })
+            if not errorAnalysis:
+                # mae = np.abs(rotation - rotation_hat) if np.abs(rotation - rotation_hat) < np.pi else 2*np.pi-np.abs(rotation - rotation_hat)
+                mae = np.min([np.abs(rotation-rotation_hat), np.abs(rotation - (2*np.pi-rotation_hat))])
+                rotationEst += mae/rotation
+                PAPR += perParam.PAPR(sigTx)
+            else:
+                errorDist[perParam.bitError(msgRx, msgTx)] += 1
+                errorPosition[perParam.errorPos(msgRx, msgTx)] += 1
+        if not errorAnalysis:
+            return dict({
+                # 'ber': BER/(noIter*self.K),
+                'ber': BER/noIter,
+                'pcr': PCR/noIter,
+                'papr': PAPR/noIter,
+                'rotationEst': rotationEst/noIter
+            })
+        else:
+            return dict({
+                'ber': BER/noIter,
+                'pcr': PCR/noIter,
+                'errorDist': errorDist,
+                'errorPosition': errorPosition
+            })
 
-    def simulatorACPC(self, noIter, perParam, ch, acpc, Q=64, FLAG='FS', noiseFlag=True):
-        BER, PCR, PAPR, rotationEst, theta_hat = 0, 0, 0, 0, 0
+        
+
+    def simulatorACPC(self, noIter, perParam, ch, acpc, Energy='None', Q=64, FLAG='FS', noiseFlag=True, errorAnalysis=False):
+        if not errorAnalysis:
+            BER, PCR, PAPR, rotationEst, theta_hat = 0, 0, 0, 0, 0
+        else:
+            BER, PCR = 0, 0
+            errorDist, errorPosition = np.zeros(self.K+2, dtype=int), np.zeros(self.K+1, dtype=int)
+        E = self.K+1 if Energy == 'None' else Energy
         for _ in range(noIter):
             msgTx = np.random.randint(0, 2, acpc.B)
-            msgEnc = acpc.msg_encoding(msgTx)
+            msgEnc = acpc.msgEncoding(msgTx)
 
             sigTx = self.coeffCon(msgEnc)
-            sigPower = np.mean(np.abs(sigTx)**2)
-            sigTx /= np.sqrt(sigPower)
+            l2_norm = np.linalg.norm(sigTx, ord=2) # energy = l2_norm**2
+            sigTx = (sigTx / l2_norm) * np.sqrt(E) 
 
             rotation = np.random.uniform(0, 2*np.pi)
             if FLAG == "FS":
@@ -202,23 +221,35 @@ class BMOCZ(MOCZ):
                 sigRx, _ = ch.frequencySelective(sigTx, noiseFlag, rotation)
 
             if ( FLAG == 'CFO' or FLAG == 'FS_CFO'):
-                sigFROcorrected, theta_hat = self.ffoEstCor(sigRx, Q)
-                sigRx = sigFROcorrected
+                sigRx, theta_hat = self.ffoEstCor(sigRx, Q) 
             estCodeword = self.fftDizet(sigRx, Q)
-            msgRx, l_hat = acpc.codeword_decoding(estCodeword)
+            msgRx, l_hat = acpc.msgDecoding(estCodeword)
             rotation_hat = l_hat * self.theta_K + theta_hat
             BER += perParam.ber(msgRx, msgTx)
             PCR += perParam.pcr(msgRx, msgTx)
-            PAPR += self.PAPR(sigTx)
-            mae = np.min([abs(rotation - rotation_hat), abs(rotation - (2*np.pi - rotation_hat))])
-            # mae = np.abs(rotation - rotation_hat) if np.abs(rotation - rotation_hat) < np.pi else 2*np.pi-np.abs(rotation - rotation_hat)
-            rotationEst += mae/rotation
-        return dict({
-                'ber': BER/(noIter * acpc.B),
+            if not errorAnalysis:
+                # mae = np.abs(rotation - rotation_hat) if np.abs(rotation - rotation_hat) < np.pi else 2*np.pi-np.abs(rotation - rotation_hat)
+                mae = np.min([np.abs(rotation-rotation_hat), np.abs(rotation - (2*np.pi-rotation_hat))])
+                rotationEst += mae/rotation
+                PAPR += perParam.PAPR(sigTx)
+            else:
+                errorDist[perParam.bitError(msgRx, msgTx)] += 1
+                errorPosition[perParam.errorPos(msgRx, msgTx)] += 1
+        if not errorAnalysis:
+            return dict({
+                # 'ber': BER/(noIter * acpc.B),
+                'ber': BER/noIter,
                 'pcr': PCR/noIter,
                 'papr': PAPR/noIter,
                 'rotationEst': rotationEst/noIter
-        })
+            })
+        else:
+            return dict({
+                'ber': BER/noIter,
+                'pcr': PCR/noIter,
+                'errorDist': errorDist,
+                'errorPosition': errorPosition
+            })
 
     def templateCon(self):
         msg = np.ones(self.K, dtype=np.uint8)
@@ -238,3 +269,23 @@ class BMOCZ(MOCZ):
         phi_hat = (2 * np.pi * indx / self.Ns) 
         y_corrected = y @ np.diag( np.exp(-1j * phi_hat * ( np.arange(len(y)) ) ) )
         return y_corrected, abs(phi_hat)
+
+    def transmitterRAP(self, msgTx, ENERGY, acpc='None'):
+    #     if acpc == 'None':
+    #         msgTx = np.random.randint(0, 2, acpc.B)
+    #     else:
+    #         msgTx = np.random.randint(0, 2, self.K)
+        sigTx = self.coeffCon(msgTx) 
+        l2_norm = np.linalg.norm(sigTx, ord=2) 
+        sigTx = (sigTx / l2_norm) * np.sqrt(ENERGY)
+        return sigTx
+
+    def receiverRAP(self, sigRx, CFO=False, acpc='None'):
+        rotation_hat = 0
+        if CFO:
+            sigRx, rotation_hat = self.ffoEstCor(sigRx, self.Q)
+        codeWord = self.fftDizet(sigRx, Q=2) 
+        if acpc != 'None':
+            msgRx, l_hat = acpc.msgDecoding(codeWord)
+            rotation_hat += l_hat * self.theta_K 
+        return codeWord, rotation_hat, sigRx

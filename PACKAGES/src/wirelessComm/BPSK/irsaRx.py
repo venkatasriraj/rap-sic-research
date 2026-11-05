@@ -4,9 +4,9 @@ Designing a class for study of IRSA with BPSK Receiver
 import numpy as np
 from scipy.signal import find_peaks
 
-from .bpskModulation import BPSKBase
+from .differntialPSK import DPSK
 
-class IRSAReceiver(BPSKBase):
+class IRSAReceiver(DPSK):
 
     def __init__(self, accessCode, AC_Threshold=0.7):
         self.accessCode = accessCode

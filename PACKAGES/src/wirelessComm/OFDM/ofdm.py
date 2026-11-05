@@ -81,19 +81,3 @@ class OFDM:
             num += np.conjugate(self.pilotSym) * j
             den += np.conjugate(self.pilotSym) * self.pilotSym
         return num / den
-
-    @staticmethod
-    def bin2dec(binData):
-        if len(binData) == 0:
-            return 0
-        power2 = 2**np.arange(len(binData))[::-1]
-        return int(np.sum(binData * power2))
-
-    @staticmethod
-    def dec2bin(decData):
-        binData = [decData % 2]
-        decData //= 2
-        while decData>0:
-            binData += [decData%2]
-            decData //= 2
-        return np.asarray(binData)[::-1]

@@ -5,9 +5,9 @@ Designing a class for study of IRSA with BPSK Transmitter
 import numpy as np
 import random
 
-from .bpskModulation import BPSKBase
+from .differntialPSK import DPSK
 
-class IRSATransmitter(BPSKBase):
+class IRSATransmitter(DPSK):
 
     def __init__(self, slotLen):
         self.slotLen = slotLen

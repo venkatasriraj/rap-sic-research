@@ -67,40 +67,71 @@ class JBMOCZ(MOCZ):
         return y_corrected, phi_hat # abs(phi_hat)
 
     # JBMOCZ Simulator
-    def simulator(self, noIter, perParam, ch, FLAG="AWGN", noiseFlag=True):
-        BER, PCR, PAPR, rotationEst = 0, 0, 0, 0
-        rotation, rotation_hat = 1e-7, 1e-7
+    def simulator(self, noIter, perParam, ch, Energy='None', FLAG="FS", noiseFlag=True, errorAnalysis=False):
+        if not errorAnalysis:
+            BER, PCR, PAPR, rotationEst, rotation_hat = 0, 0, 0, 0, 1e-7
+        else:
+            BER, PCR = 0, 0
+            errorDist, errorPosition = np.zeros(self.K+2, dtype=int), np.zeros(self.K+1, dtype=int)
+        E = self.K+1 if Energy == 'None' else Energy
+        Q = int( np.ceil( (self.K+ch.taps) / self.K) )
         for _ in range(noIter):
             msgTx = np.random.randint(0, 2, self.K)
             sigTx = self.coeffCon(msgTx)
-            sigPower = np.mean(np.abs(sigTx)**2)
-            sigTx /= np.sqrt(sigPower)
+            l2_norm = np.linalg.norm(sigTx, ord=2) # energy = l2_norm**2
+            sigTx = (sigTx / l2_norm) * np.sqrt(E) 
 
             rotation = np.random.uniform(0, 2*np.pi)
             if FLAG == "FS":
                 sigRx, _ = ch.frequencySelective(sigTx, noiseFlag)
             elif FLAG == "CFO":
                 sigRx = ch.CFO(sigTx, rotation, noiseFlag)
+                # corrected signal
+                sigRx, rotation_hat = self.rotationEst(sigRx)
             elif FLAG == "AWGN":
                 sigRx = ch.awgn(sigTx)
             elif FLAG == "FS_CFO":
                 sigRx, _ = ch.frequencySelective(sigTx, noiseFlag, rotation)
-
-            Q = int( np.ceil(len(sigRx)/self.K) )
-            if FLAG == 'FS_CFO' or FLAG == 'CFO':
-                sigRxCorrected, rotation_hat = self.rotationEst(sigRx)
-                sigRx = sigRxCorrected
+                # corrected signal
+                sigRx, rotation_hat = self.rotationEst(sigRx)
+            # Q = int( np.ceil(len(sigRx)/self.K) )
+            # if FLAG == 'FS_CFO' or FLAG == 'CFO':
+            #     sigRx, rotation_hat = self.rotationEst(sigRx)
             msgRx = self.fftDizet(sigRx, Q)
-
             BER += perParam.ber(msgRx, msgTx)
             PCR += perParam.pcr(msgRx, msgTx)
-            PAPR += self.PAPR(sigTx)
-            mae = np.min([abs(rotation - rotation_hat), abs(rotation - (2*np.pi-rotation_hat))])
-            # mae = np.abs(rotation - rotation_hat) if np.abs(rotation - rotation_hat) < np.pi else 2*np.pi-np.abs(rotation - rotation_hat)
-            rotationEst += mae/rotation
-        return dict({
-                    'ber': BER/(noIter * self.K),
+            if not errorAnalysis:
+                PAPR += perParam.PAPR(sigTx)
+                mae = np.min([abs(rotation - rotation_hat), abs(rotation - (2*np.pi-rotation_hat))])
+                rotationEst += mae/rotation
+            else:
+                errorDist[perParam.bitError(msgRx, msgTx)] += 1
+                errorPosition[perParam.errorPos(msgRx, msgTx)] += 1
+        if not errorAnalysis:
+            return dict({
+                    # 'ber': BER/(noIter * self.K),
+                    'ber': BER/noIter,
                     'pcr': PCR / noIter,
                     'papr': PAPR / noIter,
                     'rotationEst': rotationEst / noIter
-        })
+            })
+        else:
+            return dict({
+                'ber': BER/noIter,
+                'pcr': PCR/noIter,
+                'errorDist': errorDist,
+                'errorPosition': errorPosition
+            })
+
+    def transmitterRAP(self, msgTx, ENERGY):
+        sigTx = self.coeffCon(msgTx)         
+        l2_norm = np.linalg.norm(sigTx, ord=2) 
+        sigTx = (sigTx / l2_norm) * np.sqrt(ENERGY)
+        return sigTx
+
+    def receiverRAP(self, sigRx, CFO=False):
+        rotation_hat = 0
+        if CFO:
+            sigRx, rotation_hat = self.rotationEst(sigRx)
+        msgRx = self.fftDizet(sigRx, Q=2) 
+        return msgRx, rotation_hat    

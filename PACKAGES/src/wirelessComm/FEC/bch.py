@@ -24,7 +24,7 @@ class BCH:
         self.x = galois.Poly.Identity(galois.GF2)
         self.G, self.H = self.matrixCon()
         self.Tsynd = self.conTsyndrome()
-
+# generation of coset by visiting all the unvisited powers of the polynomial variable x
     def conCoset(self):
         coset = {}
         leader = -1
@@ -50,6 +50,9 @@ class BCH:
         factors_m, _ = galois.factors(x_n)
 
         cyclotomic_coset = self.conCoset()
+        # if self.t == 0:
+        #     temp = self.GFm.minimal_poly(primitive_element**0)
+        #     return temp, factors_m
         con_power = np.arange(1, 2*self.t+1)
         g_coset = np.array([], dtype=int)
         for i in con_power:

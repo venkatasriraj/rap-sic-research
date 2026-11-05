@@ -46,13 +46,16 @@ class SBMOCZ(MOCZ):
         msgRx = (1 - np.sign( Y_eval[ind] - Y_ctr_eval[ind])) / 2
         return msgRx
 
-    def simulator(self, noIter, perParam, ch, FLAG="AWGN", noiseFlag=True):
+    def simulator(self, noIter, perParam, ch, Energy='None', FLAG="AWGN", noiseFlag=True):
         BER, PCR, PAPR, rotationEst, rotation_hat = 0, 0, 0, 0, 1e-7
         for _ in range(noIter):
             msgTx = np.random.randint(0, 2, self.K)
             sigTx = self.coeffCon(msgTx)
-            sigPower = np.mean(np.abs(sigTx)**2)
-            sigTx /= np.sqrt(sigPower)
+            # sigPower = np.mean(np.abs(sigTx)**2)
+            # sigTx /= np.sqrt(sigPower)
+            l2_norm = np.linalg.norm(sigTx, ord=2)
+            E = self.K+1 if Energy == 'None' else Energy
+            sigTx = (sigTx / l2_norm) * np.sqrt(E) 
 
             rotation = np.random.uniform(0, 2*np.pi)
             if FLAG == "FS":
@@ -81,3 +84,16 @@ class SBMOCZ(MOCZ):
                 'papr': PAPR/noIter,
                 'rotationEst': rotationEst/noIter
         })
+
+    def transmitterRAP(self, msgTx, ENERGY):
+        sigTx = self.coeffCon(msgTx)         
+        l2_norm = np.linalg.norm(sigTx, ord=2) 
+        sigTx = (sigTx / l2_norm) * np.sqrt(ENERGY)
+        return sigTx
+
+    def receiverRAP(self, sigRx, CFO=False):
+        rotation_hat = 0
+        if CFO:
+            sigRx, rotation_hat = self.rotationEst(sigRx, self.Q)
+        msgRx = self.fftDizet(sigRx, self.Q) 
+        return msgRx, rotation_hat    

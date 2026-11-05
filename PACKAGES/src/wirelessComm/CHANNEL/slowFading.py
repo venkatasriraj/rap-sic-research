@@ -15,13 +15,13 @@ class SlowFadingChannel(Channel):
         return signal + self.awgn_noise(len(signal))
     
     def conRayleigh(self, n):
-        sigma = np.sqrt(self.chVar/2)
-        h = np.sqrt(self.pathLoss) * ( sigma * ( np.random.randn(n) + 1j*np.random.randn(n)) )
+        h = np.sqrt(self.pathLoss * self.chVar/2) * (np.random.randn(n) + 1j*np.random.randn(n))
         return h
 
-    def CFO(self, signal, rotation, noiseFlag=True):
+    def CFO(self, signal, rotation, noiseFlag=True, cfoCount=0):
         # attenuation provided by the channel
-        h = [ np.exp(1j * rotation * i) for i in range(len(signal)) ]
+        # h = [ np.exp(1j * rotation * (i + cfoCount)) for i in range(len(signal)) ]
+        h = np.exp( 1j * rotation * ( np.arange(len(signal)) + cfoCount ) )
         # h = [ np.exp(1j * rotation * i) for i in range(len(signal)-1, -1, -1) ]
         if noiseFlag:
             return (signal + self.awgn_noise(len(signal))) * h
@@ -40,13 +40,13 @@ class SlowFadingChannel(Channel):
 
     def exponentialPDP(self):
         h = np.array([])
-        power = 0
+        energy = 0
         for i in range(self.taps):
             h_i = np.sqrt((self.chVar**i)/2) * ( np.random.randn() + 1j*np.random.randn() )
             h = np.append(h, h_i)
-            power += self.chVar**i
-            # print(self.chVar**i, np.sqrt(power))
-        return h / np.sqrt(power)
+            energy += self.chVar**i
+            # print(self.chVar**i, np.sqrt(energy))
+        return h / np.sqrt(energy)
 
     def frequencySelective(self, signal, noiseFlag=True, rotation=0):
         freqSelCh = self.exponentialPDP()

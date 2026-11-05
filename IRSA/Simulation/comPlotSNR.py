@@ -9,7 +9,7 @@ from wirelessComm import (
     SlowFadingChannel, ChannelEstimation,
     BPSKBase, dbpskSIMULATION
 )
-from wirelessComm.simulator import simulator
+from wirelessComm.simMOCZ import simulator
 
 # Simulation Parameters
 m, n = 100, 100

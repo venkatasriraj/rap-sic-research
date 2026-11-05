@@ -5,8 +5,9 @@ import matplotlib.pyplot as plt
 data_dir = "results/conSim/heuristicsJ/simulation"
 plot_dir = "results/conSim/heuristicsJ/plots"
 
-Lh = 6
+Lh = 1
 FLAG = 'FS_CFO'
+mode = 1
 
 os.makedirs(plot_dir, exist_ok=True)
 
@@ -50,7 +51,7 @@ metrics = {
         'ylim': (-0.01, 1.01)
     },
     'Rotation': {
-        'ylabel': 'NMAE',
+        'ylabel': 'MNAE',
         'scale': 'log',
         'ylim': (1e-4, 1)
     }
@@ -58,7 +59,7 @@ metrics = {
 
 plt.rcParams.update({
     "font.family": "serif",
-    "axes.labelsize": 23,
+    "axes.labelsize": 26,
     "xtick.labelsize": 23,
     "ytick.labelsize": 23,
     "pdf.fonttype": 42,
@@ -72,8 +73,12 @@ for metric, config in metrics.items():
 
     for i, scheme in enumerate(schemes):
 
+        mode = data[scheme]['mode']
+        xlabel = 'SNR_dB' if mode == 0 else 'EbN0_dB'
+        # snr = data[scheme][xlabel]
         snr = data[scheme]['SNR_dB']
         values = data[scheme][metric]
+        # print(data[scheme]['noIter'])
 
         if config['scale'] == 'log':
             plt.semilogy(
@@ -100,8 +105,12 @@ for metric, config in metrics.items():
         plt.ylim(*config['ylim'])
 
     plt.xlim(0, 40)
-    plt.xlabel("SNR (dB)")
-    plt.ylabel(config['ylabel'])
+    if mode == 0:
+        plt.xlabel("SNR (dB)")
+    else:
+        plt.xlabel(r'$E_b / N_0 [dB]$')
+    temp = config['ylabel'] if config['ylabel'] != 'PER' else 'BLER'
+    plt.ylabel(temp)
     plt.grid(True, alpha=0.6, linestyle='--')
     plt.legend(loc='best', framealpha=0.2, fontsize=20)
     plt.tight_layout()
